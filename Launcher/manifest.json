@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T18:13:26.564Z",
+  "generatedAt": "2026-07-13T18:18:56.547Z",
   "entryCount": 164,
   "entries": [
     {
@@ -186,7 +186,7 @@
       "path": "Libraries.MapLibrary",
       "className": "ModuleScript",
       "file": "Libraries/MapLibrary.lua",
-      "version": "3ec9559c85a6"
+      "version": "dbbd3a837d13"
     },
     {
       "path": "Libraries.Region",
@@ -293,7 +293,7 @@
       "path": "Tools.MapSaver",
       "className": "ModuleScript",
       "file": "Tools/MapSaver.lua",
-      "version": "12d3f19567fa"
+      "version": "b8cd3b162c1d"
     },
     {
       "path": "Tools.Material",
@@ -425,7 +425,7 @@
       "path": "UI.MapSaver",
       "className": "ModuleScript",
       "file": "UI/MapSaver/init.lua",
-      "version": "41b3892ee87b"
+      "version": "3da59136fe08"
     },
     {
       "path": "UI.Notifications",

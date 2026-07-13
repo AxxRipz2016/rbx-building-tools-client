@@ -27,6 +27,8 @@ MapSaverTool.ManualText = [[<font face="GothamBlack" size="16">Map Saver  🗺</
 <b>Только мои</b> — части с атрибутом BTUserId (ставятся через кубик).<font size="6"><br /></font>
 <b>Union</b> — галочка включает сохранение Union.<font size="6"><br /></font>
 <b>Автозагрузка</b> — карта грузится при входе на этот place.<font size="6"><br /></font>
+<b>Фильтр place</b> — все карты, только этот place ID, или с других игр.<font size="6"><br /></font>
+<b>Поиск</b> — по имени или place ID; кнопки сортировки и ★ (только автозагрузка).<font size="6"><br /></font>
 <b>Файлы</b> — BT-BuildingTools/maps.]]
 
 local PanelHandle = nil

@@ -562,6 +562,71 @@ function MapLibrary.getAutoLoadMaps(placeId)
 	return result
 end
 
+function MapLibrary.getCurrentPlaceId()
+	return game.PlaceId
+end
+
+function MapLibrary.filterMaps(maps, options)
+	options = options or {}
+	local placeFilter = options.placeFilter or "this_place"
+	local searchQuery = type(options.searchQuery) == "string" and options.searchQuery:lower() or ""
+	local autoLoadOnly = options.autoLoadOnly == true
+	local sortBy = options.sortBy or "newest"
+	local currentPlaceId = MapLibrary.getCurrentPlaceId()
+
+	local result = {}
+	for _, map in ipairs(maps) do
+		local mapPlaceId = tonumber(map.placeId)
+
+		if placeFilter == "this_place" then
+			if mapPlaceId ~= currentPlaceId then
+				continue
+			end
+		elseif placeFilter == "other_places" then
+			if mapPlaceId == currentPlaceId then
+				continue
+			end
+		end
+
+		if searchQuery ~= "" then
+			local mapName = type(map.name) == "string" and map.name:lower() or ""
+			local placeText = mapPlaceId and tostring(mapPlaceId) or ""
+			if not mapName:find(searchQuery, 1, true) and not placeText:find(searchQuery, 1, true) then
+				continue
+			end
+		end
+
+		if autoLoadOnly and not (map.settings and map.settings.autoLoad) then
+			continue
+		end
+
+		table.insert(result, map)
+	end
+
+	table.sort(result, function(a, b)
+		if sortBy == "name" then
+			return (a.name or ""):lower() < (b.name or ""):lower()
+		end
+		if sortBy == "oldest" then
+			return (a.updatedAt or a.createdAt or 0) < (b.updatedAt or b.createdAt or 0)
+		end
+		return (a.updatedAt or a.createdAt or 0) > (b.updatedAt or b.createdAt or 0)
+	end)
+
+	return result
+end
+
+function MapLibrary.formatMapLabel(map, showPlaceId)
+	local label = map.name or "Карта"
+	if map.settings and map.settings.autoLoad then
+		label = "★ " .. label
+	end
+	if showPlaceId and map.placeId then
+		label = string.format("[%s] %s", tostring(map.placeId), label)
+	end
+	return label
+end
+
 function MapLibrary.getStoragePath()
 	return MAP_ROOT
 end
