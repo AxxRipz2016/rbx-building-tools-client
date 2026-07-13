@@ -153,6 +153,7 @@ function LegacyPanelTheme.applyToPanel(panel)
 				descendant.Font = Enum.Font.GothamSemibold
 				descendant.TextColor3 = Theme.textDim
 				descendant.TextStrokeTransparency = 1
+				descendant.ZIndex = 5000
 			else
 				styleTextObject(descendant, isTitle)
 			end

@@ -17,7 +17,7 @@ end
 
 function NotificationDialog:render()
     return new('Frame', {
-        BackgroundColor3 = Theme.panel;
+        BackgroundColor3 = self.props.ThemeColor:Lerp(Color3.new(0, 0, 0), 0.2); -- нужно чтобы ThemeColor но только темнее
         BackgroundTransparency = 0.1;
         BorderSizePixel = 0;
         Size = UDim2.new(1, 0, 0, 22 + 2);
