@@ -222,6 +222,21 @@ function TrackChange()
 
 			-- Send the change request
 			Core.SyncAPI:Invoke('SyncAnchor', Record.Before);
+			for _, Part in ipairs(Record.Parts) do
+				table.insert(Changes, {
+					Part = Part;
+					CFrame = Record.BeforeCFrame[Part];
+				})
+			end
+			for _, Model in ipairs(Record.Models) do
+				table.insert(Changes, {
+					Model = Model;
+					Pivot = Record.BeforeCFrame[Model];
+				})
+			end
+
+			-- Send the change request
+			Core.SyncAPI:Invoke('SyncMove', Changes);
 
 		end;
 
@@ -232,7 +247,20 @@ function TrackChange()
 			Selection.Replace(Record.Selection)
 
 			-- Send the change request
+			for _, Part in ipairs(Record.Parts) do
+				table.insert(Changes, {
+					Part = Part;
+					CFrame = Record.AfterCFrame[Part];
+				})
+			end
+			for _, Model in ipairs(Record.Models) do
+				table.insert(Changes, {
+					Model = Model;
+					Pivot = Record.AfterCFrame[Model];
+				})
+			end
 			Core.SyncAPI:Invoke('SyncAnchor', Record.After);
+			Core.SyncAPI:Invoke('SyncMove', Changes);
 
 		end;
 
@@ -249,7 +277,21 @@ function RegisterChange()
 	end;
 
 	-- Send the change to the server
+	local Changes = {}
+	for _, Part in ipairs(HistoryRecord.Parts) do
+		table.insert(Changes, {
+			Part = Part;
+			CFrame = HistoryRecord.AfterCFrame[Part];
+		})
+	end
+	for _, Model in ipairs(HistoryRecord.Models) do
+		table.insert(Changes, {
+			Model = Model;
+			Pivot = HistoryRecord.AfterCFrame[Model];
+		})
+	end
 	Core.SyncAPI:Invoke('SyncAnchor', HistoryRecord.After);
+	Core.SyncAPI:Invoke('SyncMove', Changes);
 
 	-- Register the record and clear the staging
 	Core.History.Add(HistoryRecord);

@@ -19,7 +19,7 @@ local CONFIG = {
 	user = "AxxRipz2016",
 	repo = "rbx-building-tools-client",
 	branch = "main",
-	toolName = "Building Tools",
+	toolName = "Кубик",
 	toolVersion = "3.1.0-client",
 }
 

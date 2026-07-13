@@ -64,7 +64,7 @@ function Notifications:render()
             UnofficialNotification = (self.state.ShouldWarnAboutUnofficial or nil) and new(NotificationDialog, {
                 LayoutOrder = 0;
                 ThemeColor = Color3.fromRGB(255, 140, 50);
-                NoticeText = 'Это <b>неофициальная</b> версия Building Tools.';
+                NoticeText = 'Это <b><font color="rgb(200, 0, 0)">ПИРАТСКАЯ</font></b> версия кубика (Building Tools).';
                 DetailText = 'Клиентский порт, не оригинал от F3X Team. Возможны баги и ограничения.';
                 OnDismiss = function ()
                     self:setState({
@@ -88,8 +88,8 @@ function Notifications:render()
             HTTPEnabledNotification = (self.state.ShouldWarnAboutHttpService or nil) and new(NotificationDialog, {
                 LayoutOrder = 1;
                 ThemeColor = Color3.fromRGB(255, 0, 4);
-                NoticeText = 'HTTP requests must be <b>enabled</b> for some features of Building Tools to work, including exporting.';
-                DetailText = 'Own this place? Edit it in Studio, and toggle on\nHOME > <b>Game Settings</b> > Security > <b>Allow HTTP Requests</b> :-)';
+                NoticeText = 'HTTP запросы должны быть <b>включены</b> для некоторых функций кубика, включая экспорт.';
+                DetailText = 'Пиздабоство, в чите они не нужны.';
                 OnDismiss = function ()
                     self:setState({
                         ShouldWarnAboutHttpService = false;

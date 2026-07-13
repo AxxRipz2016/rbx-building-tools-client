@@ -43,7 +43,7 @@ function NotificationDialog:render()
             AnchorPoint = Vector2.new(0, 1);
             Position = UDim2.new(0, 0, 1, 0);
             Size = UDim2.new(self.state.ShouldDisplayDetails and 1 or 0.5, 0, 0, 22);
-            Text = 'GOT IT';
+            Text = 'ПОНЯЛ';
             Font = Enum.Font.Gotham;
             TextSize = 10;
             TextColor3 = Theme.text;
@@ -58,7 +58,7 @@ function NotificationDialog:render()
             AnchorPoint = Vector2.new(0, 1);
             Position = UDim2.new(0.5, 0, 1, 0);
             Size = UDim2.new(0.5, 0, 0, 22);
-            Text = 'WHAT CAN I DO?';
+            Text = 'ЧЁ МНЕ ДЕЛАТЬ?';
             Font = Enum.Font.Gotham;
             TextSize = 10;
             TextColor3 = Theme.text;

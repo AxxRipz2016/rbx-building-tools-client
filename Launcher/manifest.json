@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T12:56:59.310Z",
+  "generatedAt": "2026-07-13T13:11:55.810Z",
   "entryCount": 160,
   "entries": [
     {
@@ -257,7 +257,7 @@
       "path": "Tools.Anchor",
       "className": "ModuleScript",
       "file": "Tools/Anchor.lua",
-      "version": "c282f4dd7f11"
+      "version": "dbe4947e498b"
     },
     {
       "path": "Tools.Collision",
@@ -407,7 +407,7 @@
       "path": "UI.Notifications",
       "className": "ModuleScript",
       "file": "UI/Notifications/init.lua",
-      "version": "a76e106d47c2"
+      "version": "de85caa11dba"
     },
     {
       "path": "UI.ScopeHUD",
@@ -575,7 +575,7 @@
       "path": "UI.Notifications.NotificationDialog",
       "className": "ModuleScript",
       "file": "UI/Notifications/NotificationDialog.lua",
-      "version": "dce8ecacd7bf"
+      "version": "f9a743c6d77e"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip",

@@ -103,7 +103,7 @@ function Gui.create()
 		LayoutOrder = 0,
 		Size = UDim2.new(1, 0, 0, 28),
 		Font = Enum.Font.GothamBold,
-		Text = "Building Tools",
+		Text = "ПИРАТСКИЙ КУБИК!",
 		TextSize = 20,
 		TextColor3 = COLORS.accent,
 	})
@@ -111,7 +111,7 @@ function Gui.create()
 	createLabel(root, {
 		LayoutOrder = 1,
 		Size = UDim2.new(1, 0, 0, 32),
-		Text = "Неофициальный клиентский порт · не оригинал F3X",
+		Text = "Пиратский клиентский порт · не оригинал F3X",
 		TextSize = 11,
 		TextColor3 = COLORS.textDim,
 		TextWrapped = true,
