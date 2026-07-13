@@ -50,53 +50,13 @@ local function styleOptionBackground(imageLabel, accent)
 	imageLabel.BackgroundTransparency = 1
 end
 
-local function ensureBackdrop(panel, accent)
-	if panel:FindFirstChild("BTPanelBackdrop") then
-		return
-	end
-
+local function ensurePanelAccent(panel, accent)
 	panel:SetAttribute("BTAccentColor", accent)
 
-	local backdrop = Instance.new("Frame")
-	backdrop.Name = "BTPanelBackdrop"
-	backdrop.Size = UDim2.fromScale(1, 1)
-	backdrop.BackgroundColor3 = Theme.panel
-	backdrop.BackgroundTransparency = Theme.panelTransparency
-	backdrop.BorderSizePixel = 0
-	backdrop.ZIndex = 0
-	backdrop.Parent = panel
-
-	Theme.ensureCorner(backdrop, Theme.cornerRadius)
-	Theme.ensureGradient(backdrop, Theme.panelLight, Theme.background, 105)
-	Theme.accentStroke(backdrop, accent, 0.7)
-
-	local accentLine = Instance.new("Frame")
-	accentLine.Name = "AccentLine"
-	accentLine.AnchorPoint = Vector2.new(0, 0)
-	accentLine.Position = UDim2.new(0, 0, 0, 0)
-	accentLine.Size = UDim2.new(1, 0, 0, 4)
-	accentLine.BackgroundColor3 = accent
-	accentLine.BorderSizePixel = 0
-	accentLine.ZIndex = 1
-	accentLine.Parent = backdrop
-
-	local accentGradient = Instance.new("UIGradient")
-	local gradientOk = pcall(function()
-		accentGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, accent),
-			ColorSequenceKeypoint.new(1, Theme.accentBright),
-		})
-	end)
-	if not gradientOk then
-		accentLine.BackgroundColor3 = accent
-		accentGradient:Destroy()
+	local existingBackdrop = panel:FindFirstChild("BTPanelBackdrop")
+	if existingBackdrop then
+		existingBackdrop:Destroy()
 	end
-	accentGradient.Rotation = 0
-	accentGradient.Parent = accentLine
-
-	local accentCorner = Instance.new("UICorner")
-	accentCorner.CornerRadius = UDim.new(0, Theme.cornerRadius)
-	accentCorner.Parent = accentLine
 end
 
 function LegacyPanelTheme.getAccent(panel)
@@ -109,7 +69,7 @@ function LegacyPanelTheme.applyToPanel(panel)
 	end
 
 	local accent = PANEL_ACCENTS[panel.Name] or Theme.accent
-	ensureBackdrop(panel, accent)
+	ensurePanelAccent(panel, accent)
 
 	for _, descendant in ipairs(panel:GetDescendants()) do
 		if descendant:IsA("Frame") and descendant.Name == "ColorBar" then

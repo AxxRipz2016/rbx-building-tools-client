@@ -2,7 +2,7 @@
 local HandleVisual = {}
 
 local LABEL_TEXT = "пиратский куб"
-local CUBE_SIZE = Vector3.new(1.1, 1.1, 1.1)
+local CUBE_SIZE = Vector3.new(1, 1, 1)
 
 local function createFaceLabel(handle, face, name)
 	local existing = handle:FindFirstChild(name)
@@ -48,7 +48,7 @@ function HandleVisual.apply(tool)
 	handle.CanCollide = false
 	handle.Massless = true
 	handle.CastShadow = false
-	handle.Material = Enum.Material.Neon
+	handle.Material = Enum.Material.SmoothPlastic
 
 	if not handle.BrickColor or handle.BrickColor == BrickColor.new("Medium stone grey") then
 		handle.BrickColor = BrickColor.new("Deep orange")
@@ -56,9 +56,6 @@ function HandleVisual.apply(tool)
 
 	createFaceLabel(handle, Enum.NormalId.Top, "BTHandleLabelTop")
 	createFaceLabel(handle, Enum.NormalId.Front, "BTHandleLabelFront")
-
-	-- Куб в ладони, слегка развёрнут к камере
-	tool.Grip = CFrame.new(0, -0.35, 0.12) * CFrame.Angles(math.rad(12), math.rad(28), 0)
 end
 
 return HandleVisual

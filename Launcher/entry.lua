@@ -1,7 +1,7 @@
 -- Однострочник для executor (подставь свой GitHub user/repo/branch):
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/AxxRipz2016/rbx-building-tools-client/main/Launcher/launcher.lua?v=20260713n", true))()
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/AxxRipz2016/rbx-building-tools-client/main/Launcher/launcher.lua?v=20260713s", true))()
 
-local LAUNCHER_URL = "https://raw.githubusercontent.com/AxxRipz2016/rbx-building-tools-client/main/Launcher/launcher.lua?v=20260713r"
+local LAUNCHER_URL = "https://raw.githubusercontent.com/AxxRipz2016/rbx-building-tools-client/main/Launcher/launcher.lua?v=20260713s"
 
 local function httpGet(url)
 	if game.HttpGet then
