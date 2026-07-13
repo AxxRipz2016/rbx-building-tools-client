@@ -307,6 +307,60 @@ local function writeCacheFile(relativePath, content)
 	pcall(writefile, cachePath, content)
 end
 
+local function deleteCacheTree(path)
+	if typeof(delfolder) == "function" then
+		pcall(delfolder, path)
+		return
+	end
+
+	if typeof(listfiles) ~= "function" or typeof(delfile) ~= "function" then
+		return
+	end
+
+	local ok, entries = pcall(listfiles, path)
+	if not ok or type(entries) ~= "table" then
+		return
+	end
+
+	for _, entry in ipairs(entries) do
+		local childPath = if entry:find("/", 1, true) then entry else (path .. "/" .. entry)
+		if typeof(isfolder) == "function" and isfolder(childPath) then
+			deleteCacheTree(childPath)
+		else
+			pcall(delfile, childPath)
+		end
+	end
+
+	if typeof(delfolder) == "function" then
+		pcall(delfolder, path)
+	end
+end
+
+local function purgeStaleCache()
+	if not hasFileApi() or typeof(listfiles) ~= "function" then
+		return
+	end
+
+	ensureFolder(CACHE_ROOT)
+
+	local ok, entries = pcall(listfiles, CACHE_ROOT)
+	if not ok or type(entries) ~= "table" then
+		return
+	end
+
+	for _, entry in ipairs(entries) do
+		local versionName = if entry:find("/", 1, true) then entry:match("([^/]+)$") else entry
+		if versionName ~= CACHE_BUST then
+			local versionPath = CACHE_ROOT .. "/" .. versionName
+			if typeof(isfolder) ~= "function" or isfolder(versionPath) then
+				deleteCacheTree(versionPath)
+			elseif typeof(delfile) == "function" and isfile(versionPath) then
+				pcall(delfile, versionPath)
+			end
+		end
+	end
+end
+
 local function httpGet(url)
 	local ok, result = pcall(function()
 		if game.HttpGet then
@@ -603,6 +657,8 @@ local function main()
 	gui = loadGui()
 	gui.setStatus("Инициализация…")
 	gui.setProgress(0, 1)
+
+	purgeStaleCache()
 
 	local ok, result = pcall(function()
 		downloadedFiles = 0
