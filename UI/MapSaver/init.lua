@@ -43,7 +43,6 @@ function MapSaverPanel:getFilteredMaps()
 end
 
 function MapSaverPanel:init()
-	self.viewportRef = Roact.createRef()
 	self:setState({
 		maps = MapLibrary.list(),
 		selectedId = nil,
@@ -98,10 +97,6 @@ function MapSaverPanel:updateListFilters(patch)
 		maps = filtered,
 		selectedId = selectedStillVisible and selectedId or nil,
 	})
-
-	if not selectedStillVisible then
-		self:updatePreview(nil)
-	end
 end
 
 function MapSaverPanel:updateSettings(patch)
@@ -115,43 +110,6 @@ function MapSaverPanel:updateSettings(patch)
 	end
 end
 
-function MapSaverPanel:updatePreview(mapId)
-	local viewport = self.viewportRef.current
-	if not viewport then
-		return
-	end
-
-	for _, child in ipairs(viewport:GetChildren()) do
-		if child:IsA("WorldModel") or child:IsA("Camera") then
-			child:Destroy()
-		end
-	end
-
-	if not mapId then
-		return
-	end
-
-	local map = MapLibrary.find(mapId)
-	if not map then
-		return
-	end
-
-	local world = Instance.new("WorldModel")
-	world.Name = "PreviewWorld"
-	world.Parent = viewport
-
-	local roots = MapLibrary.inflate(map)
-	for _, item in ipairs(roots) do
-		item.Parent = world
-	end
-
-	local parts = MapLibrary.getPartsFromRoots(roots)
-	local camera = Instance.new("Camera")
-	camera.Parent = viewport
-	viewport.CurrentCamera = camera
-	MapLibrary.focusCameraOnParts(camera, parts)
-end
-
 function MapSaverPanel:selectMap(mapId, status)
 	self:setState({
 		selectedId = mapId,
@@ -160,7 +118,6 @@ function MapSaverPanel:selectMap(mapId, status)
 	if self.props.OnSelectMap then
 		self.props.OnSelectMap(mapId)
 	end
-	self:updatePreview(mapId)
 end
 
 function MapSaverPanel:didMount()
@@ -168,14 +125,6 @@ function MapSaverPanel:didMount()
 	self:setState({ maps = filtered })
 	if #filtered > 0 and not self.state.selectedId then
 		self:selectMap(filtered[1].id, "Выбрана: " .. filtered[1].name)
-	else
-		self:updatePreview(self.state.selectedId)
-	end
-end
-
-function MapSaverPanel:didUpdate(previousProps, previousState)
-	if previousState.selectedId ~= self.state.selectedId then
-		self:updatePreview(self.state.selectedId)
 	end
 end
 
@@ -379,23 +328,8 @@ function MapSaverPanel:render()
 				self:updateSettings({ anchoredOnLoad = not self.state.settings.anchoredOnLoad })
 			end),
 		}),
-		Viewport = new("ViewportFrame", {
-			[Roact.Ref] = self.viewportRef,
-			LayoutOrder = 5,
-			Size = UDim2.new(1, 0, 0, 72),
-			BackgroundColor3 = Theme.background,
-			BackgroundTransparency = 0.1,
-			BorderSizePixel = 0,
-			Ambient = Color3.fromRGB(180, 180, 190),
-			LightColor = Color3.fromRGB(255, 255, 255),
-			LightDirection = Vector3.new(-1, -1, -1),
-		}, {
-			Corner = new("UICorner", {
-				CornerRadius = UDim.new(0, Theme.cornerRadiusSm),
-			}),
-		}),
 		PlaceFilterRow = new("Frame", {
-			LayoutOrder = 6,
+			LayoutOrder = 5,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 22),
 		}, SupportMerge(placeFilterButtons, {
@@ -406,7 +340,7 @@ function MapSaverPanel:render()
 			}),
 		})),
 		SearchRow = new("Frame", {
-			LayoutOrder = 7,
+			LayoutOrder = 6,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 22),
 		}, {
@@ -479,8 +413,8 @@ function MapSaverPanel:render()
 			}),
 		}),
 		List = new("ScrollingFrame", {
-			LayoutOrder = 8,
-			Size = UDim2.new(1, 0, 0, 58),
+			LayoutOrder = 7,
+			Size = UDim2.new(1, 0, 0, 140),
 			BackgroundColor3 = Theme.background,
 			BackgroundTransparency = 0.2,
 			BorderSizePixel = 0,
