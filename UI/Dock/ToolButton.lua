@@ -4,6 +4,7 @@ local TextService = game:GetService('TextService')
 
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
+local Theme = require(script.Parent.Parent:WaitForChild('Theme'))
 local new = Roact.createElement
 
 -- Create component
@@ -29,9 +30,10 @@ function ToolButton:UpdateHotkeyTextSize(Text)
 end
 
 function ToolButton:render()
+    local isSelected = self.props.CurrentTool == self.props.Tool
     return new('ImageButton', {
-        BackgroundColor3 = self.props.Tool.Color.Color;
-        BackgroundTransparency = (self.props.CurrentTool == self.props.Tool) and 0 or 1;
+        BackgroundColor3 = isSelected and self.props.Tool.Color.Color or Theme.surface;
+        BackgroundTransparency = isSelected and 0.15 or 0.55;
         BorderSizePixel = 0;
         Image = self.props.IconAssetId;
         AutoButtonColor = false;
@@ -40,15 +42,24 @@ function ToolButton:render()
         end;
     }, {
         Corners = new('UICorner', {
-            CornerRadius = UDim.new(0, 3);
+            CornerRadius = UDim.new(0, Theme.cornerRadiusSm);
+        });
+        Stroke = isSelected and new('UIStroke', {
+            Color = self.props.Tool.Color.Color;
+            Thickness = 2;
+            Transparency = 0.1;
+        }) or new('UIStroke', {
+            Color = Theme.border;
+            Thickness = 1;
+            Transparency = 0.55;
         });
         Hotkey = new('TextLabel', {
             BackgroundTransparency = 1;
             Position = UDim2.new(0, 3, 0, 3);
             Size = UDim2.fromOffset(self.HotkeyTextSize.X, self.HotkeyTextSize.Y);
-            Font = Enum.Font.Gotham;
+            Font = Enum.Font.GothamSemibold;
             Text = self.props.HotkeyLabel;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextColor3 = Theme.text;
             TextSize = 9;
             TextXAlignment = Enum.TextXAlignment.Left;
             TextYAlignment = Enum.TextYAlignment.Top;

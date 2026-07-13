@@ -4,6 +4,7 @@ local TextService = game:GetService('TextService')
 
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
+local Theme = require(script.Parent.Parent:WaitForChild('Theme'))
 local new = Roact.createElement
 
 -- Create component
@@ -32,21 +33,26 @@ end
 function Tooltip:render()
     return new('Frame', {
         AnchorPoint = Vector2.new(0.5, 0);
-        BackgroundColor3 = Color3.fromRGB(58, 58, 58);
-        BackgroundTransparency = 0;
+        BackgroundColor3 = Theme.surface;
+        BackgroundTransparency = 0.05;
         BorderSizePixel = 0;
-        Position = UDim2.new(0.5, 0, 1, 2);
-        Size = UDim2.fromOffset(self.TextBounds.X + 20, self.TextBounds.Y + 8);
+        Position = UDim2.new(0.5, 0, 1, 4);
+        Size = UDim2.fromOffset(self.TextBounds.X + 20, self.TextBounds.Y + 10);
         ZIndex = 2;
         Visible = self.props.IsVisible;
     }, {
         Corners = new('UICorner', {
-            CornerRadius = UDim.new(0, 3);
+            CornerRadius = UDim.new(0, Theme.cornerRadiusSm);
+        });
+        Stroke = new('UIStroke', {
+            Color = Theme.border;
+            Thickness = 1;
+            Transparency = 0.35;
         });
         Arrow = new('Frame', {
             AnchorPoint = Vector2.new(0.5, 0.5);
-            BackgroundColor3 = Color3.fromRGB(58, 58, 58);
-            BackgroundTransparency = 0;
+            BackgroundColor3 = Theme.surface;
+            BackgroundTransparency = 0.05;
             BorderSizePixel = 0;
             Position = UDim2.new(0.5, 0, 0, 0);
             Size = UDim2.new(0, 6, 0, 6);
@@ -56,10 +62,10 @@ function Tooltip:render()
             BackgroundTransparency = 1;
             Size = UDim2.new(1, 0, 1, 0);
             ZIndex = 2;
-            Font = Enum.Font.Gotham;
+            Font = Enum.Font.GothamMedium;
             RichText = true;
             Text = self.props.Text;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextColor3 = Theme.text;
             TextSize = 10;
             TextXAlignment = Enum.TextXAlignment.Center;
             TextYAlignment = Enum.TextYAlignment.Center;

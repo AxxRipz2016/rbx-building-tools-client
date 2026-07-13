@@ -11,6 +11,7 @@ local Interfaces = Tool:WaitForChild 'Interfaces';
 if not Interfaces:FindFirstChild 'BTMoveToolGUI' then
 	require(Interfaces:WaitForChild 'BuildInterfaces');
 end;
+require(Tool.UI:WaitForChild 'LegacyPanelTheme').applyAll(Interfaces);
 
 -- Initialize the core
 local Core = require(Tool:WaitForChild 'Core');

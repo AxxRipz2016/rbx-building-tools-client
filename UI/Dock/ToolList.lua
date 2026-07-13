@@ -5,6 +5,7 @@ local Libraries = Root:WaitForChild('Libraries')
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
 local Maid = require(Libraries:WaitForChild('Maid'))
+local Theme = require(script.Parent.Parent:WaitForChild('Theme'))
 
 -- Roact
 local new = Roact.createElement
@@ -31,8 +32,8 @@ end
 function ToolList:render()
     local Children = {
         Layout = new('UIGridLayout', {
-            CellPadding = UDim2.new(0, 0, 0, 0);
-            CellSize = UDim2.new(0, 35, 0, 35);
+            CellPadding = UDim2.new(0, 2, 0, 2);
+            CellSize = UDim2.new(0, 34, 0, 34);
             FillDirection = Enum.FillDirection.Horizontal;
             FillDirectionMaxCells = 2;
             HorizontalAlignment = Enum.HorizontalAlignment.Left;
@@ -62,8 +63,8 @@ function ToolList:render()
     end
 
     return new('Frame', {
-        BackgroundTransparency = 0.8;
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+        BackgroundTransparency = Theme.dockTransparency;
+        BackgroundColor3 = Theme.panel;
         BorderSizePixel = 0;
         LayoutOrder = self.props.LayoutOrder;
         Size = self.CanvasSize:map(function (CanvasSize)
@@ -71,7 +72,12 @@ function ToolList:render()
         end);
     }, {
         Corners = new('UICorner', {
-            CornerRadius = UDim.new(0, 3);
+            CornerRadius = UDim.new(0, Theme.cornerRadius);
+        });
+        Stroke = new('UIStroke', {
+            Color = Theme.border;
+            Thickness = 1;
+            Transparency = 0.4;
         });
         SizeConstraint = new('UISizeConstraint', {
             MinSize = Vector2.new(70, 0);
@@ -81,9 +87,9 @@ function ToolList:render()
             BorderSizePixel = 0;
             Size = UDim2.new(1, 0, 1, 0);
             CanvasSize = self.CanvasSize;
-            ScrollBarThickness = 1;
+            ScrollBarThickness = 3;
             ScrollingDirection = Enum.ScrollingDirection.Y;
-            ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0);
+            ScrollBarImageColor3 = Theme.accent;
             [Roact.Children] = Children;
         });
     })

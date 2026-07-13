@@ -27,7 +27,7 @@ function Dock:render()
         ZIndex = 0;
     }, {
         Layout = new('UIListLayout', {
-            Padding = UDim.new(0, 1);
+            Padding = UDim.new(0, 6);
             FillDirection = Enum.FillDirection.Vertical;
             HorizontalAlignment = Enum.HorizontalAlignment.Left;
             VerticalAlignment = Enum.VerticalAlignment.Top;

@@ -3,6 +3,7 @@ local Vendor = Root:WaitForChild('Vendor')
 
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
+local Theme = require(script.Parent:WaitForChild('Theme'))
 local new = Roact.createElement
 
 -- Create component
@@ -16,20 +17,28 @@ end
 
 function NotificationDialog:render()
     return new('Frame', {
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-        BackgroundTransparency = 0.7;
+        BackgroundColor3 = Theme.panel;
+        BackgroundTransparency = 0.1;
         BorderSizePixel = 0;
         Size = UDim2.new(1, 0, 0, 22 + 2);
         LayoutOrder = self.props.LayoutOrder;
     }, {
+        Corners = new('UICorner', {
+            CornerRadius = UDim.new(0, Theme.cornerRadiusSm);
+        });
+        Stroke = new('UIStroke', {
+            Color = Theme.border;
+            Thickness = 1;
+            Transparency = 0.45;
+        });
         ColorBar = new('Frame', {
             BorderSizePixel = 0;
             BackgroundColor3 = self.props.ThemeColor;
             Size = UDim2.new(1, 0, 0, 2);
         });
         OKButton = new('TextButton', {
-            BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-            BackgroundTransparency = 0.8;
+            BackgroundColor3 = Theme.surface;
+            BackgroundTransparency = 0.15;
             BorderSizePixel = 0;
             AnchorPoint = Vector2.new(0, 1);
             Position = UDim2.new(0, 0, 1, 0);
@@ -37,14 +46,14 @@ function NotificationDialog:render()
             Text = 'GOT IT';
             Font = Enum.Font.Gotham;
             TextSize = 10;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextColor3 = Theme.text;
             [Roact.Event.Activated] = function (rbx)
                 self.props.OnDismiss()
             end;
         });
         DetailsButton = (not self.state.ShouldDisplayDetails or nil) and new('TextButton', {
-            BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-            BackgroundTransparency = 0.8;
+            BackgroundColor3 = Theme.surface;
+            BackgroundTransparency = 0.15;
             BorderSizePixel = 0;
             AnchorPoint = Vector2.new(0, 1);
             Position = UDim2.new(0.5, 0, 1, 0);
@@ -52,7 +61,7 @@ function NotificationDialog:render()
             Text = 'WHAT CAN I DO?';
             Font = Enum.Font.Gotham;
             TextSize = 10;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextColor3 = Theme.text;
             [Roact.Event.Activated] = function (rbx)
                 self:setState({
                     ShouldDisplayDetails = true;
@@ -60,8 +69,8 @@ function NotificationDialog:render()
             end;
         });
         ButtonDivider = (not self.state.ShouldDisplayDetails or nil) and new('Frame', {
-            BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-            BackgroundTransparency = 0.75;
+            BackgroundColor3 = Theme.border;
+            BackgroundTransparency = 0.2;
             BorderSizePixel = 0;
             Position = UDim2.new(0.5, 0, 1, 0);
             AnchorPoint = Vector2.new(0.5, 1);
@@ -74,7 +83,7 @@ function NotificationDialog:render()
             TextWrapped = true;
             RichText = true;
             Font = Enum.Font.GothamSemibold;
-            TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextColor3 = Theme.text;
             TextSize = 11;
             TextStrokeTransparency = 0.9;
             LineHeight = 1;

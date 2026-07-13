@@ -8,6 +8,7 @@ local GuiService = game:GetService('GuiService')
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
 local Maid = require(Libraries:WaitForChild('Maid'))
+local Theme = require(script.Parent.Parent:WaitForChild('Theme'))
 
 -- Roact
 local new = Roact.createElement
@@ -45,8 +46,8 @@ end
 function AboutPane:render()
     return new('ImageButton', {
         Image = '';
-        BackgroundTransparency = 0.75;
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+        BackgroundTransparency = Theme.dockTransparency;
+        BackgroundColor3 = Theme.panel;
         LayoutOrder = self.props.LayoutOrder;
         Size = UDim2.new(1, 0, 0, 32);
         [Roact.Event.Activated] = function (rbx)
@@ -87,7 +88,12 @@ function AboutPane:render()
         end;
     }, {
         Corners = new('UICorner', {
-            CornerRadius = UDim.new(0, 3);
+            CornerRadius = UDim.new(0, Theme.cornerRadius);
+        });
+        Stroke = new('UIStroke', {
+            Color = Theme.border;
+            Thickness = 1;
+            Transparency = 0.4;
         });
         Signature = new('ImageLabel', {
             AnchorPoint = Vector2.new(0, 0.5);
@@ -113,7 +119,7 @@ function AboutPane:render()
         }, {
             ManualWindow = (self.state.IsManualOpen or nil) and new(ToolManualWindow, {
                 Text = MANUAL_CONTENT;
-                ThemeColor = Color3.fromRGB(255, 176, 0);
+                ThemeColor = Theme.accent;
             });
         });
     })
