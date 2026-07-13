@@ -1005,7 +1005,7 @@ function ToggleSwitch(CurrentButtonName, SwitchContainer)
 
 			local Label = Button:FindFirstChild('Label');
 			if Label then
-				Label.TextColor3 = Theme.textDim;
+				Label.TextColor3 = Theme.text;
 				Label.Font = Enum.Font.GothamMedium;
 			end
 

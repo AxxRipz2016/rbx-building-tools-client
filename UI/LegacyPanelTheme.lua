@@ -111,7 +111,7 @@ function LegacyPanelTheme.applyToPanel(panel)
 				and parent.Parent and parent.Parent.Name:match("Option")
 			if isOptionLabel then
 				descendant.Font = Enum.Font.GothamSemibold
-				descendant.TextColor3 = Theme.textDim
+				descendant.TextColor3 = Theme.text
 				descendant.TextStrokeTransparency = 1
 				descendant.ZIndex = 5000
 			else
@@ -119,10 +119,12 @@ function LegacyPanelTheme.applyToPanel(panel)
 			end
 		elseif descendant:IsA("TextButton") then
 			styleTextObject(descendant, false)
+			descendant.ZIndex = 5000
 		elseif descendant:IsA("TextBox") then
 			styleTextObject(descendant, false)
 			descendant.PlaceholderColor3 = Theme.textDim
 			descendant.TextColor3 = Theme.text
+			descendant.ZIndex = 5000
 		end
 	end
 

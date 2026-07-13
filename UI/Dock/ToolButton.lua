@@ -61,11 +61,11 @@ function ToolButton:render()
             Transparency = isSelected and 0.05 or 0.45;
         });
         HotkeyBadge = new('Frame', {
-            BackgroundColor3 = isSelected and Color3.new(0, 0, 0) or Theme.panel;
-            BackgroundTransparency = isSelected and 0.45 or 0.2;
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+            BackgroundTransparency = isSelected and 0.35 or 0.55;
             Position = UDim2.new(0, 2, 0, 2);
             Size = UDim2.fromOffset(self.HotkeyTextSize.X + 6, self.HotkeyTextSize.Y + 2);
-            ZIndex = 2;
+            ZIndex = 3;
         }, {
             Corners = new('UICorner', {
                 CornerRadius = UDim.new(0, 4);
@@ -75,8 +75,11 @@ function ToolButton:render()
                 Size = UDim2.fromScale(1, 1);
                 Font = Enum.Font.GothamBold;
                 Text = self.props.HotkeyLabel;
-                TextColor3 = isSelected and Theme.text or Theme.textDim;
+                TextColor3 = Color3.fromRGB(255, 255, 255);
+                TextStrokeColor3 = Color3.fromRGB(0, 0, 0);
+                TextStrokeTransparency = 0.4;
                 TextSize = 9;
+                ZIndex = 4;
                 TextXAlignment = Enum.TextXAlignment.Center;
                 TextYAlignment = Enum.TextYAlignment.Center;
             });

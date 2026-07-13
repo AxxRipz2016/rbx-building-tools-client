@@ -81,7 +81,10 @@ function Dropdown:render()
             Font = Enum.Font.GothamBold;
             Text = self.props.CurrentOption or '*';
             TextColor3 = Color3.fromRGB(255, 255, 255);
+            TextStrokeColor3 = Color3.fromRGB(0, 0, 0);
+            TextStrokeTransparency = 0.5;
             TextSize = 10;
+            ZIndex = 2;
             TextXAlignment = Enum.TextXAlignment.Left;
             TextYAlignment = Enum.TextYAlignment.Center;
             Position = UDim2.new(0, 6, 0, 0);
