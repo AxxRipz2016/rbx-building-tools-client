@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713g"
+local CACHE_BUST = "20260713h"
 
 local ModuleCache = {}
 
@@ -119,11 +119,7 @@ local function createModuleEnvironment(moduleScript, btRequire)
 
 	env.newproxy = function(addMeta)
 		local mt = {}
-		local proxy = setmetatable({}, mt)
-		if addMeta then
-			mt.__metatable = false
-		end
-		return proxy
+		return setmetatable({}, mt)
 	end
 
 	function env.getfenv(_level)
@@ -188,13 +184,8 @@ local function installCompat()
 	end
 
 	if newproxy == nil then
-		_G.newproxy = function(addMeta)
-			local mt = {}
-			local proxy = setmetatable({}, mt)
-			if addMeta then
-				mt.__metatable = false
-			end
-			return proxy
+		_G.newproxy = function(_addMeta)
+			return setmetatable({}, {})
 		end
 	end
 

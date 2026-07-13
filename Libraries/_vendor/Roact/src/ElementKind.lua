@@ -12,8 +12,7 @@ local Symbol = require(script.Parent.Symbol)
 local strict = require(script.Parent.strict)
 local Portal = require(script.Parent.Portal)
 
-local ElementKind = newproxy(true)
-
+local ElementKind = {}
 local ElementKindInternal = {
 	Portal = Symbol.named("Portal"),
 	Host = Symbol.named("Host"),
@@ -44,7 +43,9 @@ function ElementKindInternal.fromComponent(component)
 	end
 end
 
-getmetatable(ElementKind).__index = ElementKindInternal
+setmetatable(ElementKind, {
+	__index = ElementKindInternal,
+})
 
 strict(ElementKindInternal, "ElementKind")
 

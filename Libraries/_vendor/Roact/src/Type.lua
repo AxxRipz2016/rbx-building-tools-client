@@ -12,8 +12,7 @@
 local Symbol = require(script.Parent.Symbol)
 local strict = require(script.Parent.strict)
 
-local Type = newproxy(true)
-
+local Type = {}
 local TypeInternal = {}
 
 local function addType(name)
@@ -37,11 +36,12 @@ function TypeInternal.of(value)
 	return value[Type]
 end
 
-getmetatable(Type).__index = TypeInternal
-
-getmetatable(Type).__tostring = function()
-	return "RoactType"
-end
+setmetatable(Type, {
+	__index = TypeInternal,
+	__tostring = function()
+		return "RoactType"
+	end,
+})
 
 strict(TypeInternal, "Type")
 
