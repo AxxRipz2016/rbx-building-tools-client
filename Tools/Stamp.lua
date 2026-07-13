@@ -63,7 +63,6 @@ local function placeSelectedStamp()
 		return
 	end
 
-	local parts = StampLibrary.getPartsFromRoots(created)
 	local HistoryRecord = {
 		Clones = created,
 
@@ -74,12 +73,11 @@ local function placeSelectedStamp()
 
 		Apply = function(record)
 			Core.SyncAPI:Invoke("UndoRemove", record.Clones)
-			Selection.Replace(record.Clones)
 		end,
 	}
 
 	Core.History.Add(HistoryRecord)
-	Selection.Replace(parts)
+	Selection.Clear(false)
 end
 
 local function enablePlacement()

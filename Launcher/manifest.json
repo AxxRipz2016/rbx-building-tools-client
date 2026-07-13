@@ -6,13 +6,14 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T11:32:44.032Z",
+  "generatedAt": "2026-07-13T12:34:33.422Z",
   "entryCount": 160,
   "entries": [
     {
       "path": "Assets",
       "className": "ModuleScript",
-      "file": "Support/Assets.lua"
+      "file": "Support/Assets.lua",
+      "version": "aba097a3fd53"
     },
     {
       "path": "AutoUpdate",
@@ -22,7 +23,8 @@
     {
       "path": "Core",
       "className": "ModuleScript",
-      "file": "Core/init.lua"
+      "file": "Core/init.lua",
+      "version": "69259c2d13a5"
     },
     {
       "path": "Handle",
@@ -54,7 +56,8 @@
     {
       "path": "Loader",
       "className": "ModuleScript",
-      "file": "Loader/init.lua"
+      "file": "Loader/init.lua",
+      "version": "3c1eae0f687d"
     },
     {
       "path": "SyncAPI",
@@ -80,122 +83,146 @@
     {
       "path": "Core.BoundingBox",
       "className": "ModuleScript",
-      "file": "Core/BoundingBox.lua"
+      "file": "Core/BoundingBox.lua",
+      "version": "bb62acd16307"
     },
     {
       "path": "Core.HandleVisual",
       "className": "ModuleScript",
-      "file": "Core/HandleVisual.lua"
+      "file": "Core/HandleVisual.lua",
+      "version": "9e93687456cd"
     },
     {
       "path": "Core.History",
       "className": "ModuleScript",
-      "file": "Core/History.lua"
+      "file": "Core/History.lua",
+      "version": "407ae3276f78"
     },
     {
       "path": "Core.ListenForManualWindowTrigger",
       "className": "ModuleScript",
-      "file": "Core/ListenForManualWindowTrigger.lua"
+      "file": "Core/ListenForManualWindowTrigger.lua",
+      "version": "099e8e4a6b78"
     },
     {
       "path": "Core.Security",
       "className": "ModuleScript",
-      "file": "Core/Security.lua"
+      "file": "Core/Security.lua",
+      "version": "0fc2461a8de3"
     },
     {
       "path": "Core.Selection",
       "className": "ModuleScript",
-      "file": "Core/Selection.lua"
+      "file": "Core/Selection.lua",
+      "version": "efb2c2fd29ac"
     },
     {
       "path": "Core.Snapping",
       "className": "ModuleScript",
-      "file": "Core/Snapping.lua"
+      "file": "Core/Snapping.lua",
+      "version": "d64de90ab4f5"
     },
     {
       "path": "Core.Targeting",
       "className": "ModuleScript",
-      "file": "Core/Targeting.lua"
+      "file": "Core/Targeting.lua",
+      "version": "e0c4be2c7c42"
     },
     {
       "path": "Interfaces.BuildInterfaces",
       "className": "ModuleScript",
-      "file": "Interfaces/BuildInterfaces.lua"
+      "file": "Interfaces/BuildInterfaces.lua",
+      "version": "2780410e7366"
     },
     {
       "path": "Libraries.ArcHandles",
       "className": "ModuleScript",
-      "file": "Libraries/ArcHandles.lua"
+      "file": "Libraries/ArcHandles.lua",
+      "version": "91d849c98d71"
     },
     {
       "path": "Libraries.Cryo",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/init.lua"
+      "file": "Libraries/Cryo/init.lua",
+      "version": "c0c1bab0c41e"
     },
     {
       "path": "Libraries.Debug",
       "className": "ModuleScript",
-      "file": "Libraries/Debug/init.lua"
+      "file": "Libraries/Debug/init.lua",
+      "version": "32ce09bcd647"
     },
     {
       "path": "Libraries.fastSpawn",
       "className": "ModuleScript",
-      "file": "Libraries/fastSpawn.lua"
+      "file": "Libraries/fastSpawn.lua",
+      "version": "3b2c17cc56b2"
     },
     {
       "path": "Libraries.Handles",
       "className": "ModuleScript",
-      "file": "Libraries/Handles.lua"
+      "file": "Libraries/Handles.lua",
+      "version": "6cc170f464e4"
     },
     {
       "path": "Libraries.InstancePool",
       "className": "ModuleScript",
-      "file": "Libraries/InstancePool.lua"
+      "file": "Libraries/InstancePool.lua",
+      "version": "ca7449448dd9"
     },
     {
       "path": "Libraries.Maid",
       "className": "ModuleScript",
-      "file": "Libraries/Maid.lua"
+      "file": "Libraries/Maid.lua",
+      "version": "71f82b2c8298"
     },
     {
       "path": "Libraries.Make",
       "className": "ModuleScript",
-      "file": "Libraries/Make.lua"
+      "file": "Libraries/Make.lua",
+      "version": "f6e6e7d91090"
     },
     {
       "path": "Libraries.Region",
       "className": "ModuleScript",
-      "file": "Libraries/Region.lua"
+      "file": "Libraries/Region.lua",
+      "version": "1efc24271e28"
     },
     {
       "path": "Libraries.SerializationV2",
       "className": "ModuleScript",
-      "file": "Libraries/SerializationV2.lua"
+      "file": "Libraries/SerializationV2.lua",
+      "version": "0cf52976ef4f"
     },
     {
       "path": "Libraries.SerializationV3",
       "className": "ModuleScript",
-      "file": "Libraries/SerializationV3.lua"
+      "file": "Libraries/SerializationV3.lua",
+      "version": "5ce215f7ecfb"
     },
     {
       "path": "Libraries.Signal",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/GoodSignal.lua"
+      "file": "Libraries/_vendor/GoodSignal.lua",
+      "version": "09ccf2f72bd5"
     },
     {
       "path": "Libraries.StampLibrary",
       "className": "ModuleScript",
-      "file": "Libraries/StampLibrary.lua"
+      "file": "Libraries/StampLibrary.lua",
+      "version": "cee41595a689"
     },
     {
       "path": "Libraries.SupportLibrary",
       "className": "ModuleScript",
-      "file": "Libraries/SupportLibrary.lua"
+      "file": "Libraries/SupportLibrary.lua",
+      "version": "8d53cc8ea39c"
     },
     {
       "path": "Libraries.Try",
       "className": "ModuleScript",
-      "file": "Libraries/Try.lua"
+      "file": "Libraries/Try.lua",
+      "version": "fb73da9c78dd"
     },
     {
       "path": "Loaded.DescendantCount",
@@ -205,437 +232,524 @@
     {
       "path": "Loaded.ReplicationListener",
       "className": "LocalScript",
-      "file": "Support/ReplicationListener.client.lua"
+      "file": "Support/ReplicationListener.client.lua",
+      "version": "4de03a645d04"
     },
     {
       "path": "Loader.ToolInitializer",
       "className": "LocalScript",
-      "file": "Loader/ToolInitializer.client.lua"
+      "file": "Loader/ToolInitializer.client.lua",
+      "version": "0bfce33834bf"
     },
     {
       "path": "SyncAPI.LocalEndpoint",
       "className": "LocalScript",
-      "file": "Support/LocalAPIEndpoint.client.lua"
+      "file": "Support/LocalAPIEndpoint.client.lua",
+      "version": "d36d675d2184"
     },
     {
       "path": "SyncAPI.SyncModule",
       "className": "ModuleScript",
-      "file": "SyncAPI.lua"
+      "file": "SyncAPI.lua",
+      "version": "e7b9413736b9"
     },
     {
       "path": "Tools.Anchor",
       "className": "ModuleScript",
-      "file": "Tools/Anchor.lua"
+      "file": "Tools/Anchor.lua",
+      "version": "c282f4dd7f11"
     },
     {
       "path": "Tools.Collision",
       "className": "ModuleScript",
-      "file": "Tools/Collision.lua"
+      "file": "Tools/Collision.lua",
+      "version": "1f3aaa0f8221"
     },
     {
       "path": "Tools.Decorate",
       "className": "ModuleScript",
-      "file": "Tools/Decorate.lua"
+      "file": "Tools/Decorate.lua",
+      "version": "9acd0962d3e9"
     },
     {
       "path": "Tools.Lighting",
       "className": "ModuleScript",
-      "file": "Tools/Lighting.lua"
+      "file": "Tools/Lighting.lua",
+      "version": "eb079aa32927"
     },
     {
       "path": "Tools.Material",
       "className": "ModuleScript",
-      "file": "Tools/Material.lua"
+      "file": "Tools/Material.lua",
+      "version": "cfd687da4a36"
     },
     {
       "path": "Tools.Mesh",
       "className": "ModuleScript",
-      "file": "Tools/Mesh.lua"
+      "file": "Tools/Mesh.lua",
+      "version": "76db3a559e52"
     },
     {
       "path": "Tools.Move",
       "className": "ModuleScript",
-      "file": "Tools/Move/init.lua"
+      "file": "Tools/Move/init.lua",
+      "version": "c1634a90b7fc"
     },
     {
       "path": "Tools.NewPart",
       "className": "ModuleScript",
-      "file": "Tools/NewPart.lua"
+      "file": "Tools/NewPart.lua",
+      "version": "43e453bff76e"
     },
     {
       "path": "Tools.Paint",
       "className": "ModuleScript",
-      "file": "Tools/Paint/init.lua"
+      "file": "Tools/Paint/init.lua",
+      "version": "bdceab68e8d0"
     },
     {
       "path": "Tools.Resize",
       "className": "ModuleScript",
-      "file": "Tools/Resize.lua"
+      "file": "Tools/Resize.lua",
+      "version": "718acf859807"
     },
     {
       "path": "Tools.Rotate",
       "className": "ModuleScript",
-      "file": "Tools/Rotate.lua"
+      "file": "Tools/Rotate.lua",
+      "version": "d3d7d8e3a8f2"
     },
     {
       "path": "Tools.Stamp",
       "className": "ModuleScript",
-      "file": "Tools/Stamp.lua"
+      "file": "Tools/Stamp.lua",
+      "version": "f2e5e0d773ef"
     },
     {
       "path": "Tools.Surface",
       "className": "ModuleScript",
-      "file": "Tools/Surface.lua"
+      "file": "Tools/Surface.lua",
+      "version": "96dac498792d"
     },
     {
       "path": "Tools.Texture",
       "className": "ModuleScript",
-      "file": "Tools/Texture.lua"
+      "file": "Tools/Texture.lua",
+      "version": "4ef08f6f51ae"
     },
     {
       "path": "Tools.Weld",
       "className": "ModuleScript",
-      "file": "Tools/Weld.lua"
+      "file": "Tools/Weld.lua",
+      "version": "841a1551d07d"
     },
     {
       "path": "UI.ColorPicker",
       "className": "ModuleScript",
-      "file": "UI/ColorPicker/init.lua"
+      "file": "UI/ColorPicker/init.lua",
+      "version": "0e2e7244aeee"
     },
     {
       "path": "UI.Dock",
       "className": "ModuleScript",
-      "file": "UI/Dock/init.lua"
+      "file": "UI/Dock/init.lua",
+      "version": "6ecaa711b483"
     },
     {
       "path": "UI.Dropdown",
       "className": "ModuleScript",
-      "file": "UI/Dropdown.lua"
+      "file": "UI/Dropdown.lua",
+      "version": "d7730ab2c250"
     },
     {
       "path": "UI.Explorer",
       "className": "ModuleScript",
-      "file": "UI/Explorer/init.lua"
+      "file": "UI/Explorer/init.lua",
+      "version": "9ddecfd4beab"
     },
     {
       "path": "UI.ExportDialog",
       "className": "ModuleScript",
-      "file": "UI/ExportDialog.lua"
+      "file": "UI/ExportDialog.lua",
+      "version": "f22583ea8adb"
     },
     {
       "path": "UI.Frame",
       "className": "ModuleScript",
-      "file": "UI/Frame.lua"
+      "file": "UI/Frame.lua",
+      "version": "76b1f3bdf01a"
     },
     {
       "path": "UI.ImageButton",
       "className": "ModuleScript",
-      "file": "UI/ImageButton.lua"
+      "file": "UI/ImageButton.lua",
+      "version": "4d413fb4d3e7"
     },
     {
       "path": "UI.ImageLabel",
       "className": "ModuleScript",
-      "file": "UI/ImageLabel.lua"
+      "file": "UI/ImageLabel.lua",
+      "version": "d756f48c0327"
     },
     {
       "path": "UI.LegacyPanelTheme",
       "className": "ModuleScript",
-      "file": "UI/LegacyPanelTheme.lua"
+      "file": "UI/LegacyPanelTheme.lua",
+      "version": "2b42d2a2a51d"
     },
     {
       "path": "UI.LoadingSpinner",
       "className": "ModuleScript",
-      "file": "UI/LoadingSpinner.lua"
+      "file": "UI/LoadingSpinner.lua",
+      "version": "40cf56ad4399"
     },
     {
       "path": "UI.Notifications",
       "className": "ModuleScript",
-      "file": "UI/Notifications/init.lua"
+      "file": "UI/Notifications/init.lua",
+      "version": "a76e106d47c2"
     },
     {
       "path": "UI.ScopeHUD",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/init.lua"
+      "file": "UI/ScopeHUD/init.lua",
+      "version": "fa93bcebda21"
     },
     {
       "path": "UI.ScrollingFrame",
       "className": "ModuleScript",
-      "file": "UI/ScrollingFrame.lua"
+      "file": "UI/ScrollingFrame.lua",
+      "version": "b0106c99fda1"
     },
     {
       "path": "UI.Stamp",
       "className": "ModuleScript",
-      "file": "UI/Stamp/init.lua"
+      "file": "UI/Stamp/init.lua",
+      "version": "e3f41e95645d"
     },
     {
       "path": "UI.TextBox",
       "className": "ModuleScript",
-      "file": "UI/TextBox.lua"
+      "file": "UI/TextBox.lua",
+      "version": "c94ff327f0d8"
     },
     {
       "path": "UI.TextLabel",
       "className": "ModuleScript",
-      "file": "UI/TextLabel.lua"
+      "file": "UI/TextLabel.lua",
+      "version": "686200e5b114"
     },
     {
       "path": "UI.Theme",
       "className": "ModuleScript",
-      "file": "UI/Theme.lua"
+      "file": "UI/Theme.lua",
+      "version": "df27e06e63a0"
     },
     {
       "path": "UI.ToolManualWindow",
       "className": "ModuleScript",
-      "file": "UI/ToolManualWindow.lua"
+      "file": "UI/ToolManualWindow.lua",
+      "version": "8f458a98556f"
     },
     {
       "path": "Vendor.Roact",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/init.lua"
+      "file": "Libraries/_vendor/Roact/src/init.lua",
+      "version": "1b8f3a063d6d"
     },
     {
       "path": "Libraries.Cryo.Dictionary",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/Dictionary/init.lua"
+      "file": "Libraries/Cryo/Dictionary/init.lua",
+      "version": "aa606d8dfa47"
     },
     {
       "path": "Libraries.Cryo.isEmpty",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/isEmpty.lua"
+      "file": "Libraries/Cryo/isEmpty.lua",
+      "version": "3249453912c9"
     },
     {
       "path": "Libraries.Cryo.List",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/init.lua"
+      "file": "Libraries/Cryo/List/init.lua",
+      "version": "cb65c81529e4"
     },
     {
       "path": "Libraries.Cryo.None",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/None.lua"
+      "file": "Libraries/Cryo/None.lua",
+      "version": "2dce1ba8aaf6"
     },
     {
       "path": "Libraries.Debug.SortedArray",
       "className": "ModuleScript",
-      "file": "Libraries/Debug/SortedArray.lua"
+      "file": "Libraries/Debug/SortedArray.lua",
+      "version": "0bef3e0c804f"
     },
     {
       "path": "Tools.Move.FreeDragging",
       "className": "ModuleScript",
-      "file": "Tools/Move/FreeDragging.lua"
+      "file": "Tools/Move/FreeDragging.lua",
+      "version": "6f2d73251812"
     },
     {
       "path": "Tools.Move.HandleDragging",
       "className": "ModuleScript",
-      "file": "Tools/Move/HandleDragging.lua"
+      "file": "Tools/Move/HandleDragging.lua",
+      "version": "2ca45ce2c637"
     },
     {
       "path": "Tools.Move.UIController",
       "className": "ModuleScript",
-      "file": "Tools/Move/UIController.lua"
+      "file": "Tools/Move/UIController.lua",
+      "version": "48696814b1ae"
     },
     {
       "path": "Tools.Move.Util",
       "className": "ModuleScript",
-      "file": "Tools/Move/Util.lua"
+      "file": "Tools/Move/Util.lua",
+      "version": "b533e4230227"
     },
     {
       "path": "Tools.Paint.PaintHistoryRecord",
       "className": "ModuleScript",
-      "file": "Tools/Paint/PaintHistoryRecord.lua"
+      "file": "Tools/Paint/PaintHistoryRecord.lua",
+      "version": "92bc49d0b88e"
     },
     {
       "path": "UI.ColorPicker.Slider",
       "className": "ModuleScript",
-      "file": "UI/ColorPicker/Slider.lua"
+      "file": "UI/ColorPicker/Slider.lua",
+      "version": "37b21ce6c7b7"
     },
     {
       "path": "UI.Dock.AboutPane",
       "className": "ModuleScript",
-      "file": "UI/Dock/AboutPane.lua"
+      "file": "UI/Dock/AboutPane.lua",
+      "version": "69c015285a49"
     },
     {
       "path": "UI.Dock.SelectionButton",
       "className": "ModuleScript",
-      "file": "UI/Dock/SelectionButton.lua"
+      "file": "UI/Dock/SelectionButton.lua",
+      "version": "6040075aef77"
     },
     {
       "path": "UI.Dock.SelectionPane",
       "className": "ModuleScript",
-      "file": "UI/Dock/SelectionPane.lua"
+      "file": "UI/Dock/SelectionPane.lua",
+      "version": "49e9da752c81"
     },
     {
       "path": "UI.Dock.ToolButton",
       "className": "ModuleScript",
-      "file": "UI/Dock/ToolButton.lua"
+      "file": "UI/Dock/ToolButton.lua",
+      "version": "829ad57943e3"
     },
     {
       "path": "UI.Dock.ToolList",
       "className": "ModuleScript",
-      "file": "UI/Dock/ToolList.lua"
+      "file": "UI/Dock/ToolList.lua",
+      "version": "df5fc1a2ac4e"
     },
     {
       "path": "UI.Dock.Tooltip",
       "className": "ModuleScript",
-      "file": "UI/Dock/Tooltip.lua"
+      "file": "UI/Dock/Tooltip.lua",
+      "version": "27b6e6e49ab9"
     },
     {
       "path": "UI.Explorer.ItemList",
       "className": "ModuleScript",
-      "file": "UI/Explorer/ItemList.lua"
+      "file": "UI/Explorer/ItemList.lua",
+      "version": "4419fc7e57da"
     },
     {
       "path": "UI.Explorer.ItemRow",
       "className": "ModuleScript",
-      "file": "UI/Explorer/ItemRow.lua"
+      "file": "UI/Explorer/ItemRow.lua",
+      "version": "2e447b44f0bf"
     },
     {
       "path": "UI.Notifications.NotificationDialog",
       "className": "ModuleScript",
-      "file": "UI/Notifications/NotificationDialog.lua"
+      "file": "UI/Notifications/NotificationDialog.lua",
+      "version": "dce8ecacd7bf"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/HotkeyTooltip/init.lua"
+      "file": "UI/ScopeHUD/HotkeyTooltip/init.lua",
+      "version": "264a58b3c4a5"
     },
     {
       "path": "UI.ScopeHUD.ModeToggle",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/ModeToggle/init.lua"
+      "file": "UI/ScopeHUD/ModeToggle/init.lua",
+      "version": "37f539c001cb"
     },
     {
       "path": "UI.ScopeHUD.ScopeHierarchyItemButton",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/ScopeHierarchyItemButton.lua"
+      "file": "UI/ScopeHUD/ScopeHierarchyItemButton.lua",
+      "version": "84efa59adae1"
     },
     {
       "path": "Vendor.Roact.assertDeepEqual",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/assertDeepEqual.lua"
+      "file": "Libraries/_vendor/Roact/src/assertDeepEqual.lua",
+      "version": "a44041164354"
     },
     {
       "path": "Vendor.Roact.assign",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/assign.lua"
+      "file": "Libraries/_vendor/Roact/src/assign.lua",
+      "version": "af90e4b36dcb"
     },
     {
       "path": "Vendor.Roact.Binding",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Binding.lua"
+      "file": "Libraries/_vendor/Roact/src/Binding.lua",
+      "version": "7c2ad224d26d"
     },
     {
       "path": "Vendor.Roact.Component",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Component.lua"
+      "file": "Libraries/_vendor/Roact/src/Component.lua",
+      "version": "008699063766"
     },
     {
       "path": "Vendor.Roact.ComponentLifecyclePhase",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/ComponentLifecyclePhase.lua"
+      "file": "Libraries/_vendor/Roact/src/ComponentLifecyclePhase.lua",
+      "version": "4d6301d60f34"
     },
     {
       "path": "Vendor.Roact.Config",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Config.lua"
+      "file": "Libraries/_vendor/Roact/src/Config.lua",
+      "version": "ebfc9431c66a"
     },
     {
       "path": "Vendor.Roact.createContext",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createContext.lua"
+      "file": "Libraries/_vendor/Roact/src/createContext.lua",
+      "version": "d62906cd6f54"
     },
     {
       "path": "Vendor.Roact.createElement",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createElement.lua"
+      "file": "Libraries/_vendor/Roact/src/createElement.lua",
+      "version": "5880d2f72476"
     },
     {
       "path": "Vendor.Roact.createFragment",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createFragment.lua"
+      "file": "Libraries/_vendor/Roact/src/createFragment.lua",
+      "version": "0bd1d935ebea"
     },
     {
       "path": "Vendor.Roact.createReconciler",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createReconciler.lua"
+      "file": "Libraries/_vendor/Roact/src/createReconciler.lua",
+      "version": "d8a8e0328b70"
     },
     {
       "path": "Vendor.Roact.createReconcilerCompat",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createReconcilerCompat.lua"
+      "file": "Libraries/_vendor/Roact/src/createReconcilerCompat.lua",
+      "version": "92563a60825c"
     },
     {
       "path": "Vendor.Roact.createRef",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createRef.lua"
+      "file": "Libraries/_vendor/Roact/src/createRef.lua",
+      "version": "ac20a953dbe0"
     },
     {
       "path": "Vendor.Roact.createSignal",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createSignal.lua"
+      "file": "Libraries/_vendor/Roact/src/createSignal.lua",
+      "version": "a46458386739"
     },
     {
       "path": "Vendor.Roact.createSpy",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/createSpy.lua"
+      "file": "Libraries/_vendor/Roact/src/createSpy.lua",
+      "version": "a0350467c8bb"
     },
     {
       "path": "Vendor.Roact.ElementKind",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/ElementKind.lua"
+      "file": "Libraries/_vendor/Roact/src/ElementKind.lua",
+      "version": "6ca0ac5f1fb9"
     },
     {
       "path": "Vendor.Roact.ElementUtils",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/ElementUtils.lua"
+      "file": "Libraries/_vendor/Roact/src/ElementUtils.lua",
+      "version": "57b342a64e97"
     },
     {
       "path": "Vendor.Roact.forwardRef",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/forwardRef.lua"
+      "file": "Libraries/_vendor/Roact/src/forwardRef.lua",
+      "version": "cffb3014efa0"
     },
     {
       "path": "Vendor.Roact.getDefaultInstanceProperty",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/getDefaultInstanceProperty.lua"
+      "file": "Libraries/_vendor/Roact/src/getDefaultInstanceProperty.lua",
+      "version": "7cf9e408ce2b"
     },
     {
       "path": "Vendor.Roact.GlobalConfig",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/GlobalConfig.lua"
+      "file": "Libraries/_vendor/Roact/src/GlobalConfig.lua",
+      "version": "3fcd1edcd523"
     },
     {
       "path": "Vendor.Roact.internalAssert",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/internalAssert.lua"
+      "file": "Libraries/_vendor/Roact/src/internalAssert.lua",
+      "version": "9d6c37da1a0d"
     },
     {
       "path": "Vendor.Roact.invalidSetStateMessages",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/invalidSetStateMessages.lua"
+      "file": "Libraries/_vendor/Roact/src/invalidSetStateMessages.lua",
+      "version": "13bd5d990247"
     },
     {
       "path": "Vendor.Roact.Logging",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Logging.lua"
+      "file": "Libraries/_vendor/Roact/src/Logging.lua",
+      "version": "e31e984cc59d"
     },
     {
       "path": "Vendor.Roact.None",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/None.lua"
+      "file": "Libraries/_vendor/Roact/src/None.lua",
+      "version": "caba6f316cd4"
     },
     {
       "path": "Vendor.Roact.NoopRenderer",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/NoopRenderer.lua"
+      "file": "Libraries/_vendor/Roact/src/NoopRenderer.lua",
+      "version": "3913166058ea"
     },
     {
       "path": "Vendor.Roact.oneChild",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/oneChild.lua"
+      "file": "Libraries/_vendor/Roact/src/oneChild.lua",
+      "version": "4ff10ba7c445"
     },
     {
       "path": "Vendor.Roact.Portal",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Portal.lua"
+      "file": "Libraries/_vendor/Roact/src/Portal.lua",
+      "version": "a3a133b4915a"
     },
     {
       "path": "Vendor.Roact.PropMarkers",
@@ -644,172 +758,206 @@
     {
       "path": "Vendor.Roact.PureComponent",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/PureComponent.lua"
+      "file": "Libraries/_vendor/Roact/src/PureComponent.lua",
+      "version": "c25d2fd34e6f"
     },
     {
       "path": "Vendor.Roact.RobloxRenderer",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/RobloxRenderer.lua"
+      "file": "Libraries/_vendor/Roact/src/RobloxRenderer.lua",
+      "version": "7120b4235e74"
     },
     {
       "path": "Vendor.Roact.SingleEventManager",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/SingleEventManager.lua"
+      "file": "Libraries/_vendor/Roact/src/SingleEventManager.lua",
+      "version": "7150b7113088"
     },
     {
       "path": "Vendor.Roact.strict",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/strict.lua"
+      "file": "Libraries/_vendor/Roact/src/strict.lua",
+      "version": "af5896ec469b"
     },
     {
       "path": "Vendor.Roact.Symbol",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Symbol.lua"
+      "file": "Libraries/_vendor/Roact/src/Symbol.lua",
+      "version": "531ec90381c2"
     },
     {
       "path": "Vendor.Roact.Type",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/Type.lua"
+      "file": "Libraries/_vendor/Roact/src/Type.lua",
+      "version": "447b0c42e470"
     },
     {
       "path": "Libraries.Cryo.Dictionary.join",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/Dictionary/join.lua"
+      "file": "Libraries/Cryo/Dictionary/join.lua",
+      "version": "3f227540c744"
     },
     {
       "path": "Libraries.Cryo.Dictionary.keys",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/Dictionary/keys.lua"
+      "file": "Libraries/Cryo/Dictionary/keys.lua",
+      "version": "d611b40f0d12"
     },
     {
       "path": "Libraries.Cryo.Dictionary.values",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/Dictionary/values.lua"
+      "file": "Libraries/Cryo/Dictionary/values.lua",
+      "version": "856e981063cb"
     },
     {
       "path": "Libraries.Cryo.List.filter",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/filter.lua"
+      "file": "Libraries/Cryo/List/filter.lua",
+      "version": "72da5ef9e57f"
     },
     {
       "path": "Libraries.Cryo.List.filterMap",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/filterMap.lua"
+      "file": "Libraries/Cryo/List/filterMap.lua",
+      "version": "b33eded2e38b"
     },
     {
       "path": "Libraries.Cryo.List.find",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/find.lua"
+      "file": "Libraries/Cryo/List/find.lua",
+      "version": "0ad00843c722"
     },
     {
       "path": "Libraries.Cryo.List.findWhere",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/findWhere.lua"
+      "file": "Libraries/Cryo/List/findWhere.lua",
+      "version": "66ccc81aae7b"
     },
     {
       "path": "Libraries.Cryo.List.foldLeft",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/foldLeft.lua"
+      "file": "Libraries/Cryo/List/foldLeft.lua",
+      "version": "15ddcb880432"
     },
     {
       "path": "Libraries.Cryo.List.foldRight",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/foldRight.lua"
+      "file": "Libraries/Cryo/List/foldRight.lua",
+      "version": "7c8974425f0d"
     },
     {
       "path": "Libraries.Cryo.List.getRange",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/getRange.lua"
+      "file": "Libraries/Cryo/List/getRange.lua",
+      "version": "28a034864287"
     },
     {
       "path": "Libraries.Cryo.List.join",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/join.lua"
+      "file": "Libraries/Cryo/List/join.lua",
+      "version": "8eed586bbaeb"
     },
     {
       "path": "Libraries.Cryo.List.map",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/map.lua"
+      "file": "Libraries/Cryo/List/map.lua",
+      "version": "1f7fda5952fc"
     },
     {
       "path": "Libraries.Cryo.List.removeIndex",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/removeIndex.lua"
+      "file": "Libraries/Cryo/List/removeIndex.lua",
+      "version": "e5278619e481"
     },
     {
       "path": "Libraries.Cryo.List.removeRange",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/removeRange.lua"
+      "file": "Libraries/Cryo/List/removeRange.lua",
+      "version": "d601addd9fd3"
     },
     {
       "path": "Libraries.Cryo.List.removeValue",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/removeValue.lua"
+      "file": "Libraries/Cryo/List/removeValue.lua",
+      "version": "a66377bd4961"
     },
     {
       "path": "Libraries.Cryo.List.replaceIndex",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/replaceIndex.lua"
+      "file": "Libraries/Cryo/List/replaceIndex.lua",
+      "version": "3fa32cdb9a63"
     },
     {
       "path": "Libraries.Cryo.List.reverse",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/reverse.lua"
+      "file": "Libraries/Cryo/List/reverse.lua",
+      "version": "7d728b52db04"
     },
     {
       "path": "Libraries.Cryo.List.sort",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/sort.lua"
+      "file": "Libraries/Cryo/List/sort.lua",
+      "version": "bdb6e48ed63b"
     },
     {
       "path": "Libraries.Cryo.List.toSet",
       "className": "ModuleScript",
-      "file": "Libraries/Cryo/List/toSet.lua"
+      "file": "Libraries/Cryo/List/toSet.lua",
+      "version": "39eb7fe5de0d"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip.AltTooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/HotkeyTooltip/AltTooltip.lua"
+      "file": "UI/ScopeHUD/HotkeyTooltip/AltTooltip.lua",
+      "version": "801ca471800b"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip.ScopeInTooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeInTooltip.lua"
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeInTooltip.lua",
+      "version": "d16a8d35b0da"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip.ScopeLockTooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeLockTooltip.lua"
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeLockTooltip.lua",
+      "version": "a9ce566e2cdd"
     },
     {
       "path": "UI.ScopeHUD.HotkeyTooltip.ScopeOutTooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeOutTooltip.lua"
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeOutTooltip.lua",
+      "version": "0d28a998dc2e"
     },
     {
       "path": "UI.ScopeHUD.ModeToggle.Tooltip",
       "className": "ModuleScript",
-      "file": "UI/ScopeHUD/ModeToggle/Tooltip.lua"
+      "file": "UI/ScopeHUD/ModeToggle/Tooltip.lua",
+      "version": "0fa6aea30255"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Change",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/PropMarkers/Change.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Change.lua",
+      "version": "f48dca17bcf4"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Children",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/PropMarkers/Children.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Children.lua",
+      "version": "545aefe4a148"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Event",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/PropMarkers/Event.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Event.lua",
+      "version": "e2b7f489eb2e"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Ref",
       "className": "ModuleScript",
-      "file": "Libraries/_vendor/Roact/src/PropMarkers/Ref.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Ref.lua",
+      "version": "69dddbbd62ca"
     }
   ]
 }

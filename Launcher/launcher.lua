@@ -20,14 +20,18 @@ local CONFIG = {
 	repo = "rbx-building-tools-client",
 	branch = "main",
 	toolName = "Building Tools",
+	toolVersion = "3.1.0-client",
 }
 
-local CACHE_BUST = "20260713w"
+local LAUNCHER_REVISION = "4"
 local CACHE_ROOT = "BT-BuildingTools/cache"
+local CACHE_FILES_DIR = CACHE_ROOT .. "/files"
+local CACHE_VERSIONS_PATH = CACHE_ROOT .. "/versions.json"
 
 local ModuleCache = {}
 local LargeModuleSources = {}
 local MAX_INSTANCE_SOURCE = 199000
+local fileVersionIndex = {}
 
 local function patchModuleSource(source)
 	source = source:gsub("Game:GetService", "game:GetService")
@@ -295,16 +299,43 @@ local function ensureParentFolders(filePath)
 	end
 end
 
-local function getCachePath(relativePath)
-	return string.format("%s/%s/%s", CACHE_ROOT, CACHE_BUST, relativePath:gsub("\\", "/"))
+local function getFileCachePath(relativePath)
+	return CACHE_FILES_DIR .. "/" .. relativePath:gsub("\\", "/")
 end
 
-local function readCacheFile(relativePath)
+local function loadFileVersionIndex()
+	fileVersionIndex = {}
+	if not hasFileApi() or not isfile(CACHE_VERSIONS_PATH) then
+		return
+	end
+
+	local ok, decoded = pcall(function()
+		return HttpService:JSONDecode(readfile(CACHE_VERSIONS_PATH))
+	end)
+	if ok and type(decoded) == "table" then
+		fileVersionIndex = decoded
+	end
+end
+
+local function saveFileVersionIndex()
 	if not hasFileApi() then
+		return
+	end
+
+	ensureParentFolders(CACHE_VERSIONS_PATH)
+	pcall(writefile, CACHE_VERSIONS_PATH, HttpService:JSONEncode(fileVersionIndex))
+end
+
+local function readCachedSource(relativePath, fileVersion)
+	if not hasFileApi() or not fileVersion then
 		return nil
 	end
 
-	local cachePath = getCachePath(relativePath)
+	if fileVersionIndex[relativePath] ~= fileVersion then
+		return nil
+	end
+
+	local cachePath = getFileCachePath(relativePath)
 	if not isfile(cachePath) then
 		return nil
 	end
@@ -317,14 +348,15 @@ local function readCacheFile(relativePath)
 	return nil
 end
 
-local function writeCacheFile(relativePath, content)
-	if not hasFileApi() then
+local function writeCachedSource(relativePath, fileVersion, content)
+	if not hasFileApi() or not fileVersion then
 		return
 	end
 
-	local cachePath = getCachePath(relativePath)
+	local cachePath = getFileCachePath(relativePath)
 	ensureParentFolders(cachePath)
 	pcall(writefile, cachePath, content)
+	fileVersionIndex[relativePath] = fileVersion
 end
 
 local function deleteCacheTree(path)
@@ -356,29 +388,53 @@ local function deleteCacheTree(path)
 	end
 end
 
-local function purgeStaleCache()
-	if not hasFileApi() or typeof(listfiles) ~= "function" then
+local function purgeStaleCache(manifest)
+	if not hasFileApi() then
 		return
 	end
 
-	ensureFolder(CACHE_ROOT)
+	ensureFolder(CACHE_FILES_DIR)
 
-	local ok, entries = pcall(listfiles, CACHE_ROOT)
-	if not ok or type(entries) ~= "table" then
-		return
+	local validFiles = {}
+	for _, entry in ipairs(manifest.entries) do
+		if entry.file then
+			validFiles[entry.file] = true
+			local resolved = resolveFilePath(entry.file)
+			validFiles[resolved] = true
+		end
 	end
 
-	for _, entry in ipairs(entries) do
-		local versionName = if entry:find("/", 1, true) then entry:match("([^/]+)$") else entry
-		if versionName ~= CACHE_BUST then
-			local versionPath = CACHE_ROOT .. "/" .. versionName
-			if typeof(isfolder) ~= "function" or isfolder(versionPath) then
-				deleteCacheTree(versionPath)
-			elseif typeof(delfile) == "function" and isfile(versionPath) then
-				pcall(delfile, versionPath)
+	for filePath in pairs(fileVersionIndex) do
+		if not validFiles[filePath] then
+			fileVersionIndex[filePath] = nil
+			local cachePath = getFileCachePath(filePath)
+			if typeof(delfile) == "function" and isfile(cachePath) then
+				pcall(delfile, cachePath)
 			end
 		end
 	end
+
+	if typeof(listfiles) ~= "function" then
+		saveFileVersionIndex()
+		return
+	end
+
+	local ok, entries = pcall(listfiles, CACHE_ROOT)
+	if ok and type(entries) == "table" then
+		for _, entry in ipairs(entries) do
+			local name = if entry:find("/", 1, true) then entry:match("([^/]+)$") else entry
+			if name ~= "files" and name ~= "versions.json" then
+				local legacyPath = CACHE_ROOT .. "/" .. name
+				if typeof(isfolder) == "function" and isfolder(legacyPath) then
+					deleteCacheTree(legacyPath)
+				elseif typeof(delfile) == "function" and isfile(legacyPath) then
+					pcall(delfile, legacyPath)
+				end
+			end
+		end
+	end
+
+	saveFileVersionIndex()
 end
 
 local function httpGet(url)
@@ -394,18 +450,15 @@ local function httpGet(url)
 	return result
 end
 
-local function rawUrl(filePath, extraBust)
+local function rawUrl(filePath, fileVersion)
 	local url = string.format(
 		"https://raw.githubusercontent.com/%s/%s/%s/%s?v=%s",
 		CONFIG.user,
 		CONFIG.repo,
 		CONFIG.branch,
 		filePath:gsub("\\", "/"),
-		CACHE_BUST
+		fileVersion or LAUNCHER_REVISION
 	)
-	if extraBust then
-		url = url .. "&t=" .. tostring(extraBust)
-	end
 	return url
 end
 
@@ -425,13 +478,16 @@ local function migrateManifest(manifest)
 	return manifest
 end
 
-local function fetchFileSource(filePath)
+local function fetchFileSource(filePath, fileVersion)
 	local resolved = resolveFilePath(filePath)
 	local pathsToTry = if resolved ~= filePath then { resolved, filePath } else { filePath }
 
 	for _, path in ipairs(pathsToTry) do
-		local cached = readCacheFile(path)
+		local cached = readCachedSource(path, fileVersion)
 		if cached then
+			if gui then
+				gui.setStatus("Из кэша")
+			end
 			return cached
 		end
 	end
@@ -439,13 +495,16 @@ local function fetchFileSource(filePath)
 	local errors = {}
 	for _, path in ipairs(pathsToTry) do
 		local ok, result = pcall(function()
-			return httpGet(rawUrl(path))
+			return httpGet(rawUrl(path, fileVersion))
 		end)
 		if ok then
-			writeCacheFile(path, result)
+			if gui then
+				gui.setStatus("Скачивание…")
+			end
+			writeCachedSource(path, fileVersion, result)
 			return result
 		end
-		table.insert(errors, rawUrl(path) .. "\n" .. tostring(result))
+		table.insert(errors, rawUrl(path, fileVersion) .. "\n" .. tostring(result))
 	end
 
 	error("HTTP ошибка при загрузке:\n" .. table.concat(errors, "\n\n"), 0)
@@ -507,16 +566,7 @@ local function createInstance(entry)
 
 	if entry.file and (instance:IsA("LuaSourceContainer") or instance:IsA("Script")) then
 		reportFileProgress(entry.file)
-		local cached = readCacheFile(entry.file)
-		local source = cached
-		if not source then
-			if gui then
-				gui.setStatus("Скачивание…")
-			end
-			source = fetchFileSource(entry.file)
-		elseif gui then
-			gui.setStatus("Из кэша")
-		end
+		local source = fetchFileSource(entry.file, entry.version)
 		if #source > MAX_INSTANCE_SOURCE then
 			LargeModuleSources[instance] = source
 			instance.Source = "-- BT: source too large for Instance.Source"
@@ -546,12 +596,8 @@ local function loadManifest()
 	end
 
 	local manifestPath = "Launcher/manifest.json"
-	local manifestContent = readCacheFile(manifestPath)
-	if not manifestContent then
-		local manifestUrl = rawUrl(manifestPath)
-		manifestContent = httpGet(manifestUrl)
-		writeCacheFile(manifestPath, manifestContent)
-	end
+	local manifestUrl = rawUrl(manifestPath, CONFIG.toolVersion or LAUNCHER_REVISION)
+	local manifestContent = httpGet(manifestUrl)
 
 	local decoded = HttpService:JSONDecode(manifestContent)
 
@@ -559,6 +605,7 @@ local function loadManifest()
 	CONFIG.repo = resolveGithubField(decoded.github.repo, CONFIG.repo)
 	CONFIG.branch = decoded.github.branch or CONFIG.branch
 	CONFIG.toolName = decoded.toolName or CONFIG.toolName
+	CONFIG.toolVersion = decoded.toolVersion or CONFIG.toolVersion
 
 	return migrateManifest(decoded)
 end
@@ -678,12 +725,13 @@ local function main()
 	gui.setStatus("Инициализация…")
 	gui.setProgress(0, 1)
 
-	purgeStaleCache()
+	loadFileVersionIndex()
 
 	local ok, result = pcall(function()
 		downloadedFiles = 0
 
 		local manifest = loadManifest()
+		purgeStaleCache(manifest)
 		totalFiles = countFileEntries(manifest.entries)
 		downloadedFiles = 0
 
@@ -693,6 +741,7 @@ local function main()
 		end
 
 		local tool = buildTool(manifest)
+		saveFileVersionIndex()
 		disableClientScripts(tool)
 
 		local backpack = player:WaitForChild("Backpack")

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,10 +10,21 @@ const config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "
 const entries = [];
 const warnings = [];
 
+function hashFileContent(relativePath) {
+  const absolutePath = path.join(root, relativePath.replace(/\//g, path.sep));
+  if (!fs.existsSync(absolutePath)) {
+    return "0";
+  }
+  const content = fs.readFileSync(absolutePath);
+  return crypto.createHash("sha256").update(content).digest("hex").slice(0, 12);
+}
+
 function addEntry(instancePath, className, file) {
   const entry = { path: instancePath, className };
   if (file) {
-    entry.file = file.replace(/\\/g, "/");
+    const normalized = file.replace(/\\/g, "/");
+    entry.file = normalized;
+    entry.version = hashFileContent(normalized);
   }
   entries.push(entry);
 }
