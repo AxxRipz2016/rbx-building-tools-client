@@ -21,6 +21,10 @@ function shouldSkipFile(fileName) {
   return fileName.endsWith(".spec.lua") || fileName.endsWith(".server.lua");
 }
 
+function shouldSkipDir(dirName) {
+  return dirName.endsWith(".spec");
+}
+
 function walkLuaDir(relativeDir, instancePath) {
   const absoluteDir = path.join(root, relativeDir);
   if (!fs.existsSync(absoluteDir)) {
@@ -40,6 +44,9 @@ function walkLuaDir(relativeDir, instancePath) {
 
   for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
+      if (shouldSkipDir(entry.name)) {
+        continue;
+      }
       const subDirPath = path.join(relativeDir, entry.name);
       const subInitPath = path.join(absoluteDir, entry.name, "init.lua");
       if (fs.existsSync(subInitPath)) {
@@ -110,6 +117,9 @@ function copyLuaTree(fromDir, toDir) {
     const fromPath = path.join(fromDir, entry.name);
     const toPath = path.join(toDir, entry.name);
     if (entry.isDirectory()) {
+      if (shouldSkipDir(entry.name)) {
+        continue;
+      }
       copyLuaTree(fromPath, toPath);
     } else if (entry.name.endsWith(".lua") && !shouldSkipFile(entry.name)) {
       fs.copyFileSync(fromPath, toPath);
@@ -135,6 +145,9 @@ function walkRoactVendor() {
 
   for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
+      if (shouldSkipDir(entry.name)) {
+        continue;
+      }
       const subDirPath = path.join(relativeDir, entry.name);
       const subInitPath = path.join(absoluteDir, entry.name, "init.lua");
       if (fs.existsSync(subInitPath)) {

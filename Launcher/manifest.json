@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T07:48:45.160Z",
-  "entryCount": 154,
+  "generatedAt": "2026-07-13T07:55:24.771Z",
+  "entryCount": 153,
   "entries": [
     {
       "path": "Assets",
@@ -754,10 +754,6 @@
       "path": "UI.ScopeHUD.ModeToggle.Tooltip",
       "className": "ModuleScript",
       "file": "UI/ScopeHUD/ModeToggle/Tooltip.lua"
-    },
-    {
-      "path": "Vendor.Roact.Component.spec",
-      "className": "Folder"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Change",

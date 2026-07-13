@@ -22,6 +22,12 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
+local CACHE_BUST = "20260713b"
+
+local PATH_ALIASES = {
+	{ "^Vendor/Roact/src/", "Libraries/_vendor/Roact/src/" },
+}
+
 local gui = nil
 local downloadedFiles = 0
 local totalFiles = 0
@@ -48,12 +54,44 @@ end
 
 local function rawUrl(filePath)
 	return string.format(
-		"https://raw.githubusercontent.com/%s/%s/%s/%s",
+		"https://raw.githubusercontent.com/%s/%s/%s/%s?v=%s",
 		CONFIG.user,
 		CONFIG.repo,
 		CONFIG.branch,
-		filePath:gsub("\\", "/")
+		filePath:gsub("\\", "/"),
+		CACHE_BUST
 	)
+end
+
+local function remapFilePath(filePath)
+	for _, alias in ipairs(PATH_ALIASES) do
+		local remapped = filePath:gsub(alias[1], alias[2])
+		if remapped ~= filePath then
+			return remapped
+		end
+	end
+	return filePath
+end
+
+local function fetchFileSource(filePath)
+	local pathsToTry = { filePath }
+	local remapped = remapFilePath(filePath)
+	if remapped ~= filePath then
+		table.insert(pathsToTry, remapped)
+	end
+
+	local errors = {}
+	for _, path in ipairs(pathsToTry) do
+		local ok, result = pcall(function()
+			return httpGet(rawUrl(path))
+		end)
+		if ok then
+			return result
+		end
+		table.insert(errors, path .. " -> " .. tostring(result))
+	end
+
+	error("HTTP ошибка при загрузке:\n" .. filePath .. "\n" .. table.concat(errors, "\n"), 0)
 end
 
 local function getParentPath(fullPath)
@@ -112,7 +150,7 @@ local function createInstance(entry)
 
 	if entry.file and (instance:IsA("LuaSourceContainer") or instance:IsA("Script")) then
 		reportFileProgress(entry.file)
-		local source = httpGet(rawUrl(entry.file))
+		local source = fetchFileSource(entry.file)
 		instance.Source = source
 	end
 
@@ -184,13 +222,31 @@ local function buildTool(manifest)
 end
 
 local function loadGui()
-	local guiSource = httpGet(rawUrl("Launcher/gui.lua"))
-	local guiModule = loadstring(guiSource)
-	if not guiModule then
-		error("Не удалось скомпилировать Launcher/gui.lua", 0)
+	local ok, guiApi = pcall(function()
+		local guiSource = fetchFileSource("Launcher/gui.lua")
+		local guiModule = loadstring(guiSource)
+		if not guiModule then
+			error("Не удалось скомпилировать Launcher/gui.lua", 0)
+		end
+		local Gui = guiModule()
+		return Gui.create()
+	end)
+
+	if ok then
+		return guiApi
 	end
-	local Gui = guiModule()
-	return Gui.create()
+
+	warn("[BT Launcher] GUI не загружен: " .. tostring(guiApi))
+	return {
+		setStatus = function() end,
+		setFile = function() end,
+		setProgress = function() end,
+		setError = function(_, details)
+			warn("[BT Launcher] " .. tostring(details))
+		end,
+		setSuccess = function() end,
+		destroy = function() end,
+	}
 end
 
 local function main()
