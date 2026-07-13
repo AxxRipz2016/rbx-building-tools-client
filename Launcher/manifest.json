@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T19:14:22.742Z",
+  "generatedAt": "2026-07-13T19:27:27.219Z",
   "entryCount": 168,
   "entries": [
     {
@@ -311,7 +311,7 @@
       "path": "Tools.Mirror",
       "className": "ModuleScript",
       "file": "Tools/Mirror.lua",
-      "version": "c9240c655573"
+      "version": "2708d75057bd"
     },
     {
       "path": "Tools.Move",

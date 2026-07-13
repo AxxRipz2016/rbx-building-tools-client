@@ -89,6 +89,21 @@ local function buildMoveChanges(parts, origin, axis)
 	return changes
 end
 
+local function collectBaseParts(instances)
+	local parts = {}
+	for _, instance in ipairs(instances) do
+		if instance then
+			if instance:IsA("BasePart") then
+				table.insert(parts, instance)
+			end
+			for _, descendant in ipairs(Support.GetDescendantsWhichAreA(instance, "BasePart")) do
+				table.insert(parts, descendant)
+			end
+		end
+	end
+	return parts
+end
+
 function MirrorTool:SetSettings(patch)
 	for key, value in pairs(patch) do
 		Settings[key] = value
@@ -111,7 +126,10 @@ function MirrorTool:ApplyMirror(axis, keepOriginal, groupResult)
 		return false, "Не удалось клонировать"
 	end
 
-	local clonedParts = Support.GetDescendantsWhichAreA(clones, "BasePart")
+	local clonedParts = collectBaseParts(clones)
+	if #clonedParts == 0 then
+		return false, "Не удалось получить части из клонов"
+	end
 	local moveChanges = buildMoveChanges(clonedParts, origin, axis)
 	Core.SyncAPI:Invoke("SyncMove", moveChanges)
 
