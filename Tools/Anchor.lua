@@ -278,18 +278,22 @@ function RegisterChange()
 
 	-- Send the change to the server
 	local Changes = {}
-	for _, Part in ipairs(HistoryRecord.Parts) do
+	for _, Part in pairs(self.HistoryRecord.Parts) do
+		self.HistoryRecord.AfterCFrame[Part] = Part.CFrame
 		table.insert(Changes, {
 			Part = Part;
-			CFrame = HistoryRecord.AfterCFrame[Part];
+			CFrame = Part.CFrame;
 		})
-	end
-	for _, Model in ipairs(HistoryRecord.Models) do
-		table.insert(Changes, {
-			Model = Model;
-			Pivot = HistoryRecord.AfterCFrame[Model];
-		})
-	end
+	end;
+	pcall(function ()
+		for _, Model in pairs(self.HistoryRecord.Models) do
+			self.HistoryRecord.AfterCFrame[Model] = Model:GetPivot()
+			table.insert(Changes, {
+				Model = Model;
+				Pivot = Model:GetPivot();
+			})
+		end
+	end)
 	Core.SyncAPI:Invoke('SyncAnchor', HistoryRecord.After);
 	Core.SyncAPI:Invoke('SyncMove', Changes);
 
