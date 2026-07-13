@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T12:51:27.224Z",
+  "generatedAt": "2026-07-13T12:56:59.310Z",
   "entryCount": 160,
   "entries": [
     {
@@ -57,7 +57,7 @@
       "path": "Loader",
       "className": "ModuleScript",
       "file": "Loader/init.lua",
-      "version": "3c1eae0f687d"
+      "version": "d3dd82157b2e"
     },
     {
       "path": "SyncAPI",
@@ -323,7 +323,7 @@
       "path": "Tools.Stamp",
       "className": "ModuleScript",
       "file": "Tools/Stamp.lua",
-      "version": "2f8f6d834690"
+      "version": "4451196d18ff"
     },
     {
       "path": "Tools.Surface",

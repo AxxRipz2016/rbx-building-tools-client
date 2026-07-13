@@ -25,7 +25,7 @@ StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</fo
 
 <b>Сохранить</b> — выдели постройку, имя, кнопка «Сохранить выделение».<font size="6"><br /></font>
 <b>Загрузить</b> — кнопка «Загрузить список» читает stamps с диска.<font size="6"><br /></font>
-<b>Поставить</b> — выбери stamp в списке, кликни по миру.<font size="6"><br /></font>
+<b>Поставить</b> — клавиша L, выбери stamp, кликни по миру.<font size="6"><br /></font>
 <b>Файлы</b> — папка BT-BuildingTools/stamps.]]
 
 local Connections = {}
