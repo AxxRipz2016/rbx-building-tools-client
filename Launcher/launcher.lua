@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713j"
+local CACHE_BUST = "20260713k"
 
 local ModuleCache = {}
 local LargeModuleSources = {}
@@ -30,6 +30,8 @@ local MAX_INSTANCE_SOURCE = 199000
 
 local function patchModuleSource(source)
 	source = source:gsub("Game:GetService", "game:GetService")
+	-- FontFace требует Font.new, которого нет во многих executor'ах; Enum.Font уже задан
+	source = source:gsub("[\r\n]+[^\r\n]-%.FontFace = Font%.new%([^\r\n]-%)[\r\n]*", "\n")
 	return source
 end
 
@@ -110,6 +112,7 @@ local function createModuleEnvironment(moduleScript, btRequire)
 		Rect = Rect,
 		BrickColor = BrickColor,
 		Instance = Instance,
+		Font = typeof(Font) ~= "nil" and Font or nil,
 		Axes = Axes,
 		Faces = Faces,
 		Region3 = Region3,
