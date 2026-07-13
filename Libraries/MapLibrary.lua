@@ -449,6 +449,22 @@ end
 
 function MapLibrary.saveMap(name, core, settings, mapId)
 	settings = settings or MapLibrary.getDefaultSettings()
+	local normalizedName = type(name) == "string" and name:lower() or ""
+
+	-- Если mapId не задан, но имя совпало — обновляем существующую карту с таким именем (в этом place)
+	if not mapId and normalizedName ~= "" then
+		for _, existing in ipairs(MapLibrary.list()) do
+			if existing
+				and existing.placeId == game.PlaceId
+				and type(existing.name) == "string"
+				and existing.name:lower() == normalizedName
+			then
+				mapId = existing.id
+				break
+			end
+		end
+	end
+
 	local roots = MapLibrary.resolveSaveRoots(core, settings)
 	if #roots == 0 then
 		return nil, "Нет объектов для сохранения"

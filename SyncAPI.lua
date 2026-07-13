@@ -53,6 +53,12 @@ local function recordDelete(instance)
 	if not instance then
 		return
 	end
+
+	-- Не трекаем удаления объектов карты (BTMapId), иначе при загрузке карта будет "воскрешать" удалённое
+	if instance:GetAttribute('BTMapId') ~= nil then
+		return
+	end
+
 	local patch = getPlacePatch()
 	local parentName = instance.Parent and instance.Parent:GetFullName() or nil
 	local entry = {
@@ -89,6 +95,12 @@ local function recordProps(instance, propTable)
 	if not instance or type(propTable) ~= "table" then
 		return
 	end
+
+	-- Не трекаем изменения объектов карты (BTMapId) — это должно входить в саму карту, а не в world patch
+	if instance:GetAttribute('BTMapId') ~= nil then
+		return
+	end
+
 	local patch = getPlacePatch()
 	local path = instance:GetFullName()
 	patch.props[path] = patch.props[path] or {}
