@@ -554,6 +554,8 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 		if hasWorldPatch and settings.saveWorldChanges == true then
 			buildData = { Version = 3, Items = {} }
 			anchorPosition = MapLibrary.anchorFromWorldPatch(worldPatch)
+		elseif settings.saveWorldChanges == true then
+			return nil, "Изменения мира не записаны. Включи галочку, затем измени объекты через Move/Resize/Color и сохрани снова."
 		elseif #roots == 0 then
 			return nil, "Нет объектов для сохранения"
 		else
