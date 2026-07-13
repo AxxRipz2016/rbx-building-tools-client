@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713f"
+local CACHE_BUST = "20260713g"
 
 local ModuleCache = {}
 
@@ -114,6 +114,18 @@ local function createModuleEnvironment(moduleScript, btRequire)
 		Ray = Ray,
 	}
 
+	env.getmetatable = getmetatable
+	env.setmetatable = setmetatable
+
+	env.newproxy = function(addMeta)
+		local mt = {}
+		local proxy = setmetatable({}, mt)
+		if addMeta then
+			mt.__metatable = false
+		end
+		return proxy
+	end
+
 	function env.getfenv(_level)
 		return env
 	end
@@ -173,6 +185,17 @@ end
 local function installCompat()
 	if rawget(_G, "Game") == nil then
 		_G.Game = game
+	end
+
+	if newproxy == nil then
+		_G.newproxy = function(addMeta)
+			local mt = {}
+			local proxy = setmetatable({}, mt)
+			if addMeta then
+				mt.__metatable = false
+			end
+			return proxy
+		end
 	end
 
 	if getfenv == nil then

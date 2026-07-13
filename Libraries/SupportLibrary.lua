@@ -112,11 +112,13 @@ function SupportLibrary.Merge(Target, ...)
 end
 
 -- Create symbol representing a blank value
-local Blank = newproxy(true)
+local Blank = {}
+setmetatable(Blank, {
+	__tostring = function ()
+		return 'Symbol(Blank)'
+	end,
+})
 SupportLibrary.Blank = Blank
-getmetatable(Blank).__tostring = function ()
-	return 'Symbol(Blank)'
-end
 
 function SupportLibrary.MergeWithBlanks(Target, ...)
 	-- Copies members of the given tables into the specified target table, including blank values

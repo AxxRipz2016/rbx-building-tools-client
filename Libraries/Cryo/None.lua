@@ -6,10 +6,11 @@
 	ergonomic.
 ]]
 
-local None = newproxy(true)
-
-getmetatable(None).__tostring = function()
-	return "Cryo.None"
-end
+local None = {}
+setmetatable(None, {
+	__tostring = function()
+		return "Cryo.None"
+	end,
+})
 
 return None
