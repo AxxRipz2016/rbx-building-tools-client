@@ -26,7 +26,8 @@ StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</fo
 <b>Сохранить</b> — выдели постройку, введи имя, нажми «Сохранить».<font size="6"><br /></font>
 <b>Превью</b> — выбери stamp в списке, смотри в окне ViewportFrame.<font size="6"><br /></font>
 <b>Поставить</b> — кликни по миру.<font size="6"><br /></font>
-<b>JSON</b> — экспорт/импорт через буфер обмена (хранится в getgenv).]]
+<b>JSON</b> — экспорт/импорт через буфер обмена.<font size="6"><br /></font>
+<b>Файлы</b> — stamps в папке BT-BuildingTools/stamps (writefile).]]
 
 local Connections = {}
 local PanelHandle = nil

@@ -8,16 +8,167 @@ Support.ImportServices()
 
 local StampLibrary = {}
 
+local STAMP_ROOT = "BT-BuildingTools/stamps"
+local INDEX_PATH = STAMP_ROOT .. "/index.json"
 local STORE_KEY = "__BT_STAMPS"
 
-local function getStore()
-	local env = (getgenv and getgenv()) or _G
-	env[STORE_KEY] = env[STORE_KEY] or {}
-	return env[STORE_KEY]
+local memoryStore = nil
+
+local function hasFileApi()
+	return typeof(writefile) == "function"
+		and typeof(readfile) == "function"
+		and typeof(isfile) == "function"
+end
+
+local function ensureFolder(path)
+	if typeof(makefolder) ~= "function" then
+		return
+	end
+
+	if typeof(isfolder) == "function" and isfolder(path) then
+		return
+	end
+
+	pcall(makefolder, path)
+end
+
+local function splitPath(filePath)
+	local parts = {}
+	for segment in filePath:gsub("\\", "/"):gmatch("[^/]+") do
+		table.insert(parts, segment)
+	end
+	return parts
+end
+
+local function ensureParentFolders(filePath)
+	if typeof(makefolder) ~= "function" then
+		return
+	end
+
+	local parts = splitPath(filePath)
+	table.remove(parts)
+
+	local current = ""
+	for _, segment in ipairs(parts) do
+		current = current == "" and segment or (current .. "/" .. segment)
+		ensureFolder(current)
+	end
+end
+
+local function readFile(path)
+	if not hasFileApi() or not isfile(path) then
+		return nil
+	end
+
+	local ok, content = pcall(readfile, path)
+	if ok and type(content) == "string" and content ~= "" then
+		return content
+	end
+
+	return nil
+end
+
+local function writeFile(path, content)
+	if not hasFileApi() then
+		return false
+	end
+
+	ensureParentFolders(path)
+	local ok = pcall(writefile, path, content)
+	return ok
+end
+
+local function deleteFile(path)
+	if typeof(delfile) == "function" and isfile(path) then
+		pcall(delfile, path)
+	end
+end
+
+local function getMemoryStore()
+	if memoryStore == nil then
+		local env = (getgenv and getgenv()) or _G
+		env[STORE_KEY] = env[STORE_KEY] or {}
+		memoryStore = env[STORE_KEY]
+	end
+	return memoryStore
+end
+
+local function getStampFilePath(stampId)
+	return string.format("%s/%s.json", STAMP_ROOT, stampId)
+end
+
+local function loadIndexEntries()
+	ensureFolder(STAMP_ROOT)
+
+	local content = readFile(INDEX_PATH)
+	if not content then
+		return {}
+	end
+
+	local ok, entries = pcall(function()
+		return HttpService:JSONDecode(content)
+	end)
+	if not ok or type(entries) ~= "table" then
+		return {}
+	end
+
+	return entries
+end
+
+local function saveIndexEntries(entries)
+	if hasFileApi() then
+		writeFile(INDEX_PATH, HttpService:JSONEncode(entries))
+	end
+end
+
+local function readStampFile(stampId)
+	local content = readFile(getStampFilePath(stampId))
+	if not content then
+		return nil
+	end
+
+	local ok, stamp = pcall(function()
+		return HttpService:JSONDecode(content)
+	end)
+	if not ok or type(stamp) ~= "table" or type(stamp.buildData) ~= "table" then
+		return nil
+	end
+
+	return stamp
+end
+
+local function writeStampFile(stamp)
+	if not hasFileApi() then
+		table.insert(getMemoryStore(), stamp)
+		return true
+	end
+
+	return writeFile(getStampFilePath(stamp.id), HttpService:JSONEncode(stamp))
+end
+
+local function removeStampFile(stampId)
+	deleteFile(getStampFilePath(stampId))
+end
+
+local function syncMemoryFromDisk()
+	memoryStore = {}
+	if not hasFileApi() then
+		return
+	end
+
+	for _, entry in ipairs(loadIndexEntries()) do
+		local stamp = readStampFile(entry.id)
+		if stamp then
+			table.insert(memoryStore, stamp)
+		end
+	end
 end
 
 function StampLibrary.list()
-	return getStore()
+	if hasFileApi() then
+		syncMemoryFromDisk()
+	end
+	return getMemoryStore()
 end
 
 function StampLibrary.collectSerializableItems(selectionItems)
@@ -26,6 +177,47 @@ function StampLibrary.collectSerializableItems(selectionItems)
 		Support.ConcatTable(items, item:GetDescendants())
 	end
 	return items
+end
+
+local function persistStamp(stamp)
+	if not writeStampFile(stamp) then
+		return nil, "Не удалось сохранить stamp (writefile недоступен)"
+	end
+
+	if hasFileApi() then
+		local entries = loadIndexEntries()
+		local found = false
+		for _, entry in ipairs(entries) do
+			if entry.id == stamp.id then
+				entry.name = stamp.name
+				entry.createdAt = stamp.createdAt
+				found = true
+				break
+			end
+		end
+		if not found then
+			table.insert(entries, {
+				id = stamp.id,
+				name = stamp.name,
+				createdAt = stamp.createdAt,
+			})
+		end
+		saveIndexEntries(entries)
+	end
+
+	if memoryStore == nil then
+		getMemoryStore()
+	end
+
+	for index, existing in ipairs(memoryStore) do
+		if existing.id == stamp.id then
+			memoryStore[index] = stamp
+			return stamp
+		end
+	end
+	table.insert(memoryStore, stamp)
+
+	return stamp
 end
 
 function StampLibrary.saveFromSelection(name, selectionItems)
@@ -43,17 +235,32 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 
 	local stamp = {
 		id = HttpService:GenerateGUID(false),
-		name = (name ~= nil and name ~= "") and name or ("Stamp " .. (#getStore() + 1)),
+		name = (name ~= nil and name ~= "") and name or ("Stamp " .. (#StampLibrary.list() + 1)),
 		createdAt = os.time(),
 		buildData = buildData,
 	}
 
-	table.insert(getStore(), stamp)
-	return stamp
+	local saved, err = persistStamp(stamp)
+	if not saved then
+		return nil, err
+	end
+	return saved
 end
 
 function StampLibrary.delete(stampId)
-	local store = getStore()
+	if hasFileApi() then
+		local entries = loadIndexEntries()
+		for index, entry in ipairs(entries) do
+			if entry.id == stampId then
+				table.remove(entries, index)
+				saveIndexEntries(entries)
+				break
+			end
+		end
+		removeStampFile(stampId)
+	end
+
+	local store = StampLibrary.list()
 	for index, stamp in ipairs(store) do
 		if stamp.id == stampId then
 			table.remove(store, index)
@@ -64,8 +271,16 @@ function StampLibrary.delete(stampId)
 end
 
 function StampLibrary.find(stampId)
-	for _, stamp in ipairs(getStore()) do
+	for _, stamp in ipairs(StampLibrary.list()) do
 		if stamp.id == stampId then
+			return stamp
+		end
+	end
+
+	if hasFileApi() then
+		local stamp = readStampFile(stampId)
+		if stamp then
+			table.insert(getMemoryStore(), stamp)
 			return stamp
 		end
 	end
@@ -78,12 +293,16 @@ function StampLibrary.importBuildData(buildData, name)
 
 	local stamp = {
 		id = HttpService:GenerateGUID(false),
-		name = name or ("Import " .. (#getStore() + 1)),
+		name = name or ("Import " .. (#StampLibrary.list() + 1)),
 		createdAt = os.time(),
 		buildData = buildData,
 	}
-	table.insert(getStore(), stamp)
-	return stamp
+
+	local saved, err = persistStamp(stamp)
+	if not saved then
+		return nil, err
+	end
+	return saved
 end
 
 function StampLibrary.importFromJson(jsonString)
@@ -137,6 +356,10 @@ function StampLibrary.focusCameraOnParts(camera, parts)
 	local center = sum / #parts
 	local distance = math.max(6, maxSpan * 2.2)
 	camera.CFrame = CFrame.new(center + Vector3.new(distance, distance * 0.65, distance), center)
+end
+
+function StampLibrary.getStoragePath()
+	return STAMP_ROOT
 end
 
 return StampLibrary

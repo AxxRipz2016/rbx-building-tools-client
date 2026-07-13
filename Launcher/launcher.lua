@@ -22,7 +22,8 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713u"
+local CACHE_BUST = "20260713v"
+local CACHE_ROOT = "BT-BuildingTools/cache"
 
 local ModuleCache = {}
 local LargeModuleSources = {}
@@ -233,6 +234,79 @@ local function resolveGithubField(manifestValue, configValue)
 	return manifestValue
 end
 
+local function hasFileApi()
+	return typeof(writefile) == "function"
+		and typeof(readfile) == "function"
+		and typeof(isfile) == "function"
+end
+
+local function ensureFolder(path)
+	if typeof(makefolder) ~= "function" then
+		return
+	end
+
+	if typeof(isfolder) == "function" and isfolder(path) then
+		return
+	end
+
+	pcall(makefolder, path)
+end
+
+local function splitPath(filePath)
+	local parts = {}
+	for segment in filePath:gsub("\\", "/"):gmatch("[^/]+") do
+		table.insert(parts, segment)
+	end
+	return parts
+end
+
+local function ensureParentFolders(filePath)
+	if typeof(makefolder) ~= "function" then
+		return
+	end
+
+	local parts = splitPath(filePath)
+	table.remove(parts)
+
+	local current = ""
+	for _, segment in ipairs(parts) do
+		current = current == "" and segment or (current .. "/" .. segment)
+		ensureFolder(current)
+	end
+end
+
+local function getCachePath(relativePath)
+	return string.format("%s/%s/%s", CACHE_ROOT, CACHE_BUST, relativePath:gsub("\\", "/"))
+end
+
+local function readCacheFile(relativePath)
+	if not hasFileApi() then
+		return nil
+	end
+
+	local cachePath = getCachePath(relativePath)
+	if not isfile(cachePath) then
+		return nil
+	end
+
+	local ok, content = pcall(readfile, cachePath)
+	if ok and type(content) == "string" and content ~= "" then
+		return content
+	end
+
+	return nil
+end
+
+local function writeCacheFile(relativePath, content)
+	if not hasFileApi() then
+		return
+	end
+
+	local cachePath = getCachePath(relativePath)
+	ensureParentFolders(cachePath)
+	pcall(writefile, cachePath, content)
+end
+
 local function httpGet(url)
 	local ok, result = pcall(function()
 		if game.HttpGet then
@@ -281,12 +355,20 @@ local function fetchFileSource(filePath)
 	local resolved = resolveFilePath(filePath)
 	local pathsToTry = if resolved ~= filePath then { resolved, filePath } else { filePath }
 
+	for _, path in ipairs(pathsToTry) do
+		local cached = readCacheFile(path)
+		if cached then
+			return cached
+		end
+	end
+
 	local errors = {}
 	for _, path in ipairs(pathsToTry) do
 		local ok, result = pcall(function()
 			return httpGet(rawUrl(path))
 		end)
 		if ok then
+			writeCacheFile(path, result)
 			return result
 		end
 		table.insert(errors, rawUrl(path) .. "\n" .. tostring(result))
@@ -351,7 +433,16 @@ local function createInstance(entry)
 
 	if entry.file and (instance:IsA("LuaSourceContainer") or instance:IsA("Script")) then
 		reportFileProgress(entry.file)
-		local source = fetchFileSource(entry.file)
+		local cached = readCacheFile(entry.file)
+		local source = cached
+		if not source then
+			if gui then
+				gui.setStatus("Скачивание…")
+			end
+			source = fetchFileSource(entry.file)
+		elseif gui then
+			gui.setStatus("Из кэша")
+		end
 		if #source > MAX_INSTANCE_SOURCE then
 			LargeModuleSources[instance] = source
 			instance.Source = "-- BT: source too large for Instance.Source"
@@ -380,8 +471,15 @@ local function loadManifest()
 		RunService.Heartbeat:Wait()
 	end
 
-	local manifestUrl = rawUrl("Launcher/manifest.json", os.time())
-	local decoded = HttpService:JSONDecode(httpGet(manifestUrl))
+	local manifestPath = "Launcher/manifest.json"
+	local manifestContent = readCacheFile(manifestPath)
+	if not manifestContent then
+		local manifestUrl = rawUrl(manifestPath)
+		manifestContent = httpGet(manifestUrl)
+		writeCacheFile(manifestPath, manifestContent)
+	end
+
+	local decoded = HttpService:JSONDecode(manifestContent)
 
 	CONFIG.user = resolveGithubField(decoded.github.user, CONFIG.user)
 	CONFIG.repo = resolveGithubField(decoded.github.repo, CONFIG.repo)

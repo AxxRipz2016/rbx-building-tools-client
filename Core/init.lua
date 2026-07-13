@@ -984,9 +984,15 @@ function ToggleSwitch(CurrentButtonName, SwitchContainer)
 
 	local Theme = require(Tool.UI.Theme)
 	local accent = Theme.accent
-	local panel = SwitchContainer:FindFirstAncestor(function(instance)
-		return instance:IsA("GuiObject") and instance.Name:sub(1, 2) == "BT"
-	end)
+	local panel
+	local ancestor = SwitchContainer.Parent
+	while ancestor do
+		if ancestor:IsA("GuiObject") and ancestor.Name:sub(1, 2) == "BT" then
+			panel = ancestor
+			break
+		end
+		ancestor = ancestor.Parent
+	end
 	if panel then
 		accent = panel:GetAttribute("BTAccentColor") or accent
 	end

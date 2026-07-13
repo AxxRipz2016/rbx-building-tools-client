@@ -17,7 +17,7 @@ function StampPanel:init()
 		stamps = StampLibrary.list(),
 		selectedId = nil,
 		name = "",
-		status = "Выдели постройку и нажми «Сохранить»",
+		status = "Выдели постройку и нажми «Сохранить» (папка BT-BuildingTools/stamps)",
 	})
 end
 
