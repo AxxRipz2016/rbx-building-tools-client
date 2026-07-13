@@ -47,6 +47,11 @@ function MapLibrary.isWorldPatchEmpty(patch)
 	if type(patch.deleted) == "table" and #patch.deleted > 0 then
 		return false
 	end
+	if type(patch.replaced) == "table" then
+		for _ in pairs(patch.replaced) do
+			return false
+		end
+	end
 	if type(patch.props) == "table" then
 		for _ in pairs(patch.props) do
 			return false
@@ -56,13 +61,22 @@ function MapLibrary.isWorldPatchEmpty(patch)
 end
 
 function MapLibrary.anchorFromWorldPatch(patch)
-	if type(patch) ~= "table" or type(patch.props) ~= "table" then
+	if type(patch) ~= "table" then
 		return Vector3.new(0, 0, 0)
 	end
-	for _, propPatch in pairs(patch.props) do
-		if type(propPatch) == "table" and type(propPatch.CFrame) == "table" then
-			local cf = propPatch.CFrame
-			return Vector3.new(cf.x or 0, cf.y or 0, cf.z or 0)
+	if type(patch.replaced) == "table" then
+		for _, entry in pairs(patch.replaced) do
+			if type(entry) == "table" and type(entry.position) == "table" then
+				return Vector3.new(entry.position.x or 0, entry.position.y or 0, entry.position.z or 0)
+			end
+		end
+	end
+	if type(patch.props) == "table" then
+		for _, propPatch in pairs(patch.props) do
+			if type(propPatch) == "table" and type(propPatch.CFrame) == "table" then
+				local cf = propPatch.CFrame
+				return Vector3.new(cf.x or 0, cf.y or 0, cf.z or 0)
+			end
 		end
 	end
 	return Vector3.new(0, 0, 0)

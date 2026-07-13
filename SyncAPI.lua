@@ -45,8 +45,70 @@ end
 local function getPlacePatch()
 	local store = getPatchStore()
 	local key = tostring(game.PlaceId)
-	store[key] = store[key] or { deleted = {}, props = {} }
+	store[key] = store[key] or { deleted = {}, props = {}, replaced = {} }
+	if not store[key].replaced then
+		store[key].replaced = {}
+	end
 	return store[key]
+end
+
+local function serializeInstanceForPatch(instance)
+	local items = { instance }
+	for _, descendant in ipairs(instance:GetDescendants()) do
+		table.insert(items, descendant)
+	end
+	local useV4 = false
+	for _, it in ipairs(items) do
+		if typeof(it) == "Instance" and it:IsA("PartOperation") then
+			useV4 = true
+			break
+		end
+	end
+	local module = useV4 and require(Tool.Libraries.SerializationV4) or Serialization
+	local encoded = module.SerializeModel(items)
+	local ok, decoded = pcall(HttpService.JSONDecode, HttpService, encoded)
+	if ok and type(decoded) == "table" and type(decoded.Items) == "table" and #decoded.Items > 0 then
+		return decoded
+	end
+	return nil
+end
+
+local function inflateBuildDataAtParent(buildData, parent)
+	if type(buildData) ~= "table" or type(buildData.Items) ~= "table" then
+		return {}
+	end
+	local module = buildData.Version == 4 and require(Tool.Libraries.SerializationV4) or Serialization
+	local roots = module.InflateBuildData(buildData)
+	for _, root in ipairs(roots) do
+		root.Parent = parent
+	end
+	return roots
+end
+
+local function filterTopLevelItems(items)
+	local list = {}
+	for _, item in pairs(items) do
+		table.insert(list, item)
+	end
+
+	local filtered = {}
+	for _, item in ipairs(list) do
+		local skip = false
+		for _, other in ipairs(list) do
+			if other ~= item and item:IsDescendantOf(other) then
+				skip = true
+				break
+			end
+		end
+		if not skip then
+			table.insert(filtered, item)
+		end
+	end
+	return filtered
+end
+
+local function isWorldMapObject(instance)
+	return instance:GetAttribute('BTMapId') == nil and instance:GetAttribute('BTUserId') == nil
 end
 
 local function recordDelete(instance)
@@ -64,48 +126,52 @@ local function recordDelete(instance)
 	local entry = {
 		fullName = instance:GetFullName(),
 		parentFullName = parentName,
-		buildData = nil,
+		buildData = serializeInstanceForPatch(instance),
 	}
-
-	-- Best-effort: capture buildData so we can recreate if missing on load
-	pcall(function()
-		local items = { instance }
-		for _, descendant in ipairs(instance:GetDescendants()) do
-			table.insert(items, descendant)
-		end
-		local useV4 = false
-		for _, it in ipairs(items) do
-			if typeof(it) == "Instance" and it:IsA("PartOperation") then
-				useV4 = true
-				break
-			end
-		end
-		local module = useV4 and require(Tool.Libraries.SerializationV4) or Serialization
-		local encoded = module.SerializeModel(items)
-		local ok, decoded = pcall(HttpService.JSONDecode, HttpService, encoded)
-		if ok and type(decoded) == "table" and type(decoded.Items) == "table" then
-			entry.buildData = decoded
-		end
-	end)
 
 	table.insert(patch.deleted, entry)
 end
 
-local function recordProps(instance, propTable)
-	if not instance or type(propTable) ~= "table" then
+local function recordReplace(instance)
+	if not instance then
 		return
 	end
 
-	-- Не трекаем изменения объектов карты (BTMapId) — это должно входить в саму карту, а не в world patch
 	if instance:GetAttribute('BTMapId') ~= nil then
 		return
 	end
 
+	local parent = instance.Parent
+	if not parent then
+		return
+	end
+
+	local buildData = serializeInstanceForPatch(instance)
+	if not buildData then
+		return
+	end
+
 	local patch = getPlacePatch()
-	local path = instance:GetFullName()
-	patch.props[path] = patch.props[path] or {}
-	for k, v in pairs(propTable) do
-		patch.props[path][k] = v
+	patch.replaced = patch.replaced or {}
+
+	local fullName = instance:GetFullName()
+	local entry = {
+		fullName = fullName,
+		parentFullName = parent:GetFullName(),
+		buildData = buildData,
+	}
+
+	if instance:IsA("BasePart") then
+		local position = instance.Position
+		entry.position = { x = position.X, y = position.Y, z = position.Z }
+	elseif instance:IsA("Model") then
+		local position = instance:GetPivot().Position
+		entry.position = { x = position.X, y = position.Y, z = position.Z }
+	end
+
+	patch.replaced[fullName] = entry
+	if patch.props then
+		patch.props[fullName] = nil
 	end
 end
 
@@ -129,16 +195,6 @@ local function decodeCFrame(data)
 		data.r10, data.r11, data.r12,
 		data.r20, data.r21, data.r22
 	)
-end
-
-local function recordPartTransform(part)
-	if not part or not part:IsA("BasePart") then
-		return
-	end
-	recordProps(part, {
-		Size = { x = part.Size.X, y = part.Size.Y, z = part.Size.Z },
-		CFrame = encodeCFrame(part.CFrame),
-	})
 end
 
 local function resolveByFullName(fullName)
@@ -201,29 +257,41 @@ Actions = {
 			then math.random(-2^30, 2^30)
 			else nil
 
-		-- Clone items
-		for _, Item in pairs(Items) do
-			local Clone = Item:Clone()
+		-- Clone items (skip nested selection duplicates)
+		for _, Item in ipairs(filterTopLevelItems(Items)) do
+			local ClonedRoots = nil
 
-			-- Include metadata when streaming is enabled in tool mode
-			if StreamingCloneId then
-				Clone:SetAttribute("BTStreamingCloneID", StreamingCloneId)
-				Clone:AddTag("BTStreamingClone")
-				streamingClonesPendingUntagging[Clone] = true
-			end
-
-			Clone.Parent = Parent
-
-			if Player then
-				Clone:SetAttribute('BTUserId', Player.UserId)
-				for _, descendant in ipairs(Clone:GetDescendants()) do
-					descendant:SetAttribute('BTUserId', Player.UserId)
+			if isWorldMapObject(Item) then
+				local buildData = serializeInstanceForPatch(Item)
+				if buildData then
+					ClonedRoots = inflateBuildDataAtParent(buildData, Parent)
 				end
 			end
 
-			-- Register the clone
-			table.insert(Clones, Clone)
-			CreatedInstances[Item] = Item
+			if not ClonedRoots or #ClonedRoots == 0 then
+				local Clone = Item:Clone()
+				Clone.Parent = Parent
+				ClonedRoots = { Clone }
+			end
+
+			for _, Clone in ipairs(ClonedRoots) do
+				-- Include metadata when streaming is enabled in tool mode
+				if StreamingCloneId then
+					Clone:SetAttribute("BTStreamingCloneID", StreamingCloneId)
+					Clone:AddTag("BTStreamingClone")
+					streamingClonesPendingUntagging[Clone] = true
+				end
+
+				if Player then
+					Clone:SetAttribute('BTUserId', Player.UserId)
+					for _, descendant in ipairs(Clone:GetDescendants()) do
+						descendant:SetAttribute('BTUserId', Player.UserId)
+					end
+				end
+
+				table.insert(Clones, Clone)
+				CreatedInstances[Item] = Item
+			end
 		end
 
 		-- If streaming is enabled in tool mode, return temporary clone operation metadata
@@ -392,18 +460,11 @@ Actions = {
 		end
 
 		local deleted = type(WorldPatch.deleted) == 'table' and WorldPatch.deleted or {}
+		local replaced = type(WorldPatch.replaced) == 'table' and WorldPatch.replaced or {}
 		local props = type(WorldPatch.props) == 'table' and WorldPatch.props or {}
 
 		local function inflateAndParent(buildData, parent)
-			if type(buildData) ~= "table" or type(buildData.Items) ~= "table" then
-				return {}
-			end
-			local module = buildData.Version == 4 and require(Tool.Libraries.SerializationV4) or Serialization
-			local items = module.InflateBuildData(buildData)
-			for _, item in ipairs(items) do
-				item.Parent = parent
-			end
-			return items
+			return inflateBuildDataAtParent(buildData, parent)
 		end
 
 		for _, entry in ipairs(deleted) do
@@ -421,6 +482,19 @@ Actions = {
 					if parent then
 						inflateAndParent(entry.buildData, parent)
 					end
+				end
+			end
+		end
+
+		for _, entry in pairs(replaced) do
+			if type(entry) == 'table' and entry.buildData and entry.parentFullName then
+				local inst = resolveByFullName(entry.fullName)
+				if inst then
+					inst:Destroy()
+				end
+				local parent = resolveByFullName(entry.parentFullName)
+				if parent then
+					inflateAndParent(entry.buildData, parent)
 				end
 			end
 		end
@@ -981,7 +1055,10 @@ Actions = {
 
 		if not moveReverted then
 			for Part in pairs(PartChangeSet) do
-				recordPartTransform(Part)
+				recordReplace(Part)
+			end
+			for Model in pairs(ModelChangeSet) do
+				recordReplace(Model)
 			end
 		end
 
@@ -1057,7 +1134,7 @@ Actions = {
 
 		if not resizeReverted then
 			for Part in pairs(ChangeSet) do
-				recordPartTransform(Part)
+				recordReplace(Part)
 			end
 		end
 
@@ -1147,7 +1224,10 @@ Actions = {
 
 		if not rotateReverted then
 			for Part in pairs(PartChangeSet) do
-				recordPartTransform(Part)
+				recordReplace(Part)
+			end
+			for Model in pairs(ModelChangeSet) do
+				recordReplace(Model)
 			end
 		end
 
@@ -1203,11 +1283,7 @@ Actions = {
 				Part.UsePartColor = Change.UnionColoring;
 			end;
 
-			recordProps(Part, {
-				Color = { r = Part.Color.r, g = Part.Color.g, b = Part.Color.b },
-				Material = Part.Material.Name,
-				Transparency = Part.Transparency,
-			})
+			recordReplace(Part)
 
 		end;
 
@@ -1911,11 +1987,7 @@ Actions = {
 				Part.Reflectance = Change.Reflectance;
 			end;
 
-			recordProps(Part, {
-				Color = { r = Part.Color.r, g = Part.Color.g, b = Part.Color.b },
-				Material = Part.Material.Name,
-				Transparency = Part.Transparency,
-			})
+			recordReplace(Part)
 		end;
 
 	end;
