@@ -5,8 +5,8 @@
     "branch": "main"
   },
   "toolVersion": "3.1.0-client",
-  "toolName": "Кубик",
-  "generatedAt": "2026-07-13T13:25:16.386Z",
+  "toolName": "Пиратский куб",
+  "generatedAt": "2026-07-13T13:37:24.343Z",
   "entryCount": 160,
   "entries": [
     {
@@ -257,7 +257,7 @@
       "path": "Tools.Anchor",
       "className": "ModuleScript",
       "file": "Tools/Anchor.lua",
-      "version": "e6ebadd2f068"
+      "version": "3bd3c4a57f65"
     },
     {
       "path": "Tools.Collision",
@@ -527,7 +527,7 @@
       "path": "UI.Dock.AboutPane",
       "className": "ModuleScript",
       "file": "UI/Dock/AboutPane.lua",
-      "version": "69c015285a49"
+      "version": "b6ead07da3a5"
     },
     {
       "path": "UI.Dock.SelectionButton",

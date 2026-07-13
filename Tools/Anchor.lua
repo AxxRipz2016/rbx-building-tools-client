@@ -278,16 +278,16 @@ function RegisterChange()
 
 	-- Send the change to the server
 	local Changes = {}
-	for _, Part in pairs(self.HistoryRecord.Parts) do
-		self.HistoryRecord.AfterCFrame[Part] = Part.CFrame
+	for _, Part in pairs(HistoryRecord.Parts) do
+		HistoryRecord.AfterCFrame[Part] = Part.CFrame
 		table.insert(Changes, {
 			Part = Part;
 			CFrame = Part.CFrame;
 		})
 	end;
 	pcall(function ()
-		for _, Model in pairs(self.HistoryRecord.Models) do
-			self.HistoryRecord.AfterCFrame[Model] = Model:GetPivot()
+		for _, Model in pairs(HistoryRecord.Models) do
+			HistoryRecord.AfterCFrame[Model] = Model:GetPivot()
 			table.insert(Changes, {
 				Model = Model;
 				Pivot = Model:GetPivot();

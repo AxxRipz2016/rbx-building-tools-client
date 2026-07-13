@@ -19,11 +19,11 @@ local CONFIG = {
 	user = "AxxRipz2016",
 	repo = "rbx-building-tools-client",
 	branch = "main",
-	toolName = "Кубик",
+	toolName = "Пиратский куб",
 	toolVersion = "3.1.0-client",
 }
 
-local LAUNCHER_REVISION = "6"
+local LAUNCHER_REVISION = "7"
 local CACHE_ROOT = "BT-BuildingTools/cache"
 local CACHE_FILES_DIR = CACHE_ROOT .. "/files"
 local CACHE_VERSIONS_PATH = CACHE_ROOT .. "/versions.json"
