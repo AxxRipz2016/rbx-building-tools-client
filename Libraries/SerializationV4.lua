@@ -174,6 +174,13 @@ local function ensureTempFolder()
 	pcall(makefolder, TEMP_ROOT)
 end
 
+local function deleteTempFile(path)
+	local delfile = resolveApi("delfile")
+	if typeof(delfile) == "function" then
+		pcall(delfile, path)
+	end
+end
+
 local function inflateUnionFromRbxmx(rbxmx)
 	local writefile = resolveApi("writefile")
 	local getcustomasset = resolveApi("getcustomasset")
@@ -184,29 +191,28 @@ local function inflateUnionFromRbxmx(rbxmx)
 
 	ensureTempFolder()
 	local path = TEMP_ROOT .. "/" .. HttpService:GenerateGUID(false) .. ".rbxmx"
-	local writeOk = pcall(writefile, path, rbxmx)
+	local writeOk, writeErr = pcall(writefile, path, rbxmx)
 	if not writeOk then
+		warn("[BT SerializationV4] Union: writefile failed:", path, writeErr)
 		return nil
 	end
 
 	local assetOk, assetUrl = pcall(getcustomasset, path)
 	if not assetOk or not assetUrl then
+		warn("[BT SerializationV4] Union: getcustomasset failed:", path, assetUrl)
+		deleteTempFile(path)
 		return nil
 	end
 
 	local loadOk, objects = pcall(game.GetObjects, game, assetUrl)
+	deleteTempFile(path)
+
 	if loadOk and objects and objects[1] then
 		return objects[1]
 	end
 
+	warn("[BT SerializationV4] Union: GetObjects failed:", path, objects)
 	return nil
-end
-
-local function isSerializableItem(item)
-	if item:IsA("PartOperation") then
-		return true
-	end
-	return Types[item.ClassName] ~= nil
 end
 
 local Types = {
@@ -253,6 +259,57 @@ local DefaultNames = {
 	MeshPart = 'MeshPart',
 };
 
+local function isSerializableItem(item)
+	if item:IsA("PartOperation") then
+		return true
+	end
+	return Types[item.ClassName] ~= nil
+end
+
+local function purgeTempFolder()
+	local listfiles = resolveApi("listfiles")
+	local isfolder = resolveApi("isfolder")
+	if typeof(listfiles) ~= "function" then
+		return 0
+	end
+
+	if typeof(isfolder) == "function" and not isfolder(TEMP_ROOT) then
+		return 0
+	end
+
+	local ok, entries = pcall(listfiles, TEMP_ROOT)
+	if not ok or type(entries) ~= "table" then
+		return 0
+	end
+
+	local removed = 0
+	for _, entry in ipairs(entries) do
+		local childPath = if entry:find("/", 1, true) then entry else (TEMP_ROOT .. "/" .. entry)
+		deleteTempFile(childPath)
+		removed += 1
+	end
+
+	if removed > 0 then
+		print(string.format("[BT SerializationV4] temp очищен: %d файл(ов) из %s", removed, TEMP_ROOT))
+	end
+
+	return removed
+end
+
+function Serialization.ClearTemp()
+	ensureTempFolder()
+	return purgeTempFolder()
+end
+
+function Serialization.PurgeOldTemp()
+	return Serialization.ClearTemp()
+end
+
+-- Удаляем temp-файлы union, оставшиеся после прошлых сессий.
+task.defer(function()
+	pcall(Serialization.ClearTemp)
+end)
+
 function Serialization.SerializeModel(Items)
 	-- Returns a serialized version of the given model
 
@@ -290,8 +347,15 @@ function Serialization.SerializeModel(Items)
 
 	-- Serialize each item in the model
 	for Index, Item in pairs(Items) do
+		if not Item then
+			continue
+		end
 
-		if Item:IsA 'BasePart' then
+		local itemOk, itemErr = pcall(function()
+
+		if Item:IsA('PartOperation') then
+			-- Union/Intersect сериализуются отдельно через rbxmx.
+		elseif Item:IsA 'BasePart' then
 			local Datum = {};
 			Datum[1] = Types[Item.ClassName];
 			Datum[2] = Keys[Item.Parent] or 0;
@@ -481,8 +545,14 @@ function Serialization.SerializeModel(Items)
 				Datum[4] = rbxmx
 				Data.Items[Index] = Datum
 			else
-				warn("[BT SerializationV4] Union не сохранён:", Item:GetFullName(), err)
+				warn("[BT SerializationV4] Union не сохранён:", Item:GetFullName(), err or "неизвестная ошибка")
 			end
+		end
+
+		end)
+
+		if not itemOk then
+			warn("[BT SerializationV4] Ошибка сериализации объекта:", Item:GetFullName(), itemErr)
 		end
 
 		-- Spread the workload over time to avoid locking up the CPU

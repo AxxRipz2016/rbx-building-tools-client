@@ -268,6 +268,7 @@ function StampPanel:render()
 				[Roact.Event.Activated] = function()
 					local stamp, err = StampLibrary.saveFromSelection(self.state.name, self.props.Core.Selection.Items)
 					if not stamp then
+						warn("[BT Stamp UI]", err or "Ошибка сохранения")
 						self:setState({ status = err or "Ошибка сохранения" })
 						return
 					end
@@ -291,7 +292,7 @@ function StampPanel:render()
 			}),
 			Load = new("TextButton", {
 				LayoutOrder = 1,
-				Size = UDim2.new(0.5, -3, 1, 0),
+				Size = UDim2.new(0.34, -4, 1, 0),
 				BackgroundColor3 = Theme.surface,
 				BorderSizePixel = 0,
 				Font = Enum.Font.GothamBold,
@@ -325,7 +326,7 @@ function StampPanel:render()
 			}),
 			Delete = new("TextButton", {
 				LayoutOrder = 2,
-				Size = UDim2.new(0.5, -3, 1, 0),
+				Size = UDim2.new(0.33, -4, 1, 0),
 				BackgroundColor3 = Theme.surface,
 				BorderSizePixel = 0,
 				Font = Enum.Font.GothamBold,
@@ -344,6 +345,26 @@ function StampPanel:render()
 						self.props.OnSelectStamp(nil)
 					end
 					self:updatePreview(nil)
+				end,
+			}, {
+				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			}),
+			ClearTemp = new("TextButton", {
+				LayoutOrder = 3,
+				Size = UDim2.new(0.33, -4, 1, 0),
+				BackgroundColor3 = Theme.surface,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBold,
+				Text = "Очистить temp",
+				TextColor3 = Theme.text,
+				TextSize = 9,
+				[Roact.Event.Activated] = function()
+					local removed = StampLibrary.clearTemp()
+					self:setState({
+						status = removed > 0
+							and ("temp очищен: " .. removed .. " файл(ов)")
+							or "temp уже пуст (BT-BuildingTools/temp)",
+					})
 				end,
 			}, {
 				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),

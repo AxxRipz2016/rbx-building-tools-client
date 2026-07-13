@@ -289,6 +289,7 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 		return chooseSerializer(items).SerializeModel(items)
 	end)
 	if not ok then
+		warn("[BT Stamp] Ошибка сериализации:", serialized)
 		return nil, "Не удалось сериализовать: " .. tostring(serialized)
 	end
 
@@ -296,6 +297,7 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 		return HttpService:JSONDecode(serialized)
 	end)
 	if not decodeOk or not buildData or not buildData.Items then
+		warn("[BT Stamp] Ошибка JSON после сериализации:", buildData or serialized)
 		return nil, "Не удалось сериализовать выделение"
 	end
 
@@ -304,6 +306,7 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 		itemCount += 1
 	end
 	if itemCount == 0 then
+		warn("[BT Stamp] В выделении нет поддерживаемых объектов, всего кандидатов:", #items)
 		return nil, "Нет поддерживаемых объектов (скрипты, звуки и RemoteEvent не сохраняются)"
 	end
 
@@ -434,6 +437,16 @@ end
 
 function StampLibrary.getStoragePath()
 	return STAMP_ROOT
+end
+
+function StampLibrary.getTempPath()
+	return "BT-BuildingTools/temp"
+end
+
+function StampLibrary.clearTemp()
+	local removed = SerializationV4.ClearTemp()
+	print(string.format("[BT Stamp] temp очищен вручную: %d файл(ов)", removed))
+	return removed
 end
 
 return StampLibrary

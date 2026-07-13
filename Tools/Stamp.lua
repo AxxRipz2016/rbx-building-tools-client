@@ -25,7 +25,8 @@ StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</fo
 <b>Выделение</b> — кликай по миру как обычно, stamp не ставится.<font size="6"><br /></font>
 <b>Поставить</b> — выбери stamp в списке, нажми кнопку «Поставить».<font size="6"><br /></font>
 <b>Сохранить</b> — выдели постройку, имя, «Сохранить выделение».<font size="6"><br /></font>
-<b>Файлы</b> — папка BT-BuildingTools/stamps.]]
+<b>Файлы</b> — папка BT-BuildingTools/stamps.<font size="6"><br /></font>
+<b>temp</b> — union-файлы в BT-BuildingTools/temp; удаляются после загрузки, кнопка «Очистить temp».]]
 
 local PanelHandle = nil
 local SelectedStampId = nil
