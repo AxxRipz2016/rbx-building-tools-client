@@ -5,8 +5,8 @@
     "branch": "main"
   },
   "toolVersion": "3.1.0-client",
-  "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T13:16:13.453Z",
+  "toolName": "Кубик",
+  "generatedAt": "2026-07-13T13:25:16.386Z",
   "entryCount": 160,
   "entries": [
     {
@@ -257,7 +257,7 @@
       "path": "Tools.Anchor",
       "className": "ModuleScript",
       "file": "Tools/Anchor.lua",
-      "version": "dbe4947e498b"
+      "version": "e6ebadd2f068"
     },
     {
       "path": "Tools.Collision",
