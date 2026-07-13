@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T18:28:16.658Z",
+  "generatedAt": "2026-07-13T18:30:35.332Z",
   "entryCount": 164,
   "entries": [
     {
@@ -425,7 +425,7 @@
       "path": "UI.MapSaver",
       "className": "ModuleScript",
       "file": "UI/MapSaver/init.lua",
-      "version": "34f740f91f1a"
+      "version": "f447e040053a"
     },
     {
       "path": "UI.Notifications",
