@@ -207,7 +207,7 @@ addValue("Version", "StringValue", config.toolVersion);
 addValue("Loaded", "BoolValue", false);
 addValue("Loaded.DescendantCount", "IntValue", 0);
 addValue("AutoUpdate", "BoolValue", false);
-entries.push({ path: "Handle", className: "Part", properties: { Size: [0.2, 0.2, 0.2], Transparency: 1, CanCollide: false } });
+entries.push({ path: "Handle", className: "Part", properties: { Size: [1.1, 1.1, 1.1], Transparency: 0, CanCollide: false, Massless: true } });
 
 // Sort: parents before children (by dot count, then path)
 entries.sort((a, b) => {

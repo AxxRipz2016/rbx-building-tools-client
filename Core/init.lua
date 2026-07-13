@@ -11,6 +11,10 @@ while not Indicator.Value do
 	Indicator.Changed:Wait();
 end;
 
+pcall(function()
+	require(script:WaitForChild('HandleVisual')).apply(Tool)
+end)
+
 -- Modules
 Security = require(script.Security)
 History = require(script.History)

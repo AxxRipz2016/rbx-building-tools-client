@@ -450,6 +450,8 @@ local function bootstrapTool(tool)
 	loaded.Value = true
 
 	local btRequire = createBtRequire(tool)
+	btRequire(tool.Core:WaitForChild("HandleVisual")).apply(tool)
+
 	local interfaces = tool:WaitForChild("Interfaces")
 	if not interfaces:FindFirstChild("BTMoveToolGUI") then
 		btRequire(interfaces:WaitForChild("BuildInterfaces"))

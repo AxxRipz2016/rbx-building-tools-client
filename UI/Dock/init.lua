@@ -9,7 +9,6 @@ local new = Roact.createElement
 local ToolList = require(script:WaitForChild('ToolList'))
 local SelectionPane = require(script:WaitForChild('SelectionPane'))
 local AboutPane = require(script:WaitForChild('AboutPane'))
-local BrandPane = require(script:WaitForChild('BrandPane'))
 
 -- Create component
 local Dock = Roact.PureComponent:extend(script.Name)
@@ -42,20 +41,17 @@ function Dock:render()
                 self.SetDockSize(UDim2.fromOffset(rbx.AbsoluteContentSize.X, rbx.AbsoluteContentSize.Y))
             end;
         });
-        BrandPane = new(BrandPane, {
-            LayoutOrder = 0;
-        });
         ToolList = new(ToolList, {
-            LayoutOrder = 1;
+            LayoutOrder = 0;
             Tools = self.props.Tools;
             Core = self.props.Core;
         });
         SelectionPane = new(SelectionPane, {
-            LayoutOrder = 2;
+            LayoutOrder = 1;
             Core = self.props.Core;
         });
         AboutPane = new(AboutPane, {
-            LayoutOrder = 3;
+            LayoutOrder = 2;
             Core = self.props.Core;
         });
     })
