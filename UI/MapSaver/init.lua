@@ -563,7 +563,6 @@ function MapSaverPanel:render()
 					if self.props.OnSelectMap then
 						self.props.OnSelectMap(nil)
 					end
-					self:updatePreview(nil)
 				end,
 			}, {
 				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
