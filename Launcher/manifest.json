@@ -6,14 +6,14 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T18:30:35.332Z",
-  "entryCount": 164,
+  "generatedAt": "2026-07-13T19:14:22.742Z",
+  "entryCount": 168,
   "entries": [
     {
       "path": "Assets",
       "className": "ModuleScript",
       "file": "Support/Assets.lua",
-      "version": "0163abf56653"
+      "version": "94f59c1bc45c"
     },
     {
       "path": "AutoUpdate",
@@ -57,7 +57,7 @@
       "path": "Loader",
       "className": "ModuleScript",
       "file": "Loader/init.lua",
-      "version": "193ee1641acc"
+      "version": "6a3acc58a967"
     },
     {
       "path": "SyncAPI",
@@ -263,7 +263,7 @@
       "path": "SyncAPI.SyncModule",
       "className": "ModuleScript",
       "file": "SyncAPI.lua",
-      "version": "8843b44ed526"
+      "version": "c6bb37b4ca48"
     },
     {
       "path": "Tools.Anchor",
@@ -308,6 +308,12 @@
       "version": "76db3a559e52"
     },
     {
+      "path": "Tools.Mirror",
+      "className": "ModuleScript",
+      "file": "Tools/Mirror.lua",
+      "version": "c9240c655573"
+    },
+    {
       "path": "Tools.Move",
       "className": "ModuleScript",
       "file": "Tools/Move/init.lua",
@@ -324,6 +330,12 @@
       "className": "ModuleScript",
       "file": "Tools/Paint/init.lua",
       "version": "bdceab68e8d0"
+    },
+    {
+      "path": "Tools.Replace",
+      "className": "ModuleScript",
+      "file": "Tools/Replace.lua",
+      "version": "8856493f9dfa"
     },
     {
       "path": "Tools.Resize",
@@ -428,10 +440,22 @@
       "version": "f447e040053a"
     },
     {
+      "path": "UI.Mirror",
+      "className": "ModuleScript",
+      "file": "UI/Mirror/init.lua",
+      "version": "06172700b651"
+    },
+    {
       "path": "UI.Notifications",
       "className": "ModuleScript",
       "file": "UI/Notifications/init.lua",
       "version": "de85caa11dba"
+    },
+    {
+      "path": "UI.Replace",
+      "className": "ModuleScript",
+      "file": "UI/Replace/init.lua",
+      "version": "ae577a717eb3"
     },
     {
       "path": "UI.ScopeHUD",
