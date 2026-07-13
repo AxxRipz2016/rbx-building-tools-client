@@ -23,7 +23,7 @@ local CONFIG = {
 	toolVersion = "3.1.0-client",
 }
 
-local LAUNCHER_REVISION = "4"
+local LAUNCHER_REVISION = "5"
 local CACHE_ROOT = "BT-BuildingTools/cache"
 local CACHE_FILES_DIR = CACHE_ROOT .. "/files"
 local CACHE_VERSIONS_PATH = CACHE_ROOT .. "/versions.json"
@@ -359,6 +359,79 @@ local function writeCachedSource(relativePath, fileVersion, content)
 	fileVersionIndex[relativePath] = fileVersion
 end
 
+local function httpGet(url)
+	local ok, result = pcall(function()
+		if game.HttpGet then
+			return game:HttpGet(url, true)
+		end
+		return HttpService:GetAsync(url)
+	end)
+	if not ok then
+		error("HTTP ошибка: " .. tostring(result) .. "\nURL: " .. url, 0)
+	end
+	return result
+end
+
+local function rawUrl(filePath, fileVersion)
+	local url = string.format(
+		"https://raw.githubusercontent.com/%s/%s/%s/%s?v=%s",
+		CONFIG.user,
+		CONFIG.repo,
+		CONFIG.branch,
+		filePath:gsub("\\", "/"),
+		fileVersion or LAUNCHER_REVISION
+	)
+	return url
+end
+
+local function resolveFilePath(filePath)
+	if filePath:find(ROACT_VENDOR_PREFIX, 1, true) then
+		return filePath:gsub(ROACT_VENDOR_PREFIX, ROACT_PUBLISHED_PREFIX, 1)
+	end
+	return filePath
+end
+
+local function migrateManifest(manifest)
+	for _, entry in ipairs(manifest.entries) do
+		if entry.file then
+			entry.file = resolveFilePath(entry.file)
+		end
+	end
+	return manifest
+end
+
+local function fetchFileSource(filePath, fileVersion)
+	local resolved = resolveFilePath(filePath)
+	local pathsToTry = if resolved ~= filePath then { resolved, filePath } else { filePath }
+
+	for _, path in ipairs(pathsToTry) do
+		local cached = readCachedSource(path, fileVersion)
+		if cached then
+			if gui then
+				gui.setStatus("Из кэша")
+			end
+			return cached
+		end
+	end
+
+	local errors = {}
+	for _, path in ipairs(pathsToTry) do
+		local ok, result = pcall(function()
+			return httpGet(rawUrl(path, fileVersion))
+		end)
+		if ok then
+			if gui then
+				gui.setStatus("Скачивание…")
+			end
+			writeCachedSource(path, fileVersion, result)
+			return result
+		end
+		table.insert(errors, rawUrl(path, fileVersion) .. "\n" .. tostring(result))
+	end
+
+	error("HTTP ошибка при загрузке:\n" .. table.concat(errors, "\n\n"), 0)
+end
+
 local function deleteCacheTree(path)
 	if typeof(delfolder) == "function" then
 		pcall(delfolder, path)
@@ -435,79 +508,6 @@ local function purgeStaleCache(manifest)
 	end
 
 	saveFileVersionIndex()
-end
-
-local function httpGet(url)
-	local ok, result = pcall(function()
-		if game.HttpGet then
-			return game:HttpGet(url, true)
-		end
-		return HttpService:GetAsync(url)
-	end)
-	if not ok then
-		error("HTTP ошибка: " .. tostring(result) .. "\nURL: " .. url, 0)
-	end
-	return result
-end
-
-local function rawUrl(filePath, fileVersion)
-	local url = string.format(
-		"https://raw.githubusercontent.com/%s/%s/%s/%s?v=%s",
-		CONFIG.user,
-		CONFIG.repo,
-		CONFIG.branch,
-		filePath:gsub("\\", "/"),
-		fileVersion or LAUNCHER_REVISION
-	)
-	return url
-end
-
-local function resolveFilePath(filePath)
-	if filePath:find(ROACT_VENDOR_PREFIX, 1, true) then
-		return filePath:gsub(ROACT_VENDOR_PREFIX, ROACT_PUBLISHED_PREFIX, 1)
-	end
-	return filePath
-end
-
-local function migrateManifest(manifest)
-	for _, entry in ipairs(manifest.entries) do
-		if entry.file then
-			entry.file = resolveFilePath(entry.file)
-		end
-	end
-	return manifest
-end
-
-local function fetchFileSource(filePath, fileVersion)
-	local resolved = resolveFilePath(filePath)
-	local pathsToTry = if resolved ~= filePath then { resolved, filePath } else { filePath }
-
-	for _, path in ipairs(pathsToTry) do
-		local cached = readCachedSource(path, fileVersion)
-		if cached then
-			if gui then
-				gui.setStatus("Из кэша")
-			end
-			return cached
-		end
-	end
-
-	local errors = {}
-	for _, path in ipairs(pathsToTry) do
-		local ok, result = pcall(function()
-			return httpGet(rawUrl(path, fileVersion))
-		end)
-		if ok then
-			if gui then
-				gui.setStatus("Скачивание…")
-			end
-			writeCachedSource(path, fileVersion, result)
-			return result
-		end
-		table.insert(errors, rawUrl(path, fileVersion) .. "\n" .. tostring(result))
-	end
-
-	error("HTTP ошибка при загрузке:\n" .. table.concat(errors, "\n\n"), 0)
 end
 
 local function getParentPath(fullPath)
