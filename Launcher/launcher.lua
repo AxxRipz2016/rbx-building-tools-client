@@ -22,7 +22,153 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713e"
+local CACHE_BUST = "20260713f"
+
+local ModuleCache = {}
+
+local function patchModuleSource(source)
+	source = source:gsub("Game:GetService", "game:GetService")
+	return source
+end
+
+local function loadModuleChunk(source, chunkName, env)
+	if load then
+		local chunk, compileError = load(source, chunkName, "t", env)
+		if chunk then
+			return chunk
+		end
+		if compileError then
+			error("Компиляция " .. chunkName .. ": " .. tostring(compileError), 0)
+		end
+	end
+
+	local legacyLoad = loadstring
+	if not legacyLoad then
+		error("load/loadstring недоступны в executor", 0)
+	end
+
+	local chunk, compileError = legacyLoad(source, chunkName)
+	if not chunk then
+		error("Компиляция " .. chunkName .. ": " .. tostring(compileError), 0)
+	end
+
+	if setfenv then
+		setfenv(chunk, env)
+	end
+
+	return chunk
+end
+
+local function createModuleEnvironment(moduleScript, btRequire)
+	local env = {
+		script = moduleScript,
+		require = btRequire,
+		game = game,
+		Game = game,
+		workspace = workspace,
+		Workspace = workspace,
+		typeof = typeof,
+		type = type,
+		ipairs = ipairs,
+		pairs = pairs,
+		next = next,
+		table = table,
+		string = string,
+		math = math,
+		coroutine = coroutine,
+		task = task,
+		os = os,
+		tick = tick,
+		time = time,
+		wait = task.wait,
+		delay = task.delay,
+		spawn = task.spawn,
+		print = print,
+		warn = warn,
+		error = error,
+		pcall = pcall,
+		xpcall = xpcall,
+		select = select,
+		unpack = unpack,
+		setmetatable = setmetatable,
+		getmetatable = getmetatable,
+		rawget = rawget,
+		rawset = rawset,
+		rawequal = rawequal,
+		tostring = tostring,
+		tonumber = tonumber,
+		assert = assert,
+		Enum = Enum,
+		Vector3 = Vector3,
+		Vector2 = Vector2,
+		CFrame = CFrame,
+		Color3 = Color3,
+		UDim = UDim,
+		UDim2 = UDim2,
+		Rect = Rect,
+		BrickColor = BrickColor,
+		Instance = Instance,
+		Axes = Axes,
+		Faces = Faces,
+		Region3 = Region3,
+		Ray = Ray,
+	}
+
+	function env.getfenv(_level)
+		return env
+	end
+
+	function env.setfenv()
+		return env
+	end
+
+	env._G = env
+	setmetatable(env, { __index = _G })
+
+	return env
+end
+
+local function createBtRequire(tool)
+	local function btRequire(moduleScript)
+		if ModuleCache[moduleScript] ~= nil then
+			return ModuleCache[moduleScript]
+		end
+
+		if typeof(moduleScript) ~= "Instance" or not moduleScript:IsA("ModuleScript") then
+			error("btRequire ожидает ModuleScript, получено: " .. typeof(moduleScript), 0)
+		end
+
+		local source = moduleScript.Source
+		if source == nil or source == "" then
+			error("Пустой исходник: " .. moduleScript:GetFullName(), 0)
+		end
+
+		source = patchModuleSource(source)
+		local env = createModuleEnvironment(moduleScript, btRequire)
+		local chunk = loadModuleChunk(source, moduleScript:GetFullName(), env)
+
+		local ok, result = pcall(chunk)
+		if not ok then
+			error(moduleScript:GetFullName() .. ": " .. tostring(result), 0)
+		end
+
+		if result == nil then
+			result = true
+		end
+
+		ModuleCache[moduleScript] = result
+		return result
+	end
+
+	local function smartRequire(target)
+		if typeof(target) == "Instance" and target:IsA("ModuleScript") and target:IsDescendantOf(tool) then
+			return btRequire(target)
+		end
+		return require(target)
+	end
+
+	return smartRequire, btRequire
+end
 
 local function installCompat()
 	if rawget(_G, "Game") == nil then
@@ -277,24 +423,15 @@ local function bootstrapTool(tool)
 
 	loaded.Value = true
 
+	local btRequire = createBtRequire(tool)
 	local syncAPI = tool:WaitForChild("SyncAPI")
-	local okSync, syncModule = pcall(function()
-		return require(syncAPI:WaitForChild("SyncModule"))
-	end)
-	if not okSync then
-		error("SyncModule: " .. tostring(syncModule), 0)
-	end
+	local syncModule = btRequire(syncAPI:WaitForChild("SyncModule"))
 
 	syncAPI.OnInvoke = function(...)
 		return syncModule.PerformAction(Players.LocalPlayer, ...)
 	end
 
-	local okLoader, loaderError = pcall(function()
-		require(tool:WaitForChild("Loader"))
-	end)
-	if not okLoader then
-		error("Loader: " .. tostring(loaderError), 0)
-	end
+	btRequire(tool:WaitForChild("Loader"))
 end
 
 local function loadGui()
