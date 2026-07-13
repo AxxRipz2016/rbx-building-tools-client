@@ -29,6 +29,7 @@ MapSaverTool.ManualText = [[<font face="GothamBlack" size="16">Map Saver  🗺</
 <b>Автозагрузка</b> — карта грузится при входе на этот place.<font size="6"><br /></font>
 <b>Фильтр place</b> — все карты, только этот place ID, или с других игр.<font size="6"><br /></font>
 <b>Поиск</b> — по имени или place ID; кнопки сортировки и ★ (только автозагрузка).<font size="6"><br /></font>
+<b>Изменения мира</b> — сохраняет удаления/перекраску/материал (экспериментально, зависит от имён).<font size="6"><br /></font>
 <b>Файлы</b> — BT-BuildingTools/maps.]]
 
 local PanelHandle = nil
@@ -72,6 +73,12 @@ function MapSaverTool:LoadMap(mapId, replaceExisting)
 
 	if not created or #created == 0 then
 		return false, "Не удалось загрузить карту"
+	end
+
+	if map.worldPatch and mapSettings.saveWorldChanges then
+		pcall(function()
+			Core.SyncAPI:Invoke("ApplyWorldPatch", map.worldPatch)
+		end)
 	end
 
 	local HistoryRecord = {

@@ -327,6 +327,9 @@ function MapSaverPanel:render()
 			Anchor = self:renderCheckbox(4, "Anchor при загрузке", self.state.settings.anchoredOnLoad, function()
 				self:updateSettings({ anchoredOnLoad = not self.state.settings.anchoredOnLoad })
 			end),
+			WorldChanges = self:renderCheckbox(5, "Сохранять изменения мира (beta)", self.state.settings.saveWorldChanges, function()
+				self:updateSettings({ saveWorldChanges = not self.state.settings.saveWorldChanges })
+			end),
 		}),
 		PlaceFilterRow = new("Frame", {
 			LayoutOrder = 5,

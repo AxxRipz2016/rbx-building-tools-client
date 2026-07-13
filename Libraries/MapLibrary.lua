@@ -24,7 +24,21 @@ local DEFAULT_SETTINGS = {
 	saveSource = "selection",
 	autoLoad = false,
 	anchoredOnLoad = true,
+	saveWorldChanges = false,
 }
+
+local WORLD_PATCH_KEY = "__BT_WORLD_PATCH"
+
+local function getWorldPatchStore()
+	local env = (getgenv and getgenv()) or _G
+	env[WORLD_PATCH_KEY] = env[WORLD_PATCH_KEY] or {}
+	return env[WORLD_PATCH_KEY]
+end
+
+function MapLibrary.getWorldPatchForPlace(placeId)
+	local store = getWorldPatchStore()
+	return store[tostring(placeId)]
+end
 
 local function resolveApi(name)
 	if getgenv then
@@ -488,6 +502,10 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 	end
 
 	local now = os.time()
+	local worldPatch = nil
+	if settings.saveWorldChanges == true then
+		worldPatch = MapLibrary.getWorldPatchForPlace(game.PlaceId)
+	end
 	local map = {
 		id = mapId or HttpService:GenerateGUID(false),
 		name = (name ~= nil and name ~= "") and name or ("Карта " .. (#MapLibrary.list() + 1)),
@@ -501,8 +519,10 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 			saveSource = settings.saveSource or "selection",
 			autoLoad = settings.autoLoad == true,
 			anchoredOnLoad = settings.anchoredOnLoad ~= false,
+			saveWorldChanges = settings.saveWorldChanges == true,
 		},
 		buildData = buildData,
+		worldPatch = worldPatch,
 	}
 
 	local saved, err = persistMap(map)

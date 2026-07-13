@@ -34,6 +34,60 @@ LastParents = {};
 
 local streamingClonesPendingUntagging = {}
 
+-- In-memory patch of world changes (best-effort, client side)
+local WORLD_PATCH_KEY = "__BT_WORLD_PATCH"
+local function getPatchStore()
+	local env = (getgenv and getgenv()) or _G
+	env[WORLD_PATCH_KEY] = env[WORLD_PATCH_KEY] or {}
+	return env[WORLD_PATCH_KEY]
+end
+
+local function getPlacePatch()
+	local store = getPatchStore()
+	local key = tostring(game.PlaceId)
+	store[key] = store[key] or { deleted = {}, props = {} }
+	return store[key]
+end
+
+local function recordDelete(instance)
+	if not instance then
+		return
+	end
+	local patch = getPlacePatch()
+	table.insert(patch.deleted, instance:GetFullName())
+end
+
+local function recordProps(instance, propTable)
+	if not instance or type(propTable) ~= "table" then
+		return
+	end
+	local patch = getPlacePatch()
+	local path = instance:GetFullName()
+	patch.props[path] = patch.props[path] or {}
+	for k, v in pairs(propTable) do
+		patch.props[path][k] = v
+	end
+end
+
+local function resolveByFullName(fullName)
+	-- Only supports Workspace paths, e.g. "Workspace.Folder.Part"
+	if type(fullName) ~= "string" then
+		return nil
+	end
+	if not fullName:match("^Workspace%.") and fullName ~= "Workspace" then
+		return nil
+	end
+	local current = workspace
+	for segment in fullName:gmatch("[^%.]+") do
+		if segment == "Workspace" then
+			current = workspace
+		else
+			current = current and current:FindFirstChild(segment) or nil
+		end
+	end
+	return current
+end
+
 -- Determine whether we're in tool or plugin mode
 ToolMode = (Tool.Parent:IsA 'Plugin') and 'Plugin' or 'Tool'
 
@@ -257,6 +311,48 @@ Actions = {
 		end
 
 		return Items
+	end;
+
+	['ApplyWorldPatch'] = function (WorldPatch)
+		WorldPatch = type(WorldPatch) == 'table' and WorldPatch or nil
+		if not WorldPatch then
+			return false
+		end
+
+		local deleted = type(WorldPatch.deleted) == 'table' and WorldPatch.deleted or {}
+		local props = type(WorldPatch.props) == 'table' and WorldPatch.props or {}
+
+		for _, fullName in ipairs(deleted) do
+			local inst = resolveByFullName(fullName)
+			if inst then
+				inst:Destroy()
+			end
+		end
+
+		for fullName, patch in pairs(props) do
+			local inst = resolveByFullName(fullName)
+			if inst and type(patch) == 'table' then
+				if inst:IsA('BasePart') then
+					if patch.Color then
+						pcall(function()
+							inst.Color = Color3.new(patch.Color.r, patch.Color.g, patch.Color.b)
+						end)
+					end
+					if patch.Material then
+						pcall(function()
+							inst.Material = Enum.Material[patch.Material] or inst.Material
+						end)
+					end
+					if patch.Transparency ~= nil then
+						pcall(function()
+							inst.Transparency = patch.Transparency
+						end)
+					end
+				end
+			end
+		end
+
+		return true
 	end;
 
 	['ReplaceParts'] = function (TemplateBuildData, Parts, Options)
@@ -617,6 +713,11 @@ Actions = {
 		-- After confirming permissions, perform each removal
 		for _, Object in pairs(Objects) do
 
+			-- Track deletion for Map Saver world patch (best-effort)
+			if Object then
+				recordDelete(Object)
+			end
+
 			-- Store the part's current parent
 			LastParents[Object] = Object.Parent;
 
@@ -968,6 +1069,12 @@ Actions = {
 			if Part.ClassName == 'UnionOperation' then
 				Part.UsePartColor = Change.UnionColoring;
 			end;
+
+			recordProps(Part, {
+				Color = { r = Part.Color.r, g = Part.Color.g, b = Part.Color.b },
+				Material = Part.Material.Name,
+				Transparency = Part.Transparency,
+			})
 
 		end;
 
@@ -1670,6 +1777,12 @@ Actions = {
 			if Change.Reflectance ~= nil then
 				Part.Reflectance = Change.Reflectance;
 			end;
+
+			recordProps(Part, {
+				Color = { r = Part.Color.r, g = Part.Color.g, b = Part.Color.b },
+				Material = Part.Material.Name,
+				Transparency = Part.Transparency,
+			})
 		end;
 
 	end;
