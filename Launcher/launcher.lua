@@ -22,11 +22,10 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713b"
+local CACHE_BUST = "20260713c"
 
-local PATH_ALIASES = {
-	{ "^Vendor/Roact/src/", "Libraries/_vendor/Roact/src/" },
-}
+local ROACT_VENDOR_PREFIX = "Vendor/Roact/src/"
+local ROACT_PUBLISHED_PREFIX = "Libraries/_vendor/Roact/src/"
 
 local gui = nil
 local downloadedFiles = 0
@@ -52,8 +51,8 @@ local function httpGet(url)
 	return result
 end
 
-local function rawUrl(filePath)
-	return string.format(
+local function rawUrl(filePath, extraBust)
+	local url = string.format(
 		"https://raw.githubusercontent.com/%s/%s/%s/%s?v=%s",
 		CONFIG.user,
 		CONFIG.repo,
@@ -61,24 +60,31 @@ local function rawUrl(filePath)
 		filePath:gsub("\\", "/"),
 		CACHE_BUST
 	)
+	if extraBust then
+		url = url .. "&t=" .. tostring(extraBust)
+	end
+	return url
 end
 
-local function remapFilePath(filePath)
-	for _, alias in ipairs(PATH_ALIASES) do
-		local remapped = filePath:gsub(alias[1], alias[2])
-		if remapped ~= filePath then
-			return remapped
-		end
+local function resolveFilePath(filePath)
+	if filePath:find(ROACT_VENDOR_PREFIX, 1, true) then
+		return filePath:gsub(ROACT_VENDOR_PREFIX, ROACT_PUBLISHED_PREFIX, 1)
 	end
 	return filePath
 end
 
-local function fetchFileSource(filePath)
-	local pathsToTry = { filePath }
-	local remapped = remapFilePath(filePath)
-	if remapped ~= filePath then
-		table.insert(pathsToTry, remapped)
+local function migrateManifest(manifest)
+	for _, entry in ipairs(manifest.entries) do
+		if entry.file then
+			entry.file = resolveFilePath(entry.file)
+		end
 	end
+	return manifest
+end
+
+local function fetchFileSource(filePath)
+	local resolved = resolveFilePath(filePath)
+	local pathsToTry = if resolved ~= filePath then { resolved, filePath } else { filePath }
 
 	local errors = {}
 	for _, path in ipairs(pathsToTry) do
@@ -88,10 +94,10 @@ local function fetchFileSource(filePath)
 		if ok then
 			return result
 		end
-		table.insert(errors, path .. " -> " .. tostring(result))
+		table.insert(errors, rawUrl(path) .. "\n" .. tostring(result))
 	end
 
-	error("HTTP ошибка при загрузке:\n" .. filePath .. "\n" .. table.concat(errors, "\n"), 0)
+	error("HTTP ошибка при загрузке:\n" .. table.concat(errors, "\n\n"), 0)
 end
 
 local function getParentPath(fullPath)
@@ -174,7 +180,7 @@ local function loadManifest()
 		RunService.Heartbeat:Wait()
 	end
 
-	local manifestUrl = rawUrl("Launcher/manifest.json")
+	local manifestUrl = rawUrl("Launcher/manifest.json", os.time())
 	local decoded = HttpService:JSONDecode(httpGet(manifestUrl))
 
 	CONFIG.user = resolveGithubField(decoded.github.user, CONFIG.user)
@@ -182,7 +188,7 @@ local function loadManifest()
 	CONFIG.branch = decoded.github.branch or CONFIG.branch
 	CONFIG.toolName = decoded.toolName or CONFIG.toolName
 
-	return decoded
+	return migrateManifest(decoded)
 end
 
 local function buildTool(manifest)
@@ -287,13 +293,7 @@ local function main()
 		warn("[BT Launcher] " .. tostring(result))
 		if gui then
 			local message = tostring(result)
-			local title = "Ошибка загрузки"
-			local url = message:match("https://[^\n]+")
-			if url then
-				gui.setError(title, url)
-			else
-				gui.setError(title, message)
-			end
+			gui.setError("Ошибка загрузки", message)
 		end
 		return
 	end
