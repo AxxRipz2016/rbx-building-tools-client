@@ -65,17 +65,29 @@ function MapSaverTool:LoadMap(mapId, replaceExisting)
 	end
 
 	local mapSettings = map.settings or {}
-	local created = Core.SyncAPI:Invoke("MapLoad", map.buildData, anchor, getPlacementParent(), {
-		ReplaceExisting = replaceExisting ~= false,
-		MapId = map.id,
-		Anchored = mapSettings.anchoredOnLoad ~= false,
-	})
+	local hasBuildItems = type(map.buildData) == "table"
+		and type(map.buildData.Items) == "table"
+		and #map.buildData.Items > 0
+	local hasWorldPatch = mapSettings.saveWorldChanges
+		and map.worldPatch
+		and not MapLibrary.isWorldPatchEmpty(map.worldPatch)
 
-	if not created or #created == 0 then
-		return false, "Не удалось загрузить карту"
+	local created = {}
+	if hasBuildItems then
+		created = Core.SyncAPI:Invoke("MapLoad", map.buildData, anchor, getPlacementParent(), {
+			ReplaceExisting = replaceExisting ~= false,
+			MapId = map.id,
+			Anchored = mapSettings.anchoredOnLoad ~= false,
+		}) or {}
+
+		if #created == 0 then
+			return false, "Не удалось загрузить карту"
+		end
+	elseif not hasWorldPatch then
+		return false, "Карта пустая"
 	end
 
-	if map.worldPatch and mapSettings.saveWorldChanges then
+	if hasWorldPatch then
 		pcall(function()
 			Core.SyncAPI:Invoke("ApplyWorldPatch", map.worldPatch)
 		end)

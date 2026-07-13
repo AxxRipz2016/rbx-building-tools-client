@@ -109,6 +109,38 @@ local function recordProps(instance, propTable)
 	end
 end
 
+local function encodeCFrame(cf)
+	local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
+	return {
+		x = x, y = y, z = z,
+		r00 = r00, r01 = r01, r02 = r02,
+		r10 = r10, r11 = r11, r12 = r12,
+		r20 = r20, r21 = r21, r22 = r22,
+	}
+end
+
+local function decodeCFrame(data)
+	if type(data) ~= "table" or data.x == nil then
+		return nil
+	end
+	return CFrame.new(
+		data.x, data.y, data.z,
+		data.r00, data.r01, data.r02,
+		data.r10, data.r11, data.r12,
+		data.r20, data.r21, data.r22
+	)
+end
+
+local function recordPartTransform(part)
+	if not part or not part:IsA("BasePart") then
+		return
+	end
+	recordProps(part, {
+		Size = { x = part.Size.X, y = part.Size.Y, z = part.Size.Z },
+		CFrame = encodeCFrame(part.CFrame),
+	})
+end
+
 local function resolveByFullName(fullName)
 	-- Only supports Workspace paths, e.g. "Workspace.Folder.Part"
 	if type(fullName) ~= "string" then
@@ -397,6 +429,19 @@ Actions = {
 			local inst = resolveByFullName(fullName)
 			if inst and type(patch) == 'table' then
 				if inst:IsA('BasePart') then
+					if patch.Size then
+						pcall(function()
+							inst.Size = Vector3.new(patch.Size.x, patch.Size.y, patch.Size.z)
+						end)
+					end
+					if patch.CFrame then
+						pcall(function()
+							local cf = decodeCFrame(patch.CFrame)
+							if cf then
+								inst.CFrame = cf
+							end
+						end)
+					end
 					if patch.Color then
 						pcall(function()
 							inst.Color = Color3.new(patch.Color.r, patch.Color.g, patch.Color.b)
@@ -923,7 +968,9 @@ Actions = {
 		end
 
 		-- Make sure the player is authorized to move parts into this area
+		local moveReverted = false
 		if Security.ArePartsViolatingAreas(Parts, Player, false, AreaPermissions) then
+			moveReverted = true
 
 			-- Revert changes if unauthorized destination
 			for Part, Change in pairs(PartChangeSet) do
@@ -931,6 +978,12 @@ Actions = {
 			end;
 
 		end;
+
+		if not moveReverted then
+			for Part in pairs(PartChangeSet) do
+				recordPartTransform(Part)
+			end
+		end
 
 		-- Restore the parts' original states
 		for Part, Change in pairs(PartChangeSet) do
@@ -990,7 +1043,9 @@ Actions = {
 		end;
 
 		-- Make sure the player is authorized to move parts into this area
+		local resizeReverted = false
 		if Security.ArePartsViolatingAreas(Parts, Player, false, AreaPermissions) then
+			resizeReverted = true
 
 			-- Revert changes if unauthorized destination
 			for Part, Change in pairs(ChangeSet) do
@@ -999,6 +1054,12 @@ Actions = {
 			end;
 
 		end;
+
+		if not resizeReverted then
+			for Part in pairs(ChangeSet) do
+				recordPartTransform(Part)
+			end
+		end
 
 		-- Restore the parts' original states
 		for Part, Change in pairs(ChangeSet) do
@@ -1073,7 +1134,9 @@ Actions = {
 		end
 
 		-- Make sure the player is authorized to move parts into this area
+		local rotateReverted = false
 		if Security.ArePartsViolatingAreas(Parts, Player, false, AreaPermissions) then
+			rotateReverted = true
 
 			-- Revert changes if unauthorized destination
 			for Part, Change in pairs(PartChangeSet) do
@@ -1081,6 +1144,12 @@ Actions = {
 			end;
 
 		end;
+
+		if not rotateReverted then
+			for Part in pairs(PartChangeSet) do
+				recordPartTransform(Part)
+			end
+		end
 
 		-- Restore the parts' original states
 		for Part, Change in pairs(PartChangeSet) do

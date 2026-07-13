@@ -40,6 +40,34 @@ function MapLibrary.getWorldPatchForPlace(placeId)
 	return store[tostring(placeId)]
 end
 
+function MapLibrary.isWorldPatchEmpty(patch)
+	if not patch or type(patch) ~= "table" then
+		return true
+	end
+	if type(patch.deleted) == "table" and #patch.deleted > 0 then
+		return false
+	end
+	if type(patch.props) == "table" then
+		for _ in pairs(patch.props) do
+			return false
+		end
+	end
+	return true
+end
+
+function MapLibrary.anchorFromWorldPatch(patch)
+	if type(patch) ~= "table" or type(patch.props) ~= "table" then
+		return Vector3.new(0, 0, 0)
+	end
+	for _, propPatch in pairs(patch.props) do
+		if type(propPatch) == "table" and type(propPatch.CFrame) == "table" then
+			local cf = propPatch.CFrame
+			return Vector3.new(cf.x or 0, cf.y or 0, cf.z or 0)
+		end
+	end
+	return Vector3.new(0, 0, 0)
+end
+
 local function resolveApi(name)
 	if getgenv then
 		local value = rawget(getgenv(), name)
@@ -465,71 +493,86 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 		end
 	end
 
-	local roots = MapLibrary.resolveSaveRoots(core, settings)
-	if #roots == 0 then
-		return nil, "Нет объектов для сохранения"
-	end
-
-	local items = MapLibrary.collectSerializableItems(roots)
-	items = filterUnions(items, settings.includeUnions ~= false)
-
-	-- Мы никогда не сохраняем "весь мир" как buildData.
-	-- Если onlyMine=true -> только мои объекты.
-	-- Если onlyMine=false -> тоже сохраняем только мои объекты, а изменения чужого мира идут через worldPatch.
-	if core.Player then
-		items = filterOnlyMine(items, core.Player.UserId)
-	end
-
-	if #items == 0 then
-		return nil, "Нет твоих объектов для сохранения (нужен атрибут BTUserId — ставь/клонируй через кубик)"
-	end
-
-	local parts = {}
-	for _, item in ipairs(items) do
-		if item:IsA("BasePart") then
-			table.insert(parts, item)
-		end
-	end
-	if #parts == 0 then
-		return nil, "Нет частей для сохранения"
-	end
-
-	local ok, serialized = pcall(function()
-		return chooseSerializer(items, settings.includeUnions ~= false).SerializeModel(items)
-	end)
-	if not ok then
-		warn("[BT Map] Ошибка сериализации:", serialized)
-		return nil, "Не удалось сериализовать: " .. tostring(serialized)
-	end
-
-	local decodeOk, buildData = pcall(function()
-		return HttpService:JSONDecode(serialized)
-	end)
-	if not decodeOk or not buildData or not buildData.Items then
-		warn("[BT Map] Ошибка JSON:", buildData or serialized)
-		return nil, "Не удалось сериализовать карту"
-	end
-
-	local itemCount = 0
-	for _ in ipairs(buildData.Items) do
-		itemCount += 1
-	end
-	if itemCount == 0 then
-		return nil, "Нет поддерживаемых объектов для карты"
-	end
-
-	local now = os.time()
 	local worldPatch = nil
 	if settings.saveWorldChanges == true then
 		worldPatch = MapLibrary.getWorldPatchForPlace(game.PlaceId)
 	end
+	local hasWorldPatch = not MapLibrary.isWorldPatchEmpty(worldPatch)
+
+	local roots = MapLibrary.resolveSaveRoots(core, settings)
+	local buildData = nil
+	local anchorPosition = nil
+
+	if #roots > 0 then
+		local items = MapLibrary.collectSerializableItems(roots)
+		items = filterUnions(items, settings.includeUnions ~= false)
+
+		-- Мы никогда не сохраняем "весь мир" как buildData.
+		-- В buildData попадают только объекты с BTUserId; изменения чужого мира — через worldPatch.
+		if core.Player then
+			items = filterOnlyMine(items, core.Player.UserId)
+		end
+
+		if #items > 0 then
+			local parts = {}
+			for _, item in ipairs(items) do
+				if item:IsA("BasePart") then
+					table.insert(parts, item)
+				end
+			end
+
+			if #parts > 0 then
+				local ok, serialized = pcall(function()
+					return chooseSerializer(items, settings.includeUnions ~= false).SerializeModel(items)
+				end)
+				if not ok then
+					warn("[BT Map] Ошибка сериализации:", serialized)
+					return nil, "Не удалось сериализовать: " .. tostring(serialized)
+				end
+
+				local decodeOk, decoded = pcall(function()
+					return HttpService:JSONDecode(serialized)
+				end)
+				if not decodeOk or not decoded or not decoded.Items then
+					warn("[BT Map] Ошибка JSON:", decoded or serialized)
+					return nil, "Не удалось сериализовать карту"
+				end
+
+				local itemCount = 0
+				for _ in ipairs(decoded.Items) do
+					itemCount += 1
+				end
+				if itemCount > 0 then
+					buildData = decoded
+					anchorPosition = MapLibrary.computeAnchorPosition(parts)
+				end
+			end
+		end
+	end
+
+	if not buildData then
+		if hasWorldPatch and settings.saveWorldChanges == true then
+			buildData = { Version = 3, Items = {} }
+			anchorPosition = MapLibrary.anchorFromWorldPatch(worldPatch)
+		elseif #roots == 0 then
+			return nil, "Нет объектов для сохранения"
+		else
+			return nil, "Нет твоих объектов (BTUserId). Включи «Сохранять изменения мира» и измени объекты мира через кубик (Move/Resize/Color)."
+		end
+	end
+
+	if not hasWorldPatch and settings.saveWorldChanges == true then
+		worldPatch = nil
+	end
+
+	local now = os.time()
 	local map = {
 		id = mapId or HttpService:GenerateGUID(false),
 		name = (name ~= nil and name ~= "") and name or ("Карта " .. (#MapLibrary.list() + 1)),
 		createdAt = now,
 		updatedAt = now,
 		placeId = game.PlaceId,
-		anchorPosition = encodeVector3(MapLibrary.computeAnchorPosition(parts)),
+		anchorPosition = encodeVector3(anchorPosition),
 		settings = {
 			includeUnions = settings.includeUnions ~= false,
 			onlyMine = settings.onlyMine == true,
