@@ -208,6 +208,11 @@ function StampLibrary.list()
 	return getMemoryStore()
 end
 
+function StampLibrary.reload()
+	memoryStore = nil
+	return StampLibrary.list()
+end
+
 function StampLibrary.collectSerializableItems(selectionItems)
 	local items = Support.CloneTable(selectionItems)
 	for _, item in ipairs(selectionItems) do

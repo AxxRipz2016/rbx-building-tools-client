@@ -17,16 +17,16 @@ function StampPanel:init()
 		stamps = StampLibrary.list(),
 		selectedId = nil,
 		name = "",
-		status = "Выдели постройку и нажми «Сохранить» (папка BT-BuildingTools/stamps)",
+		status = "Выбери stamp и кликни по миру, чтобы поставить",
 	})
 end
 
-function StampPanel:refreshStampList(selectedId)
+function StampPanel:refreshStampList(selectedId, status)
 	local stamps = StampLibrary.list()
 	self:setState({
 		stamps = stamps,
 		selectedId = selectedId or self.state.selectedId,
-		status = #stamps == 0 and "Список пуст" or self.state.status,
+		status = status or (#stamps == 0 and "Список пуст" or self.state.status),
 	})
 end
 
@@ -67,18 +67,21 @@ function StampPanel:updatePreview(stampId)
 	StampLibrary.focusCameraOnParts(camera, parts)
 end
 
+function StampPanel:selectStamp(stampId, status)
+	self:setState({
+		selectedId = stampId,
+		status = status,
+	})
+	if self.props.OnSelectStamp then
+		self.props.OnSelectStamp(stampId)
+	end
+	self:updatePreview(stampId)
+end
+
 function StampPanel:didMount()
 	local stamps = StampLibrary.list()
 	if #stamps > 0 and not self.state.selectedId then
-		local first = stamps[1]
-		self:setState({
-			selectedId = first.id,
-			status = "Выбран: " .. first.name,
-		})
-		if self.props.OnSelectStamp then
-			self.props.OnSelectStamp(first.id)
-		end
-		self:updatePreview(first.id)
+		self:selectStamp(stamps[1].id, "Выбран: " .. stamps[1].name)
 	else
 		self:updatePreview(self.state.selectedId)
 	end
@@ -106,13 +109,7 @@ function StampPanel:render()
 			TextSize = 11,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			[Roact.Event.Activated] = function()
-				self:setState({
-					selectedId = stamp.id,
-					status = "Выбран: " .. stamp.name,
-				})
-				if self.props.OnSelectStamp then
-					self.props.OnSelectStamp(stamp.id)
-				end
+				self:selectStamp(stamp.id, "Выбран: " .. stamp.name)
 			end,
 		}, {
 			Corner = new("UICorner", {
@@ -126,7 +123,7 @@ function StampPanel:render()
 		BackgroundTransparency = 0.06,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 12, 0.5, -170),
-		Size = UDim2.fromOffset(280, 308),
+		Size = UDim2.fromOffset(280, 332),
 	}, {
 		Corner = new("UICorner", {
 			CornerRadius = UDim.new(0, Theme.cornerRadius),
@@ -170,7 +167,7 @@ function StampPanel:render()
 		Viewport = new("ViewportFrame", {
 			[Roact.Ref] = self.viewportRef,
 			LayoutOrder = 3,
-			Size = UDim2.new(1, 0, 0, 140),
+			Size = UDim2.new(1, 0, 0, 120),
 			BackgroundColor3 = Theme.background,
 			BackgroundTransparency = 0.1,
 			BorderSizePixel = 0,
@@ -182,100 +179,8 @@ function StampPanel:render()
 				CornerRadius = UDim.new(0, Theme.cornerRadiusSm),
 			}),
 		}),
-		NameBox = new("TextBox", {
-			LayoutOrder = 4,
-			Size = UDim2.new(1, 0, 0, 28),
-			BackgroundColor3 = Theme.surface,
-			BackgroundTransparency = 0.1,
-			BorderSizePixel = 0,
-			ClearTextOnFocus = false,
-			Font = Enum.Font.Gotham,
-			PlaceholderText = "Имя stamp…",
-			PlaceholderColor3 = Theme.textDim,
-			Text = self.state.name,
-			TextColor3 = Theme.text,
-			TextSize = 11,
-			[Roact.Change.Text] = function(rbx)
-				self:setState({ name = rbx.Text })
-			end,
-		}, {
-			Corner = new("UICorner", {
-				CornerRadius = UDim.new(0, Theme.cornerRadiusXs),
-			}),
-			Padding = new("UIPadding", {
-				PaddingLeft = UDim.new(0, 8),
-				PaddingRight = UDim.new(0, 8),
-			}),
-		}),
-		Actions = new("Frame", {
-			LayoutOrder = 5,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 28),
-		}, {
-			Layout = new("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				Padding = UDim.new(0, 6),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-			Save = new("TextButton", {
-				LayoutOrder = 1,
-				Size = UDim2.new(0.5, -3, 1, 0),
-				BackgroundColor3 = Theme.accent,
-				BorderSizePixel = 0,
-				Font = Enum.Font.GothamBold,
-				Text = "Сохранить",
-				TextColor3 = Theme.text,
-				TextSize = 11,
-				[Roact.Event.Activated] = function()
-					local stamp, err = StampLibrary.saveFromSelection(self.state.name, self.props.Core.Selection.Items)
-					if not stamp then
-						self:setState({ status = err or "Ошибка сохранения" })
-						return
-					end
-					self:refreshStampList(stamp.id)
-					self:setState({
-						name = "",
-						status = "Сохранено в " .. StampLibrary.getStoragePath() .. ": " .. stamp.name,
-					})
-					if self.props.OnSelectStamp then
-						self.props.OnSelectStamp(stamp.id)
-					end
-					self:updatePreview(stamp.id)
-				end,
-			}, {
-				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			}),
-			Delete = new("TextButton", {
-				LayoutOrder = 2,
-				Size = UDim2.new(0.5, -3, 1, 0),
-				BackgroundColor3 = Theme.surface,
-				BorderSizePixel = 0,
-				Font = Enum.Font.GothamBold,
-				Text = "Удалить",
-				TextColor3 = Theme.text,
-				TextSize = 11,
-				[Roact.Event.Activated] = function()
-					if not self.state.selectedId then
-						self:setState({ status = "Выбери stamp из списка" })
-						return
-					end
-					StampLibrary.delete(self.state.selectedId)
-					self:refreshStampList(nil)
-					self:setState({
-						selectedId = nil,
-						status = "Stamp удалён",
-					})
-					if self.props.OnSelectStamp then
-						self.props.OnSelectStamp(nil)
-					end
-					self:updatePreview(nil)
-				end,
-			}, {
-				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			}),
-		}),
 		List = new("ScrollingFrame", {
-			LayoutOrder = 6,
+			LayoutOrder = 4,
 			Size = UDim2.new(1, 0, 0, 72),
 			BackgroundColor3 = Theme.background,
 			BackgroundTransparency = 0.2,
@@ -296,15 +201,142 @@ function StampPanel:render()
 				PaddingRight = UDim.new(0, 4),
 			}),
 		})),
-		Hint = new("TextLabel", {
-			LayoutOrder = 7,
+		PlaceHint = new("TextLabel", {
+			LayoutOrder = 5,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 16),
+			Size = UDim2.new(1, 0, 0, 14),
 			Font = Enum.Font.GothamMedium,
-			Text = "Клик по миру — поставить stamp",
+			Text = "Клик по миру — поставить выбранный stamp",
 			TextColor3 = Theme.textDim,
 			TextSize = 10,
 			TextXAlignment = Enum.TextXAlignment.Left,
+		}),
+		SaveSection = new("Frame", {
+			LayoutOrder = 6,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 62),
+		}, {
+			Layout = new("UIListLayout", {
+				Padding = UDim.new(0, 6),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+			NameBox = new("TextBox", {
+				LayoutOrder = 1,
+				Size = UDim2.new(1, 0, 0, 28),
+				BackgroundColor3 = Theme.surface,
+				BackgroundTransparency = 0.1,
+				BorderSizePixel = 0,
+				ClearTextOnFocus = false,
+				Font = Enum.Font.Gotham,
+				PlaceholderText = "Имя для сохранения…",
+				PlaceholderColor3 = Theme.textDim,
+				Text = self.state.name,
+				TextColor3 = Theme.text,
+				TextSize = 11,
+				[Roact.Change.Text] = function(rbx)
+					self:setState({ name = rbx.Text })
+				end,
+			}, {
+				Corner = new("UICorner", {
+					CornerRadius = UDim.new(0, Theme.cornerRadiusXs),
+				}),
+				Padding = new("UIPadding", {
+					PaddingLeft = UDim.new(0, 8),
+					PaddingRight = UDim.new(0, 8),
+				}),
+			}),
+			Save = new("TextButton", {
+				LayoutOrder = 2,
+				Size = UDim2.new(1, 0, 0, 28),
+				BackgroundColor3 = Theme.accent,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBold,
+				Text = "Сохранить выделение",
+				TextColor3 = Theme.text,
+				TextSize = 11,
+				[Roact.Event.Activated] = function()
+					local stamp, err = StampLibrary.saveFromSelection(self.state.name, self.props.Core.Selection.Items)
+					if not stamp then
+						self:setState({ status = err or "Ошибка сохранения" })
+						return
+					end
+					self:refreshStampList(stamp.id, "Сохранено: " .. stamp.name)
+					self:setState({ name = "" })
+					self:selectStamp(stamp.id, "Сохранено: " .. stamp.name)
+				end,
+			}, {
+				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			}),
+		}),
+		LoadActions = new("Frame", {
+			LayoutOrder = 7,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 28),
+		}, {
+			Layout = new("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				Padding = UDim.new(0, 6),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+			Load = new("TextButton", {
+				LayoutOrder = 1,
+				Size = UDim2.new(0.5, -3, 1, 0),
+				BackgroundColor3 = Theme.surface,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBold,
+				Text = "Загрузить список",
+				TextColor3 = Theme.text,
+				TextSize = 10,
+				[Roact.Event.Activated] = function()
+					local stamps = StampLibrary.reload()
+					local selectedId = self.state.selectedId
+					if selectedId and not StampLibrary.find(selectedId) then
+						selectedId = stamps[1] and stamps[1].id or nil
+					end
+					if not selectedId and stamps[1] then
+						selectedId = stamps[1].id
+					end
+					self:refreshStampList(selectedId, #stamps > 0 and "Загружено stamps: " .. #stamps or "Список пуст")
+					if selectedId then
+						if self.props.OnSelectStamp then
+							self.props.OnSelectStamp(selectedId)
+						end
+						self:updatePreview(selectedId)
+					else
+						if self.props.OnSelectStamp then
+							self.props.OnSelectStamp(nil)
+						end
+						self:updatePreview(nil)
+					end
+				end,
+			}, {
+				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			}),
+			Delete = new("TextButton", {
+				LayoutOrder = 2,
+				Size = UDim2.new(0.5, -3, 1, 0),
+				BackgroundColor3 = Theme.surface,
+				BorderSizePixel = 0,
+				Font = Enum.Font.GothamBold,
+				Text = "Удалить",
+				TextColor3 = Theme.text,
+				TextSize = 11,
+				[Roact.Event.Activated] = function()
+					if not self.state.selectedId then
+						self:setState({ status = "Выбери stamp из списка" })
+						return
+					end
+					StampLibrary.delete(self.state.selectedId)
+					self:refreshStampList(nil, "Stamp удалён")
+					self:setState({ selectedId = nil })
+					if self.props.OnSelectStamp then
+						self.props.OnSelectStamp(nil)
+					end
+					self:updatePreview(nil)
+				end,
+			}, {
+				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			}),
 		}),
 	})
 end

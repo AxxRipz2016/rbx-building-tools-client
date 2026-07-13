@@ -140,16 +140,11 @@ Actions = {
 			part.CFrame = part.CFrame + offset
 		end
 
-		local created = {}
 		for _, item in ipairs(Items) do
 			item.Parent = Parent
-			table.insert(created, item)
-			for _, descendant in ipairs(item:GetDescendants()) do
-				table.insert(created, descendant)
-			end
 		end
 
-		return created
+		return Items
 	end;
 
 	['CreatePart'] = function (PartType, Position, Parent)

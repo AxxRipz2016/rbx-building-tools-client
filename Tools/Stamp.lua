@@ -23,10 +23,10 @@ local StampTool = {
 StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</font>
 Сохраняй выделение как stamp и ставь его снова одним кликом.<font size="6"><br /></font>
 
-<b>Сохранить</b> — выдели постройку, введи имя, нажми «Сохранить».<font size="6"><br /></font>
-<b>Превью</b> — выбери stamp в списке, смотри в окне ViewportFrame.<font size="6"><br /></font>
-<b>Поставить</b> — кликни по миру.<font size="6"><br /></font>
-<b>Файлы</b> — stamps в папке BT-BuildingTools/stamps.]]
+<b>Сохранить</b> — выдели постройку, имя, кнопка «Сохранить выделение».<font size="6"><br /></font>
+<b>Загрузить</b> — кнопка «Загрузить список» читает stamps с диска.<font size="6"><br /></font>
+<b>Поставить</b> — выбери stamp в списке, кликни по миру.<font size="6"><br /></font>
+<b>Файлы</b> — папка BT-BuildingTools/stamps.]]
 
 local Connections = {}
 local PanelHandle = nil
@@ -73,11 +73,12 @@ local function placeSelectedStamp()
 
 		Apply = function(record)
 			Core.SyncAPI:Invoke("UndoRemove", record.Clones)
+			Selection.Replace(record.Clones, false)
 		end,
 	}
 
 	Core.History.Add(HistoryRecord)
-	Selection.Clear(false)
+	Selection.Replace(created, false)
 end
 
 local function enablePlacement()
@@ -121,6 +122,7 @@ function StampTool:HideUI()
 end
 
 function StampTool:Equip()
+	Selection.Clear(false)
 	self:ShowUI()
 	enablePlacement()
 end
