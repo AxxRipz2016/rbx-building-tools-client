@@ -45,16 +45,32 @@ function Theme.ensureStroke(instance, color, transparency, thickness)
 end
 
 function Theme.ensureGradient(instance, topColor, bottomColor, rotation)
+	topColor = topColor or Theme.panelLight
+	bottomColor = bottomColor or Theme.panel
+	rotation = rotation or 90
+
 	local gradient = instance:FindFirstChildOfClass("UIGradient")
 	if not gradient then
 		gradient = Instance.new("UIGradient")
 		gradient.Parent = instance
 	end
-	gradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, topColor or Theme.panelLight),
-		ColorSequenceKeypoint.new(1, bottomColor or Theme.panel),
-	})
-	gradient.Rotation = rotation or 90
+
+	local ok = pcall(function()
+		if typeof(ColorSequence) == "ColorSequence" and typeof(ColorSequenceKeypoint) == "ColorSequenceKeypoint" then
+			gradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, topColor),
+				ColorSequenceKeypoint.new(1, bottomColor),
+			})
+		else
+			error("ColorSequence unavailable", 0)
+		end
+	end)
+
+	if not ok then
+		instance.BackgroundColor3 = bottomColor
+	end
+
+	gradient.Rotation = rotation
 	return gradient
 end
 

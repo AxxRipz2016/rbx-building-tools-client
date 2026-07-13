@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713m"
+local CACHE_BUST = "20260713n"
 
 local ModuleCache = {}
 local LargeModuleSources = {}
@@ -107,6 +107,8 @@ local function createModuleEnvironment(moduleScript, btRequire)
 		Vector2 = Vector2,
 		CFrame = CFrame,
 		Color3 = Color3,
+		ColorSequence = ColorSequence,
+		ColorSequenceKeypoint = ColorSequenceKeypoint,
 		UDim = UDim,
 		UDim2 = UDim2,
 		Rect = Rect,

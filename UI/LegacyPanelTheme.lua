@@ -81,10 +81,16 @@ local function ensureBackdrop(panel, accent)
 	accentLine.Parent = backdrop
 
 	local accentGradient = Instance.new("UIGradient")
-	accentGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, accent),
-		ColorSequenceKeypoint.new(1, Theme.accentBright),
-	})
+	local gradientOk = pcall(function()
+		accentGradient.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, accent),
+			ColorSequenceKeypoint.new(1, Theme.accentBright),
+		})
+	end)
+	if not gradientOk then
+		accentLine.BackgroundColor3 = accent
+		accentGradient:Destroy()
+	end
 	accentGradient.Rotation = 0
 	accentGradient.Parent = accentLine
 
