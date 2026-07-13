@@ -24,18 +24,20 @@ StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</fo
 
 <b>Выделение</b> — кликай по миру как обычно, stamp не ставится.<font size="6"><br /></font>
 <b>Поставить</b> — выбери stamp в списке, нажми кнопку «Поставить».<font size="6"><br /></font>
+<b>Anchor</b> — галочка: закреплять части при постановке.<font size="6"><br /></font>
 <b>Сохранить</b> — выдели постройку, имя, «Сохранить выделение».<font size="6"><br /></font>
 <b>Файлы</b> — папка BT-BuildingTools/stamps.<font size="6"><br /></font>
 <b>temp</b> — union-файлы в BT-BuildingTools/temp; удаляются после загрузки, кнопка «Очистить temp».]]
 
 local PanelHandle = nil
 local SelectedStampId = nil
+local PlaceAnchored = true
 
 local function getPlacementParent()
 	return Core.Targeting.Scope or workspace
 end
 
-function StampTool:PlaceStamp()
+function StampTool:PlaceStamp(anchored)
 	if not SelectedStampId then
 		return false, "Выбери stamp в списке"
 	end
@@ -50,7 +52,14 @@ function StampTool:PlaceStamp()
 		return false, "Наведи курсор на место постановки"
 	end
 
-	local created = Core.SyncAPI:Invoke("StampPlace", stamp.buildData, hit.Position, getPlacementParent())
+	local shouldAnchor = anchored
+	if shouldAnchor == nil then
+		shouldAnchor = PlaceAnchored
+	end
+
+	local created = Core.SyncAPI:Invoke("StampPlace", stamp.buildData, hit.Position, getPlacementParent(), shouldAnchor and {
+		Anchored = true,
+	} or nil)
 	if not created or #created == 0 then
 		return false, "Не удалось поставить stamp"
 	end
@@ -72,7 +81,15 @@ function StampTool:PlaceStamp()
 	Core.History.Add(HistoryRecord)
 	Selection.Replace(created, false)
 
-	return true, "Поставлено: " .. stamp.name
+	return true, "Поставлено: " .. stamp.name .. (shouldAnchor and " (anchor)" or "")
+end
+
+function StampTool:SetPlaceAnchored(anchored)
+	PlaceAnchored = anchored == true
+end
+
+function StampTool:GetPlaceAnchored()
+	return PlaceAnchored
 end
 
 function StampTool:SetSelectedStamp(stampId)
@@ -89,8 +106,12 @@ function StampTool:ShowUI()
 		OnSelectStamp = function(stampId)
 			StampTool:SetSelectedStamp(stampId)
 		end,
-		OnPlaceStamp = function()
-			return StampTool:PlaceStamp()
+		OnPlaceStamp = function(anchored)
+			return StampTool:PlaceStamp(anchored)
+		end,
+		PlaceAnchored = StampTool:GetPlaceAnchored(),
+		OnPlaceAnchoredChanged = function(anchored)
+			StampTool:SetPlaceAnchored(anchored)
 		end,
 	})
 	PanelHandle = Roact.mount(element, Core.UI, "StampPanel")

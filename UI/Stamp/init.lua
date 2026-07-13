@@ -17,6 +17,7 @@ function StampPanel:init()
 		stamps = StampLibrary.list(),
 		selectedId = nil,
 		name = "",
+		placeAnchored = props.PlaceAnchored == true,
 		status = "Выбери stamp в списке. Клик по миру — выделение.",
 	})
 end
@@ -122,8 +123,8 @@ function StampPanel:render()
 		BackgroundColor3 = Theme.panel,
 		BackgroundTransparency = 0.06,
 		BorderSizePixel = 0,
-		Position = UDim2.new(0, 12, 0.5, -170),
-		Size = UDim2.fromOffset(280, 350),
+		Position = UDim2.new(0, 12, 0.5, -180),
+		Size = UDim2.fromOffset(280, 368),
 	}, {
 		Corner = new("UICorner", {
 			CornerRadius = UDim.new(0, Theme.cornerRadius),
@@ -201,8 +202,57 @@ function StampPanel:render()
 				PaddingRight = UDim.new(0, 4),
 			}),
 		})),
-		Place = new("TextButton", {
+		AnchorOption = new("TextButton", {
 			LayoutOrder = 5,
+			Size = UDim2.new(1, 0, 0, 24),
+			BackgroundColor3 = Theme.surface,
+			BackgroundTransparency = 0.15,
+			BorderSizePixel = 0,
+			AutoButtonColor = false,
+			Font = Enum.Font.GothamSemibold,
+			Text = "",
+			TextColor3 = Theme.text,
+			TextSize = 11,
+			[Roact.Event.Activated] = function()
+				local placeAnchored = not self.state.placeAnchored
+				self:setState({ placeAnchored = placeAnchored })
+				if self.props.OnPlaceAnchoredChanged then
+					self.props.OnPlaceAnchoredChanged(placeAnchored)
+				end
+			end,
+		}, {
+			Corner = new("UICorner", { CornerRadius = UDim.new(0, Theme.cornerRadiusXs) }),
+			Layout = new("UIListLayout", {
+				FillDirection = Enum.FillDirection.Horizontal,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				Padding = UDim.new(0, 8),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+			Padding = new("UIPadding", {
+				PaddingLeft = UDim.new(0, 8),
+				PaddingRight = UDim.new(0, 8),
+			}),
+			Checkbox = new("ImageLabel", {
+				LayoutOrder = 1,
+				Size = UDim2.fromOffset(16, 16),
+				BackgroundTransparency = 1,
+				Image = self.state.placeAnchored
+					and (self.props.Core and self.props.Core.Assets and self.props.Core.Assets.CheckedCheckbox or "")
+					or (self.props.Core and self.props.Core.Assets and self.props.Core.Assets.UncheckedCheckbox or ""),
+			}),
+			Label = new("TextLabel", {
+				LayoutOrder = 2,
+				Size = UDim2.new(1, -24, 1, 0),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamSemibold,
+				Text = "Anchor при постановке",
+				TextColor3 = Theme.text,
+				TextSize = 11,
+				TextXAlignment = Enum.TextXAlignment.Left,
+			}),
+		}),
+		Place = new("TextButton", {
+			LayoutOrder = 6,
 			Size = UDim2.new(1, 0, 0, 32),
 			BackgroundColor3 = Theme.accent,
 			BorderSizePixel = 0,
@@ -214,7 +264,7 @@ function StampPanel:render()
 				if not self.props.OnPlaceStamp then
 					return
 				end
-				local ok, message = self.props.OnPlaceStamp()
+				local ok, message = self.props.OnPlaceStamp(self.state.placeAnchored)
 				self:setState({
 					status = message or (ok and "Stamp поставлен" or "Ошибка постановки"),
 				})
@@ -223,7 +273,7 @@ function StampPanel:render()
 			Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
 		}),
 		SaveSection = new("Frame", {
-			LayoutOrder = 6,
+			LayoutOrder = 7,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 62),
 		}, {
@@ -281,7 +331,7 @@ function StampPanel:render()
 			}),
 		}),
 		LoadActions = new("Frame", {
-			LayoutOrder = 8,
+			LayoutOrder = 9,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 28),
 		}, {

@@ -110,7 +110,7 @@ Actions = {
 		return Clones
 	end;
 
-	['StampPlace'] = function (BuildData, Position, Parent)
+	['StampPlace'] = function (BuildData, Position, Parent, Options)
 		assert(type(BuildData) == 'table', 'Invalid build data')
 		assert(typeof(Position) == 'Vector3', 'Invalid position')
 		assert(typeof(Parent) == 'Instance', 'Invalid parent')
@@ -141,6 +141,12 @@ Actions = {
 		local offset = Position - center
 		for _, part in ipairs(parts) do
 			part.CFrame = part.CFrame + offset
+		end
+
+		if type(Options) == 'table' and Options.Anchored ~= nil then
+			for _, part in ipairs(parts) do
+				part.Anchored = Options.Anchored
+			end
 		end
 
 		for _, item in ipairs(Items) do
