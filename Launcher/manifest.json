@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T13:46:54.368Z",
-  "entryCount": 160,
+  "generatedAt": "2026-07-13T16:47:14.737Z",
+  "entryCount": 161,
   "entries": [
     {
       "path": "Assets",
@@ -201,6 +201,12 @@
       "version": "5ce215f7ecfb"
     },
     {
+      "path": "Libraries.SerializationV4",
+      "className": "ModuleScript",
+      "file": "Libraries/SerializationV4.lua",
+      "version": "e8860eedd246"
+    },
+    {
       "path": "Libraries.Signal",
       "className": "ModuleScript",
       "file": "Libraries/_vendor/GoodSignal.lua",
@@ -210,7 +216,7 @@
       "path": "Libraries.StampLibrary",
       "className": "ModuleScript",
       "file": "Libraries/StampLibrary.lua",
-      "version": "93f3967bce53"
+      "version": "975d1e6aa56c"
     },
     {
       "path": "Libraries.SupportLibrary",
@@ -251,7 +257,7 @@
       "path": "SyncAPI.SyncModule",
       "className": "ModuleScript",
       "file": "SyncAPI.lua",
-      "version": "63e561842f33"
+      "version": "a9193de340a7"
     },
     {
       "path": "Tools.Anchor",

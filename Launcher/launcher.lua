@@ -147,6 +147,11 @@ local function createModuleEnvironment(moduleScript, btRequire)
 	local globalEnv = if getgenv then getgenv() else _G
 	local executorApis = {
 		"getgenv",
+		"gethiddenproperty",
+		"getcustomasset",
+		"base64encode",
+		"crypt",
+		"syn",
 		"writefile",
 		"readfile",
 		"isfile",

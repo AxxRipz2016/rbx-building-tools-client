@@ -116,7 +116,10 @@ Actions = {
 		assert(typeof(Parent) == 'Instance', 'Invalid parent')
 		assert(Security.IsLocationAllowed(Parent, Player), 'Permission denied for client')
 
-		local Items = Serialization.InflateBuildData(BuildData)
+		local SerializationModule = BuildData.Version == 4
+			and require(Tool.Libraries.SerializationV4)
+			or Serialization
+		local Items = SerializationModule.InflateBuildData(BuildData)
 		if #Items == 0 then
 			return {}
 		end

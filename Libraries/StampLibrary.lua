@@ -2,9 +2,26 @@ local HttpService = game:GetService("HttpService")
 
 local Tool = script.Parent.Parent
 local Support = require(Tool.Libraries.SupportLibrary)
-local Serialization = require(Tool.Libraries.SerializationV3)
+local SerializationV3 = require(Tool.Libraries.SerializationV3)
+local SerializationV4 = require(Tool.Libraries.SerializationV4)
 
 Support.ImportServices()
+
+local function chooseSerializer(items)
+	for _, item in ipairs(items) do
+		if item:IsA("PartOperation") then
+			return SerializationV4
+		end
+	end
+	return SerializationV3
+end
+
+local function inflateBuildData(buildData)
+	if type(buildData) == "table" and buildData.Version == 4 then
+		return SerializationV4.InflateBuildData(buildData)
+	end
+	return SerializationV3.InflateBuildData(buildData)
+end
 
 local StampLibrary = {}
 
@@ -269,7 +286,7 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 	end
 
 	local ok, buildData = pcall(function()
-		return HttpService:JSONDecode(Serialization.SerializeModel(items))
+		return HttpService:JSONDecode(chooseSerializer(items).SerializeModel(items))
 	end)
 	if not ok or not buildData or not buildData.Items then
 		return nil, "Не удалось сериализовать выделение"
@@ -365,7 +382,7 @@ function StampLibrary.inflate(stamp)
 	if not stamp or not stamp.buildData then
 		return {}
 	end
-	return Serialization.InflateBuildData(stamp.buildData)
+	return inflateBuildData(stamp.buildData)
 end
 
 function StampLibrary.getPartsFromRoots(roots)
