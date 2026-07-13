@@ -23,7 +23,7 @@ local CONFIG = {
 	toolVersion = "3.1.0-client",
 }
 
-local LAUNCHER_REVISION = "5"
+local LAUNCHER_REVISION = "6"
 local CACHE_ROOT = "BT-BuildingTools/cache"
 local CACHE_FILES_DIR = CACHE_ROOT .. "/files"
 local CACHE_VERSIONS_PATH = CACHE_ROOT .. "/versions.json"
