@@ -12,6 +12,8 @@
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
+local PLACEHOLDER_USER = "YOUR_USERNAME"
+
 local CONFIG = {
 	user = "AxxRipz2016",
 	repo = "rbx-building-tools-client",
@@ -19,11 +21,24 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local function httpGet(url)
-	if game.HttpGet then
-		return game:HttpGet(url, true)
+local function resolveGithubField(manifestValue, configValue)
+	if manifestValue == nil or manifestValue == "" or manifestValue == PLACEHOLDER_USER then
+		return configValue
 	end
-	return HttpService:GetAsync(url)
+	return manifestValue
+end
+
+local function httpGet(url)
+	local ok, result = pcall(function()
+		if game.HttpGet then
+			return game:HttpGet(url, true)
+		end
+		return HttpService:GetAsync(url)
+	end)
+	if not ok then
+		error("HTTP ошибка: " .. tostring(result) .. "\nURL: " .. url, 0)
+	end
+	return result
 end
 
 local function rawUrl(filePath)
@@ -119,8 +134,8 @@ local function loadManifest()
 	local manifestUrl = rawUrl("Launcher/manifest.json")
 	local decoded = HttpService:JSONDecode(httpGet(manifestUrl))
 
-	CONFIG.user = decoded.github.user or CONFIG.user
-	CONFIG.repo = decoded.github.repo or CONFIG.repo
+	CONFIG.user = resolveGithubField(decoded.github.user, CONFIG.user)
+	CONFIG.repo = resolveGithubField(decoded.github.repo, CONFIG.repo)
 	CONFIG.branch = decoded.github.branch or CONFIG.branch
 	CONFIG.toolName = decoded.toolName or CONFIG.toolName
 

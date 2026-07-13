@@ -40,7 +40,15 @@ function walkLuaDir(relativeDir, instancePath) {
 
   for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      walkLuaDir(path.join(relativeDir, entry.name), instancePath);
+      const subDirPath = path.join(relativeDir, entry.name);
+      const subInitPath = path.join(absoluteDir, entry.name, "init.lua");
+      if (fs.existsSync(subInitPath)) {
+        walkLuaDir(subDirPath, instancePath);
+      } else {
+        const folderPath = instancePath ? `${instancePath}.${entry.name}` : entry.name;
+        addFolder(folderPath);
+        walkLuaDir(subDirPath, folderPath);
+      }
       continue;
     }
 
@@ -64,6 +72,7 @@ function addValue(instancePath, className, value) {
 }
 
 // Folders
+addFolder("Libraries");
 addFolder("Tools");
 addFolder("UI");
 addFolder("Interfaces");
@@ -95,13 +104,42 @@ for (const entry of fs.readdirSync(librariesDir, { withFileTypes: true })) {
   }
 }
 
-// Roact vendor
-const roactDir = path.join(root, "Vendor", "Roact", "src");
-if (fs.existsSync(roactDir)) {
-  walkLuaDir(path.join("Vendor", "Roact", "src"), "Vendor.Roact");
-} else {
-  warnings.push("Vendor/Roact не найден. Выполни: git submodule update --init --recursive");
+// Roact vendor — папка src маппится в Vendor.Roact (как в default.project.json)
+function walkRoactVendor() {
+  const relativeDir = path.join("Vendor", "Roact", "src");
+  const absoluteDir = path.join(root, relativeDir);
+  if (!fs.existsSync(absoluteDir)) {
+    warnings.push("Vendor/Roact не найден. Выполни: git submodule update --init --recursive");
+    return;
+  }
+
+  const instancePath = "Vendor.Roact";
+  addEntry(instancePath, "ModuleScript", path.join(relativeDir, "init.lua"));
+
+  for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      const subDirPath = path.join(relativeDir, entry.name);
+      const subInitPath = path.join(absoluteDir, entry.name, "init.lua");
+      if (fs.existsSync(subInitPath)) {
+        walkLuaDir(subDirPath, instancePath);
+      } else {
+        const folderPath = `${instancePath}.${entry.name}`;
+        addFolder(folderPath);
+        walkLuaDir(subDirPath, folderPath);
+      }
+      continue;
+    }
+
+    if (!entry.name.endsWith(".lua") || entry.name === "init.lua" || shouldSkipFile(entry.name)) {
+      continue;
+    }
+
+    const scriptName = entry.name.replace(/\.lua$/, "");
+    addEntry(`${instancePath}.${scriptName}`, "ModuleScript", path.join(relativeDir, entry.name));
+  }
 }
+
+walkRoactVendor();
 
 // Signal dependency (vendored for GitHub raw URLs)
 const signalFile = path.join(
