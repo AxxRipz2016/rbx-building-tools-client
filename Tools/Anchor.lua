@@ -139,6 +139,23 @@ function HideUI()
 
 end;
 
+local function buildCFrameChanges(record, cframeMap)
+	local changes = {}
+	for _, part in ipairs(record.Parts) do
+		table.insert(changes, {
+			Part = part;
+			CFrame = cframeMap[part];
+		})
+	end
+	for _, model in ipairs(record.Models) do
+		table.insert(changes, {
+			Model = model;
+			Pivot = cframeMap[model];
+		})
+	end
+	return changes
+end
+
 function SetProperty(Property, Value)
 
 	-- Make sure the given value is valid
@@ -152,6 +169,9 @@ function SetProperty(Property, Value)
 	-- Go through each part
 	for _, Part in pairs(Selection.Parts) do
 
+		-- Remember position before physics can move the part
+		HistoryRecord.BeforeCFrame[Part] = Part.CFrame;
+
 		-- Store the state of the part before modification
 		table.insert(HistoryRecord.Before, { Part = Part, [Property] = Part[Property] });
 
@@ -159,6 +179,12 @@ function SetProperty(Property, Value)
 		table.insert(HistoryRecord.After, { Part = Part, [Property] = Value });
 
 	end;
+
+	pcall(function ()
+		for _, Model in pairs(Selection.Models) do
+			HistoryRecord.BeforeCFrame[Model] = Model:GetPivot();
+		end
+	end)
 
 	-- Register the changes
 	RegisterChange();
@@ -210,8 +236,12 @@ function TrackChange()
 
 	-- Start the record
 	HistoryRecord = {
+		Parts = Support.CloneTable(Selection.Parts);
+		Models = Support.CloneTable(Selection.Models);
 		Before = {};
 		After = {};
+		BeforeCFrame = {};
+		AfterCFrame = {};
 		Selection = Selection.Items;
 
 		Unapply = function (Record)
@@ -220,23 +250,9 @@ function TrackChange()
 			-- Select the changed parts
 			Selection.Replace(Record.Selection)
 
-			-- Send the change request
+			-- Put parts back where they were, then restore anchor state
+			Core.SyncAPI:Invoke('SyncMove', buildCFrameChanges(Record, Record.BeforeCFrame));
 			Core.SyncAPI:Invoke('SyncAnchor', Record.Before);
-			for _, Part in ipairs(Record.Parts) do
-				table.insert(Changes, {
-					Part = Part;
-					CFrame = Record.BeforeCFrame[Part];
-				})
-			end
-			for _, Model in ipairs(Record.Models) do
-				table.insert(Changes, {
-					Model = Model;
-					Pivot = Record.BeforeCFrame[Model];
-				})
-			end
-
-			-- Send the change request
-			Core.SyncAPI:Invoke('SyncMove', Changes);
 
 		end;
 
@@ -246,21 +262,8 @@ function TrackChange()
 			-- Select the changed parts
 			Selection.Replace(Record.Selection)
 
-			-- Send the change request
-			for _, Part in ipairs(Record.Parts) do
-				table.insert(Changes, {
-					Part = Part;
-					CFrame = Record.AfterCFrame[Part];
-				})
-			end
-			for _, Model in ipairs(Record.Models) do
-				table.insert(Changes, {
-					Model = Model;
-					Pivot = Record.AfterCFrame[Model];
-				})
-			end
 			Core.SyncAPI:Invoke('SyncAnchor', Record.After);
-			Core.SyncAPI:Invoke('SyncMove', Changes);
+			Core.SyncAPI:Invoke('SyncMove', buildCFrameChanges(Record, Record.AfterCFrame));
 
 		end;
 
@@ -276,26 +279,18 @@ function RegisterChange()
 		return;
 	end;
 
-	-- Send the change to the server
-	local Changes = {}
 	for _, Part in pairs(HistoryRecord.Parts) do
-		HistoryRecord.AfterCFrame[Part] = Part.CFrame
-		table.insert(Changes, {
-			Part = Part;
-			CFrame = Part.CFrame;
-		})
+		HistoryRecord.AfterCFrame[Part] = Part.CFrame;
 	end;
+
 	pcall(function ()
 		for _, Model in pairs(HistoryRecord.Models) do
-			HistoryRecord.AfterCFrame[Model] = Model:GetPivot()
-			table.insert(Changes, {
-				Model = Model;
-				Pivot = Model:GetPivot();
-			})
+			HistoryRecord.AfterCFrame[Model] = Model:GetPivot();
 		end
 	end)
+
+	-- Send the anchor change to the server
 	Core.SyncAPI:Invoke('SyncAnchor', HistoryRecord.After);
-	Core.SyncAPI:Invoke('SyncMove', Changes);
 
 	-- Register the record and clear the staging
 	Core.History.Add(HistoryRecord);
