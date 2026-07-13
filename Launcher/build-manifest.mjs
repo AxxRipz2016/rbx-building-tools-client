@@ -85,6 +85,9 @@ addFolder("UI");
 addFolder("Interfaces");
 addFolder("Vendor");
 
+// Interfaces UI templates
+addEntry("Interfaces.BuildInterfaces", "ModuleScript", "Interfaces/BuildInterfaces.lua");
+
 // Core modules
 walkLuaDir("Core", "");
 

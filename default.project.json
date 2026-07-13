@@ -80,7 +80,7 @@
           "$path": "UI"
         },
         "Interfaces": {
-          "$className": "Folder",
+          "$path": "Interfaces",
           "$ignoreUnknownInstances": true
         },
         "ThumbnailCamera": {

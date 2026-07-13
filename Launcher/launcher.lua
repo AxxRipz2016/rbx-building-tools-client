@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713h"
+local CACHE_BUST = "20260713i"
 
 local ModuleCache = {}
 
@@ -438,6 +438,11 @@ local function bootstrapTool(tool)
 	loaded.Value = true
 
 	local btRequire = createBtRequire(tool)
+	local interfaces = tool:WaitForChild("Interfaces")
+	if not interfaces:FindFirstChild("BTMoveToolGUI") then
+		btRequire(interfaces:WaitForChild("BuildInterfaces"))
+	end
+
 	local syncAPI = tool:WaitForChild("SyncAPI")
 	local syncModule = btRequire(syncAPI:WaitForChild("SyncModule"))
 

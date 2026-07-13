@@ -15,9 +15,11 @@ local Notifications = Roact.PureComponent:extend(script.Name)
 
 function Notifications:init()
     self.Active = true
+    local Tool = script:FindFirstAncestorWhichIsA('Tool')
     self:setState({
         ShouldWarnAboutHttpService = false;
         ShouldWarnAboutUpdate = false;
+        ShouldWarnAboutUnofficial = Tool and Tool:GetAttribute('BTClientOnly') == true;
     })
 
     fastSpawn(function ()
@@ -59,8 +61,19 @@ function Notifications:render()
                 VerticalAlignment = Enum.VerticalAlignment.Center;
                 SortOrder = Enum.SortOrder.LayoutOrder;
             });
+            UnofficialNotification = (self.state.ShouldWarnAboutUnofficial or nil) and new(NotificationDialog, {
+                LayoutOrder = 0;
+                ThemeColor = Color3.fromRGB(255, 140, 50);
+                NoticeText = 'Это <b>неофициальная</b> версия Building Tools.';
+                DetailText = 'Клиентский порт, не оригинал от F3X Team. Возможны баги и ограничения.';
+                OnDismiss = function ()
+                    self:setState({
+                        ShouldWarnAboutUnofficial = false;
+                    })
+                end;
+            });
             UpdateNotification = (self.state.ShouldWarnAboutUpdate or nil) and new(NotificationDialog, {
-                LayoutOrder = 1;
+                LayoutOrder = 2;
                 ThemeColor = Color3.fromRGB(255, 170, 0);
                 NoticeText = 'This version of Building Tools is <b>outdated.</b>';
                 DetailText = (self.props.Core.Mode == 'Plugin') and
@@ -73,7 +86,7 @@ function Notifications:render()
                 end;
             });
             HTTPEnabledNotification = (self.state.ShouldWarnAboutHttpService or nil) and new(NotificationDialog, {
-                LayoutOrder = 0;
+                LayoutOrder = 1;
                 ThemeColor = Color3.fromRGB(255, 0, 4);
                 NoticeText = 'HTTP requests must be <b>enabled</b> for some features of Building Tools to work, including exporting.';
                 DetailText = 'Own this place? Edit it in Studio, and toggle on\nHOME > <b>Game Settings</b> > Security > <b>Allow HTTP Requests</b> :-)';

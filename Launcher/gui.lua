@@ -51,7 +51,7 @@ function Gui.create()
 	root.Name = "Root"
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
 	root.Position = UDim2.fromScale(0.5, 0.5)
-	root.Size = UDim2.fromOffset(440, 220)
+	root.Size = UDim2.fromOffset(440, 248)
 	root.BackgroundColor3 = COLORS.background
 	root.BorderSizePixel = 0
 	root.Parent = screenGui
@@ -86,15 +86,24 @@ function Gui.create()
 		TextColor3 = COLORS.accent,
 	})
 
-	local statusLabel = createLabel(root, {
+	createLabel(root, {
 		LayoutOrder = 1,
+		Size = UDim2.new(1, 0, 0, 32),
+		Text = "Неофициальный клиентский порт · не оригинал F3X",
+		TextSize = 11,
+		TextColor3 = COLORS.textDim,
+		TextWrapped = true,
+	})
+
+	local statusLabel = createLabel(root, {
+		LayoutOrder = 2,
 		Size = UDim2.new(1, 0, 0, 20),
 		Text = "Подготовка…",
 		TextSize = 15,
 	})
 
 	local fileLabel = createLabel(root, {
-		LayoutOrder = 2,
+		LayoutOrder = 3,
 		Size = UDim2.new(1, 0, 0, 36),
 		Text = "",
 		TextSize = 13,
@@ -104,7 +113,7 @@ function Gui.create()
 	})
 
 	local progressRow = Instance.new("Frame")
-	progressRow.LayoutOrder = 3
+	progressRow.LayoutOrder = 4
 	progressRow.Size = UDim2.new(1, 0, 0, 22)
 	progressRow.BackgroundTransparency = 1
 	progressRow.Parent = root
@@ -141,7 +150,7 @@ function Gui.create()
 	})
 
 	local closeButton = Instance.new("TextButton")
-	closeButton.LayoutOrder = 4
+	closeButton.LayoutOrder = 5
 	closeButton.Size = UDim2.new(1, 0, 0, 32)
 	closeButton.BackgroundColor3 = COLORS.accentDim
 	closeButton.BorderSizePixel = 0

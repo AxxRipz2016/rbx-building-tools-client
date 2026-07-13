@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T07:55:24.771Z",
-  "entryCount": 153,
+  "generatedAt": "2026-07-13T08:47:50.208Z",
+  "entryCount": 154,
   "entries": [
     {
       "path": "Assets",
@@ -110,6 +110,11 @@
       "path": "Core.Targeting",
       "className": "ModuleScript",
       "file": "Core/Targeting.lua"
+    },
+    {
+      "path": "Interfaces.BuildInterfaces",
+      "className": "ModuleScript",
+      "file": "Interfaces/BuildInterfaces.lua"
     },
     {
       "path": "Libraries.ArcHandles",

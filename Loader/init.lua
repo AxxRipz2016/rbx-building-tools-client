@@ -6,6 +6,12 @@ while not Indicator.Value do
 	Indicator.Changed:Wait();
 end;
 
+-- Build tool UI templates if missing (client-only / stripped builds)
+local Interfaces = Tool:WaitForChild 'Interfaces';
+if not Interfaces:FindFirstChild 'BTMoveToolGUI' then
+	require(Interfaces:WaitForChild 'BuildInterfaces');
+end;
+
 -- Initialize the core
 local Core = require(Tool:WaitForChild 'Core');
 
