@@ -17,7 +17,7 @@ function StampPanel:init()
 		stamps = StampLibrary.list(),
 		selectedId = nil,
 		name = "",
-		placeAnchored = props.PlaceAnchored == true,
+		placeAnchored = self.props.PlaceAnchored == true,
 		status = "Выбери stamp в списке. Клик по миру — выделение.",
 	})
 end
