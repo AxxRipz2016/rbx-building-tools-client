@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713t"
+local CACHE_BUST = "20260713u"
 
 local ModuleCache = {}
 local LargeModuleSources = {}

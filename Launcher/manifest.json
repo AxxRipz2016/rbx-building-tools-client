@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T10:52:30.152Z",
-  "entryCount": 157,
+  "generatedAt": "2026-07-13T11:32:44.032Z",
+  "entryCount": 160,
   "entries": [
     {
       "path": "Assets",
@@ -183,6 +183,11 @@
       "file": "Libraries/_vendor/GoodSignal.lua"
     },
     {
+      "path": "Libraries.StampLibrary",
+      "className": "ModuleScript",
+      "file": "Libraries/StampLibrary.lua"
+    },
+    {
       "path": "Libraries.SupportLibrary",
       "className": "ModuleScript",
       "file": "Libraries/SupportLibrary.lua"
@@ -273,6 +278,11 @@
       "file": "Tools/Rotate.lua"
     },
     {
+      "path": "Tools.Stamp",
+      "className": "ModuleScript",
+      "file": "Tools/Stamp.lua"
+    },
+    {
       "path": "Tools.Surface",
       "className": "ModuleScript",
       "file": "Tools/Surface.lua"
@@ -351,6 +361,11 @@
       "path": "UI.ScrollingFrame",
       "className": "ModuleScript",
       "file": "UI/ScrollingFrame.lua"
+    },
+    {
+      "path": "UI.Stamp",
+      "className": "ModuleScript",
+      "file": "UI/Stamp/init.lua"
     },
     {
       "path": "UI.TextBox",

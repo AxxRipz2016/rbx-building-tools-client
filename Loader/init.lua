@@ -89,4 +89,9 @@ local DecorateTool = require(CoreTools:WaitForChild 'Decorate')
 Core.AssignHotkey('P', Core.Support.Call(Core.EquipTool, DecorateTool));
 Core.AddToolButton(Core.Assets.DecorateIcon, 'P', DecorateTool)
 
+-- Initialize stamp tool
+local StampTool = require(CoreTools:WaitForChild 'Stamp')
+Core.AssignHotkey('Q', Core.Support.Call(Core.EquipTool, StampTool));
+Core.AddToolButton(Core.Assets.StampIcon, 'Q', StampTool)
+
 return Core

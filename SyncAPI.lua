@@ -110,6 +110,48 @@ Actions = {
 		return Clones
 	end;
 
+	['StampPlace'] = function (BuildData, Position, Parent)
+		assert(type(BuildData) == 'table', 'Invalid build data')
+		assert(typeof(Position) == 'Vector3', 'Invalid position')
+		assert(typeof(Parent) == 'Instance', 'Invalid parent')
+		assert(Security.IsLocationAllowed(Parent, Player), 'Permission denied for client')
+
+		local Items = Serialization.InflateBuildData(BuildData)
+		if #Items == 0 then
+			return {}
+		end
+
+		local parts = GetPartsFromSelection(Items)
+		if #parts == 0 then
+			return {}
+		end
+
+		if Security.ArePartsViolatingAreas(parts, Player, false) then
+			return {}
+		end
+
+		local sum = Vector3.new()
+		for _, part in ipairs(parts) do
+			sum += part.Position
+		end
+		local center = sum / #parts
+		local offset = Position - center
+		for _, part in ipairs(parts) do
+			part.CFrame = part.CFrame + offset
+		end
+
+		local created = {}
+		for _, item in ipairs(Items) do
+			item.Parent = Parent
+			table.insert(created, item)
+			for _, descendant in ipairs(item:GetDescendants()) do
+				table.insert(created, descendant)
+			end
+		end
+
+		return created
+	end;
+
 	['CreatePart'] = function (PartType, Position, Parent)
 		-- Creates a new part based on `PartType`
 

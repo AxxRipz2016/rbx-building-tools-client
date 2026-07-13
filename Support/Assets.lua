@@ -35,6 +35,7 @@ Assets = {
 	TextureIcon				= 'rbxassetid://141805275';
 	WeldIcon				= 'rbxassetid://141741418';
 	ExplorerDockIcon		= 'rbxassetid://2326621485';
+	StampIcon				= 'rbxassetid://142073926';
 };
 
 return Assets;
