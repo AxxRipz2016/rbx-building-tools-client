@@ -3,7 +3,7 @@ local Vendor = Root:WaitForChild('Vendor')
 
 -- Libraries
 local Roact = require(Vendor:WaitForChild('Roact'))
-local Theme = require(script.Parent:WaitForChild('Theme'))
+local Theme = require(script.Parent.Parent:WaitForChild('Theme'))
 local new = Roact.createElement
 
 -- Create component

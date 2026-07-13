@@ -114,6 +114,7 @@ function UIController:AttachAxesListener()
         Core.ToggleSwitch(AxesMode, self.UI.AxesOption)
 
     end)
+    Core.ToggleSwitch(self.Tool.Axes, self.UI.AxesOption)
 end
 
 function UIController:HideUI()

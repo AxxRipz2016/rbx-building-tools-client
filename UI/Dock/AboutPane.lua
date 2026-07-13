@@ -90,10 +90,17 @@ function AboutPane:render()
         Corners = new('UICorner', {
             CornerRadius = UDim.new(0, Theme.cornerRadius);
         });
+        Gradient = new('UIGradient', {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Theme.panelLight);
+                ColorSequenceKeypoint.new(1, Theme.background);
+            });
+            Rotation = 110;
+        });
         Stroke = new('UIStroke', {
             Color = Theme.border;
             Thickness = 1;
-            Transparency = 0.4;
+            Transparency = 0.5;
         });
         Signature = new('ImageLabel', {
             AnchorPoint = Vector2.new(0, 0.5);

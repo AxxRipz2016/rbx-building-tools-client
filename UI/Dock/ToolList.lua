@@ -74,10 +74,28 @@ function ToolList:render()
         Corners = new('UICorner', {
             CornerRadius = UDim.new(0, Theme.cornerRadius);
         });
+        Gradient = new('UIGradient', {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Theme.panelLight);
+                ColorSequenceKeypoint.new(1, Theme.background);
+            });
+            Rotation = 110;
+        });
         Stroke = new('UIStroke', {
-            Color = Theme.border;
+            Color = Theme.accent;
             Thickness = 1;
-            Transparency = 0.4;
+            Transparency = 0.65;
+        });
+        AccentTop = new('Frame', {
+            BackgroundColor3 = Theme.accent;
+            BorderSizePixel = 0;
+            Size = UDim2.new(1, -8, 0, 2);
+            Position = UDim2.new(0, 4, 0, 4);
+            ZIndex = 2;
+        }, {
+            Corners = new('UICorner', {
+                CornerRadius = UDim.new(1, 0);
+            });
         });
         SizeConstraint = new('UISizeConstraint', {
             MinSize = Vector2.new(70, 0);

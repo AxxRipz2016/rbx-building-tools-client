@@ -978,15 +978,32 @@ end;
 function ToggleSwitch(CurrentButtonName, SwitchContainer)
 	-- Toggles between the buttons in a switch
 
+	local Theme = require(Tool.UI.Theme)
+	local accent = Theme.accent
+	local panel = SwitchContainer:FindFirstAncestor(function(instance)
+		return instance:IsA("GuiObject") and instance.Name:sub(1, 2) == "BT"
+	end)
+	if panel then
+		accent = panel:GetAttribute("BTAccentColor") or accent
+	end
+
 	-- Reset all buttons
 	for _, Button in pairs(SwitchContainer:GetChildren()) do
 
 		-- Make sure to not mistake the option label for a button
-		if Button.Name ~= 'Label' then
+		if Button.Name ~= 'Label' and Button:FindFirstChild('Background') then
 
 			-- Set appearance to disabled
 			Button.SelectedIndicator.BackgroundTransparency = 1;
 			Button.Background.Image = Assets.LightSlantedRectangle;
+			Button.Background.ImageColor3 = Theme.surface;
+			Button.Background.ImageTransparency = 0.08;
+
+			local Label = Button:FindFirstChild('Label');
+			if Label then
+				Label.TextColor3 = Theme.textDim;
+				Label.Font = Enum.Font.GothamMedium;
+			end
 
 		end;
 
@@ -998,9 +1015,20 @@ function ToggleSwitch(CurrentButtonName, SwitchContainer)
 		-- Get the current button
 		local CurrentButton = SwitchContainer[CurrentButtonName];
 
-		-- Set the current button's appearance to enabled
-		CurrentButton.SelectedIndicator.BackgroundTransparency = 0;
-		CurrentButton.Background.Image = Assets.DarkSlantedRectangle;
+		if CurrentButton and CurrentButton:FindFirstChild('Background') then
+			-- Set the current button's appearance to enabled
+			CurrentButton.SelectedIndicator.BackgroundTransparency = 0;
+			CurrentButton.SelectedIndicator.BackgroundColor3 = accent;
+			CurrentButton.Background.Image = Assets.LightSlantedRectangle;
+			CurrentButton.Background.ImageColor3 = accent;
+			CurrentButton.Background.ImageTransparency = 0.02;
+
+			local Label = CurrentButton:FindFirstChild('Label');
+			if Label then
+				Label.TextColor3 = Theme.text;
+				Label.Font = Enum.Font.GothamBold;
+			end
+		end
 
 	end;
 end;
