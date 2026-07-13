@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713v"
+local CACHE_BUST = "20260713w"
 local CACHE_ROOT = "BT-BuildingTools/cache"
 
 local ModuleCache = {}
@@ -139,6 +139,26 @@ local function createModuleEnvironment(moduleScript, btRequire)
 	end
 
 	env._G = env
+
+	local globalEnv = if getgenv then getgenv() else _G
+	local executorApis = {
+		"getgenv",
+		"writefile",
+		"readfile",
+		"isfile",
+		"isfolder",
+		"makefolder",
+		"listfiles",
+		"delfile",
+		"delfolder",
+	}
+	for _, apiName in ipairs(executorApis) do
+		local api = rawget(globalEnv, apiName) or rawget(_G, apiName)
+		if api ~= nil then
+			env[apiName] = api
+		end
+	end
+
 	setmetatable(env, { __index = _G })
 
 	return env

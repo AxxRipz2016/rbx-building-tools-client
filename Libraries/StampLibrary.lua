@@ -13,23 +13,54 @@ local INDEX_PATH = STAMP_ROOT .. "/index.json"
 local STORE_KEY = "__BT_STAMPS"
 
 local memoryStore = nil
+local fileApi = nil
+
+local function resolveApi(name)
+	if getgenv then
+		local genv = getgenv()
+		local value = rawget(genv, name)
+		if value ~= nil then
+			return value
+		end
+	end
+	return rawget(_G, name)
+end
+
+local function getFileApi()
+	if fileApi ~= nil then
+		return fileApi
+	end
+
+	fileApi = {
+		writefile = resolveApi("writefile"),
+		readfile = resolveApi("readfile"),
+		isfile = resolveApi("isfile"),
+		isfolder = resolveApi("isfolder"),
+		makefolder = resolveApi("makefolder"),
+		delfile = resolveApi("delfile"),
+	}
+
+	return fileApi
+end
 
 local function hasFileApi()
-	return typeof(writefile) == "function"
-		and typeof(readfile) == "function"
-		and typeof(isfile) == "function"
+	local api = getFileApi()
+	return typeof(api.writefile) == "function"
+		and typeof(api.readfile) == "function"
+		and typeof(api.isfile) == "function"
 end
 
 local function ensureFolder(path)
-	if typeof(makefolder) ~= "function" then
+	local api = getFileApi()
+	if typeof(api.makefolder) ~= "function" then
 		return
 	end
 
-	if typeof(isfolder) == "function" and isfolder(path) then
+	if typeof(api.isfolder) == "function" and api.isfolder(path) then
 		return
 	end
 
-	pcall(makefolder, path)
+	pcall(api.makefolder, path)
 end
 
 local function splitPath(filePath)
@@ -41,7 +72,8 @@ local function splitPath(filePath)
 end
 
 local function ensureParentFolders(filePath)
-	if typeof(makefolder) ~= "function" then
+	local api = getFileApi()
+	if typeof(api.makefolder) ~= "function" then
 		return
 	end
 
@@ -56,11 +88,12 @@ local function ensureParentFolders(filePath)
 end
 
 local function readFile(path)
-	if not hasFileApi() or not isfile(path) then
+	local api = getFileApi()
+	if not hasFileApi() or not api.isfile(path) then
 		return nil
 	end
 
-	local ok, content = pcall(readfile, path)
+	local ok, content = pcall(api.readfile, path)
 	if ok and type(content) == "string" and content ~= "" then
 		return content
 	end
@@ -73,14 +106,19 @@ local function writeFile(path, content)
 		return false
 	end
 
+	local api = getFileApi()
 	ensureParentFolders(path)
-	local ok = pcall(writefile, path, content)
+	local ok, err = pcall(api.writefile, path, content)
+	if not ok then
+		warn("[BT Stamp] writefile failed:", path, err)
+	end
 	return ok
 end
 
 local function deleteFile(path)
-	if typeof(delfile) == "function" and isfile(path) then
-		pcall(delfile, path)
+	local api = getFileApi()
+	if typeof(api.delfile) == "function" and api.isfile(path) then
+		pcall(api.delfile, path)
 	end
 end
 
@@ -139,8 +177,7 @@ end
 
 local function writeStampFile(stamp)
 	if not hasFileApi() then
-		table.insert(getMemoryStore(), stamp)
-		return true
+		return false
 	end
 
 	return writeFile(getStampFilePath(stamp.id), HttpService:JSONEncode(stamp))
@@ -181,7 +218,7 @@ end
 
 local function persistStamp(stamp)
 	if not writeStampFile(stamp) then
-		return nil, "Не удалось сохранить stamp (writefile недоступен)"
+		return nil, "writefile недоступен — stamps не сохранятся на диск"
 	end
 
 	if hasFileApi() then

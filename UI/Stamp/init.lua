@@ -126,7 +126,7 @@ function StampPanel:render()
 		BackgroundTransparency = 0.06,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 12, 0.5, -170),
-		Size = UDim2.fromOffset(280, 340),
+		Size = UDim2.fromOffset(280, 308),
 	}, {
 		Corner = new("UICorner", {
 			CornerRadius = UDim.new(0, Theme.cornerRadius),
@@ -235,7 +235,7 @@ function StampPanel:render()
 					self:refreshStampList(stamp.id)
 					self:setState({
 						name = "",
-						status = "Сохранено: " .. stamp.name,
+						status = "Сохранено в " .. StampLibrary.getStoragePath() .. ": " .. stamp.name,
 					})
 					if self.props.OnSelectStamp then
 						self.props.OnSelectStamp(stamp.id)
@@ -274,93 +274,8 @@ function StampPanel:render()
 				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
 			}),
 		}),
-		Clipboard = new("Frame", {
-			LayoutOrder = 6,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 28),
-		}, {
-			Layout = new("UIListLayout", {
-				FillDirection = Enum.FillDirection.Horizontal,
-				Padding = UDim.new(0, 6),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-			Export = new("TextButton", {
-				LayoutOrder = 1,
-				Size = UDim2.new(0.5, -3, 1, 0),
-				BackgroundColor3 = Theme.surface,
-				BorderSizePixel = 0,
-				Font = Enum.Font.GothamMedium,
-				Text = "JSON → буфер",
-				TextColor3 = Theme.text,
-				TextSize = 10,
-				[Roact.Event.Activated] = function()
-					local stamp = StampLibrary.find(self.state.selectedId)
-					if not stamp then
-						self:setState({ status = "Выбери stamp для экспорта" })
-						return
-					end
-					local json = StampLibrary.exportToJson(stamp)
-					local ok = pcall(function()
-						if typeof(setclipboard) == "function" then
-							setclipboard(json)
-						elseif syn and typeof(syn.write_clipboard) == "function" then
-							syn.write_clipboard(json)
-						else
-							error("clipboard unavailable", 0)
-						end
-					end)
-					self:setState({
-						status = ok and "JSON скопирован в буфер" or "Буфер недоступен",
-					})
-				end,
-			}, {
-				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			}),
-			Import = new("TextButton", {
-				LayoutOrder = 2,
-				Size = UDim2.new(0.5, -3, 1, 0),
-				BackgroundColor3 = Theme.surface,
-				BorderSizePixel = 0,
-				Font = Enum.Font.GothamMedium,
-				Text = "JSON ← буфер",
-				TextColor3 = Theme.text,
-				TextSize = 10,
-				[Roact.Event.Activated] = function()
-					local json = ""
-					local okRead = pcall(function()
-						if typeof(getclipboard) == "function" then
-							json = getclipboard()
-						elseif syn and typeof(syn.read_clipboard) == "function" then
-							json = syn.read_clipboard()
-						else
-							error("clipboard unavailable", 0)
-						end
-					end)
-					if not okRead then
-						self:setState({ status = "Буфер недоступен" })
-						return
-					end
-					local stamp, err = StampLibrary.importFromJson(json)
-					if not stamp then
-						self:setState({ status = err or "Импорт не удался" })
-						return
-					end
-					self:refreshStampList(stamp.id)
-					self:setState({
-						selectedId = stamp.id,
-						status = "Импортировано: " .. stamp.name,
-					})
-					if self.props.OnSelectStamp then
-						self.props.OnSelectStamp(stamp.id)
-					end
-					self:updatePreview(stamp.id)
-				end,
-			}, {
-				Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			}),
-		}),
 		List = new("ScrollingFrame", {
-			LayoutOrder = 7,
+			LayoutOrder = 6,
 			Size = UDim2.new(1, 0, 0, 72),
 			BackgroundColor3 = Theme.background,
 			BackgroundTransparency = 0.2,
@@ -382,7 +297,7 @@ function StampPanel:render()
 			}),
 		})),
 		Hint = new("TextLabel", {
-			LayoutOrder = 8,
+			LayoutOrder = 7,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 16),
 			Font = Enum.Font.GothamMedium,
