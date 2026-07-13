@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T09:11:34.397Z",
-  "entryCount": 156,
+  "generatedAt": "2026-07-13T10:49:08.147Z",
+  "entryCount": 157,
   "entries": [
     {
       "path": "Assets",
@@ -430,6 +430,11 @@
       "path": "UI.Dock.AboutPane",
       "className": "ModuleScript",
       "file": "UI/Dock/AboutPane.lua"
+    },
+    {
+      "path": "UI.Dock.BrandPane",
+      "className": "ModuleScript",
+      "file": "UI/Dock/BrandPane.lua"
     },
     {
       "path": "UI.Dock.SelectionButton",
