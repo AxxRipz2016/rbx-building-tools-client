@@ -22,9 +22,11 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713i"
+local CACHE_BUST = "20260713j"
 
 local ModuleCache = {}
+local LargeModuleSources = {}
+local MAX_INSTANCE_SOURCE = 199000
 
 local function patchModuleSource(source)
 	source = source:gsub("Game:GetService", "game:GetService")
@@ -146,7 +148,7 @@ local function createBtRequire(tool)
 			error("btRequire ожидает ModuleScript, получено: " .. typeof(moduleScript), 0)
 		end
 
-		local source = moduleScript.Source
+		local source = LargeModuleSources[moduleScript] or moduleScript.Source
 		if source == nil or source == "" then
 			error("Пустой исходник: " .. moduleScript:GetFullName(), 0)
 		end
@@ -345,7 +347,12 @@ local function createInstance(entry)
 	if entry.file and (instance:IsA("LuaSourceContainer") or instance:IsA("Script")) then
 		reportFileProgress(entry.file)
 		local source = fetchFileSource(entry.file)
-		instance.Source = source
+		if #source > MAX_INSTANCE_SOURCE then
+			LargeModuleSources[instance] = source
+			instance.Source = "-- BT: source too large for Instance.Source"
+		else
+			instance.Source = source
+		end
 	end
 
 	return instance

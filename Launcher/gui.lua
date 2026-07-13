@@ -28,6 +28,28 @@ local function createLabel(parent, props)
 	return label
 end
 
+local function copyToClipboard(text)
+	if text == nil or text == "" then
+		return false
+	end
+
+	local ok = pcall(function()
+		if typeof(setclipboard) == "function" then
+			setclipboard(text)
+		elseif typeof(writeclipboard) == "function" then
+			writeclipboard(text)
+		elseif typeof(toclipboard) == "function" then
+			toclipboard(text)
+		elseif syn and typeof(syn.write_clipboard) == "function" then
+			syn.write_clipboard(text)
+		else
+			error("clipboard API not found", 0)
+		end
+	end)
+
+	return ok
+end
+
 function Gui.create()
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
@@ -51,7 +73,7 @@ function Gui.create()
 	root.Name = "Root"
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
 	root.Position = UDim2.fromScale(0.5, 0.5)
-	root.Size = UDim2.fromOffset(440, 248)
+	root.Size = UDim2.fromOffset(440, 288)
 	root.BackgroundColor3 = COLORS.background
 	root.BorderSizePixel = 0
 	root.Parent = screenGui
@@ -149,8 +171,24 @@ function Gui.create()
 		TextXAlignment = Enum.TextXAlignment.Right,
 	})
 
+	local copyButton = Instance.new("TextButton")
+	copyButton.LayoutOrder = 5
+	copyButton.Size = UDim2.new(1, 0, 0, 32)
+	copyButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
+	copyButton.BorderSizePixel = 0
+	copyButton.Font = Enum.Font.GothamMedium
+	copyButton.Text = "Копировать ошибку"
+	copyButton.TextColor3 = COLORS.text
+	copyButton.TextSize = 14
+	copyButton.Visible = false
+	copyButton.Parent = root
+
+	local copyCorner = Instance.new("UICorner")
+	copyCorner.CornerRadius = UDim.new(0, 6)
+	copyCorner.Parent = copyButton
+
 	local closeButton = Instance.new("TextButton")
-	closeButton.LayoutOrder = 5
+	closeButton.LayoutOrder = 6
 	closeButton.Size = UDim2.new(1, 0, 0, 32)
 	closeButton.BackgroundColor3 = COLORS.accentDim
 	closeButton.BorderSizePixel = 0
@@ -169,6 +207,7 @@ function Gui.create()
 
 	local api = {}
 	local destroyed = false
+	local lastErrorText = ""
 
 	local function tweenFill(ratio)
 		ratio = math.clamp(ratio, 0, 1)
@@ -203,12 +242,14 @@ function Gui.create()
 		if destroyed then
 			return
 		end
+		lastErrorText = string.format("%s\n\n%s", title or "Ошибка", details or "")
 		statusLabel.Text = title or "Ошибка"
 		statusLabel.TextColor3 = COLORS.error
 		fileLabel.Text = details or ""
 		fileLabel.TextColor3 = COLORS.error
 		fileLabel.TextWrapped = true
 		fill.BackgroundColor3 = COLORS.error
+		copyButton.Visible = true
 		closeButton.Visible = true
 	end
 
@@ -227,6 +268,24 @@ function Gui.create()
 			end
 		end)
 	end
+
+	copyButton.MouseButton1Click:Connect(function()
+		if copyToClipboard(lastErrorText) then
+			copyButton.Text = "Скопировано!"
+			task.delay(1.5, function()
+				if not destroyed then
+					copyButton.Text = "Копировать ошибку"
+				end
+			end)
+		else
+			copyButton.Text = "Нет доступа к буферу"
+			task.delay(1.5, function()
+				if not destroyed then
+					copyButton.Text = "Копировать ошибку"
+				end
+			end)
+		end
+	end)
 
 	function api.onClose(callback)
 		closeButton.MouseButton1Click:Connect(function()
