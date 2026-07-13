@@ -285,11 +285,26 @@ function StampLibrary.saveFromSelection(name, selectionItems)
 		return nil, "Выделите хотя бы один объект"
 	end
 
-	local ok, buildData = pcall(function()
-		return HttpService:JSONDecode(chooseSerializer(items).SerializeModel(items))
+	local ok, serialized = pcall(function()
+		return chooseSerializer(items).SerializeModel(items)
 	end)
-	if not ok or not buildData or not buildData.Items then
+	if not ok then
+		return nil, "Не удалось сериализовать: " .. tostring(serialized)
+	end
+
+	local decodeOk, buildData = pcall(function()
+		return HttpService:JSONDecode(serialized)
+	end)
+	if not decodeOk or not buildData or not buildData.Items then
 		return nil, "Не удалось сериализовать выделение"
+	end
+
+	local itemCount = 0
+	for _ in ipairs(buildData.Items) do
+		itemCount += 1
+	end
+	if itemCount == 0 then
+		return nil, "Нет поддерживаемых объектов (скрипты, звуки и RemoteEvent не сохраняются)"
 	end
 
 	local stamp = {

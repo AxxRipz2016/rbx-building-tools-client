@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T16:53:24.349Z",
+  "generatedAt": "2026-07-13T17:09:47.560Z",
   "entryCount": 161,
   "entries": [
     {
@@ -198,13 +198,13 @@
       "path": "Libraries.SerializationV3",
       "className": "ModuleScript",
       "file": "Libraries/SerializationV3.lua",
-      "version": "5ce215f7ecfb"
+      "version": "9bac6e7f651e"
     },
     {
       "path": "Libraries.SerializationV4",
       "className": "ModuleScript",
       "file": "Libraries/SerializationV4.lua",
-      "version": "e8860eedd246"
+      "version": "0ce4b3bb1781"
     },
     {
       "path": "Libraries.Signal",
@@ -216,7 +216,7 @@
       "path": "Libraries.StampLibrary",
       "className": "ModuleScript",
       "file": "Libraries/StampLibrary.lua",
-      "version": "975d1e6aa56c"
+      "version": "546b1d5dbfc3"
     },
     {
       "path": "Libraries.SupportLibrary",

@@ -22,7 +22,8 @@ local Types = {
 	Fire = 13,
 	Sparkles = 14,
 	Model = 15,
-	Folder = 18
+	Folder = 18,
+	MeshPart = 21,
 };
 
 local DefaultNames = {
@@ -42,18 +43,25 @@ local DefaultNames = {
 	Fire = 'Fire',
 	Sparkles = 'Sparkles',
 	Model = 'Model',
-	Folder = 'Folder'
+	Folder = 'Folder',
+	MeshPart = 'MeshPart',
 };
 
 function Serialization.SerializeModel(Items)
 	-- Returns a serialized version of the given model
 
-	-- Filter out non-serializable items in `Items`
+	-- Keep only supported instances (scripts/sounds/etc. are skipped, not left as nil holes)
 	local SerializableItems = {};
-	for Index, Item in ipairs(Items) do
-		table.insert(SerializableItems, Types[Item.ClassName] and Item or nil);
+	for _, Item in ipairs(Items) do
+		if Types[Item.ClassName] then
+			table.insert(SerializableItems, Item);
+		end;
 	end;
 	Items = SerializableItems;
+
+	if #Items == 0 then
+		return HttpService:JSONEncode({ Version = 3, Items = {} });
+	end;
 
 	-- Get a snapshot of the content
 	local Keys = Support.FlipTable(Items);
@@ -106,6 +114,12 @@ function Serialization.SerializeModel(Items)
 		if Item.ClassName == 'TrussPart' then
 			local Datum = Data.Items[Index];
 			Datum[33] = Item.Style.Value;
+		end;
+
+		if Item.ClassName == 'MeshPart' then
+			local Datum = Data.Items[Index];
+			Datum[33] = Item.MeshId;
+			Datum[34] = Item.TextureID;
 		end;
 
 		if Item.ClassName == 'SpecialMesh' then
@@ -267,6 +281,7 @@ function Serialization.InflateBuildData(Data)
 			or Datum[1] == Types.VehicleSeat
 			or Datum[1] == Types.Seat
 			or Datum[1] == Types.TrussPart
+			or Datum[1] == Types.MeshPart
 		then
 			local Item = Instance.new(Support.FindTableOccurrence(Types, Datum[1]));
 			Item.Size = Vector3.new(unpack(Support.Slice(Datum, 4, 6)));
@@ -306,6 +321,12 @@ function Serialization.InflateBuildData(Data)
 		if Datum[1] == Types.TrussPart then
 			local Item = Instances[Index];
 			Item.Style = Datum[33];
+		end;
+
+		if Datum[1] == Types.MeshPart then
+			local Item = Instances[Index];
+			Item.MeshId = Datum[33];
+			Item.TextureID = Datum[34];
 		end;
 
 		-- Inflate SpecialMesh instances
@@ -438,7 +459,7 @@ function Serialization.InflateBuildData(Data)
 		local Item = Instances[Index];
 
 		-- Set each item's parent and name
-		if Item and Datum[1] <= 18 then
+		if Item and (Datum[1] <= 18 or Datum[1] == Types.MeshPart) then
 			Item.Name = (Datum[3] == '') and DefaultNames[Item.ClassName] or Datum[3];
 			if Datum[2] == 0 then
 				table.insert(Build, Item);
