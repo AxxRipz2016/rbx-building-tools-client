@@ -1,7 +1,7 @@
 -- Services
-MarketplaceService = Game:GetService 'MarketplaceService';
-HttpService = Game:GetService 'HttpService';
-Workspace = Game:GetService 'Workspace';
+MarketplaceService = game:GetService 'MarketplaceService';
+HttpService = game:GetService 'HttpService';
+Workspace = game:GetService 'Workspace';
 
 -- References
 Tool = script.Parent.Parent

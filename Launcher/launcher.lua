@@ -22,7 +22,35 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713d"
+local CACHE_BUST = "20260713e"
+
+local function installCompat()
+	if rawget(_G, "Game") == nil then
+		_G.Game = game
+	end
+
+	if getfenv == nil then
+		getfenv = function()
+			return _G
+		end
+	end
+
+	local services = {
+		Workspace = game:GetService("Workspace"),
+		Players = game:GetService("Players"),
+		UserInputService = game:GetService("UserInputService"),
+		RunService = game:GetService("RunService"),
+		HttpService = game:GetService("HttpService"),
+		MarketplaceService = game:GetService("MarketplaceService"),
+		ContentProvider = game:GetService("ContentProvider"),
+		CoreGui = game:GetService("CoreGui"),
+		ReplicatedStorage = game:GetService("ReplicatedStorage"),
+	}
+
+	for name, service in pairs(services) do
+		_G[name] = service
+	end
+end
 
 local ROACT_VENDOR_PREFIX = "Vendor/Roact/src/"
 local ROACT_PUBLISHED_PREFIX = "Libraries/_vendor/Roact/src/"
@@ -236,6 +264,8 @@ local function disableClientScripts(tool)
 end
 
 local function bootstrapTool(tool)
+	installCompat()
+
 	local loaded = tool:WaitForChild("Loaded")
 	local descendantCount = loaded:FindFirstChild("DescendantCount")
 
@@ -248,12 +278,23 @@ local function bootstrapTool(tool)
 	loaded.Value = true
 
 	local syncAPI = tool:WaitForChild("SyncAPI")
-	local syncModule = require(syncAPI:WaitForChild("SyncModule"))
+	local okSync, syncModule = pcall(function()
+		return require(syncAPI:WaitForChild("SyncModule"))
+	end)
+	if not okSync then
+		error("SyncModule: " .. tostring(syncModule), 0)
+	end
+
 	syncAPI.OnInvoke = function(...)
 		return syncModule.PerformAction(Players.LocalPlayer, ...)
 	end
 
-	require(tool:WaitForChild("Loader"))
+	local okLoader, loaderError = pcall(function()
+		require(tool:WaitForChild("Loader"))
+	end)
+	if not okLoader then
+		error("Loader: " .. tostring(loaderError), 0)
+	end
 end
 
 local function loadGui()

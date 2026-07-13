@@ -437,26 +437,37 @@ end;
 function SupportLibrary.ImportServices()
 	-- Adds references to common services into the calling environment
 
-	-- Get the calling environment
-	local CallingEnvironment = getfenv(2);
+	local services = {
+		Workspace = game:GetService 'Workspace',
+		Players = game:GetService 'Players',
+		MarketplaceService = game:GetService 'MarketplaceService',
+		ContentProvider = game:GetService 'ContentProvider',
+		SoundService = game:GetService 'SoundService',
+		UserInputService = game:GetService 'UserInputService',
+		SelectionService = game:GetService 'Selection',
+		CoreGui = game:GetService 'CoreGui',
+		HttpService = game:GetService 'HttpService',
+		ChangeHistoryService = game:GetService 'ChangeHistoryService',
+		ReplicatedStorage = game:GetService 'ReplicatedStorage',
+		GroupService = game:GetService 'GroupService',
+		ServerScriptService = game:GetService 'ServerScriptService',
+		ServerStorage = game:GetService 'ServerStorage',
+		StarterGui = game:GetService 'StarterGui',
+		RunService = game:GetService 'RunService',
+	}
 
-	-- Add the services
-	CallingEnvironment.Workspace = Game:GetService 'Workspace';
-	CallingEnvironment.Players = Game:GetService 'Players';
-	CallingEnvironment.MarketplaceService = Game:GetService 'MarketplaceService';
-	CallingEnvironment.ContentProvider = Game:GetService 'ContentProvider';
-	CallingEnvironment.SoundService = Game:GetService 'SoundService';
-	CallingEnvironment.UserInputService = Game:GetService 'UserInputService';
-	CallingEnvironment.SelectionService = Game:GetService 'Selection';
-	CallingEnvironment.CoreGui = Game:GetService 'CoreGui';
-	CallingEnvironment.HttpService = Game:GetService 'HttpService';
-	CallingEnvironment.ChangeHistoryService = Game:GetService 'ChangeHistoryService';
-	CallingEnvironment.ReplicatedStorage = Game:GetService 'ReplicatedStorage';
-	CallingEnvironment.GroupService = Game:GetService 'GroupService';
-	CallingEnvironment.ServerScriptService = Game:GetService 'ServerScriptService';
-	CallingEnvironment.ServerStorage = Game:GetService 'ServerStorage';
-	CallingEnvironment.StarterGui = Game:GetService 'StarterGui';
-	CallingEnvironment.RunService = Game:GetService 'RunService';
+	for name, service in pairs(services) do
+		_G[name] = service
+	end
+
+	if getfenv then
+		local ok, callingEnvironment = pcall(getfenv, 2)
+		if ok and type(callingEnvironment) == 'table' then
+			for name, service in pairs(services) do
+				callingEnvironment[name] = service
+			end
+		end
+	end
 end;
 
 function SupportLibrary.GetListMembers(List, MemberName)
