@@ -54,7 +54,35 @@ local function recordDelete(instance)
 		return
 	end
 	local patch = getPlacePatch()
-	table.insert(patch.deleted, instance:GetFullName())
+	local parentName = instance.Parent and instance.Parent:GetFullName() or nil
+	local entry = {
+		fullName = instance:GetFullName(),
+		parentFullName = parentName,
+		buildData = nil,
+	}
+
+	-- Best-effort: capture buildData so we can recreate if missing on load
+	pcall(function()
+		local items = { instance }
+		for _, descendant in ipairs(instance:GetDescendants()) do
+			table.insert(items, descendant)
+		end
+		local useV4 = false
+		for _, it in ipairs(items) do
+			if typeof(it) == "Instance" and it:IsA("PartOperation") then
+				useV4 = true
+				break
+			end
+		end
+		local module = useV4 and require(Tool.Libraries.SerializationV4) or Serialization
+		local encoded = module.SerializeModel(items)
+		local ok, decoded = pcall(HttpService.JSONDecode, HttpService, encoded)
+		if ok and type(decoded) == "table" and type(decoded.Items) == "table" then
+			entry.buildData = decoded
+		end
+	end)
+
+	table.insert(patch.deleted, entry)
 end
 
 local function recordProps(instance, propTable)
@@ -322,10 +350,34 @@ Actions = {
 		local deleted = type(WorldPatch.deleted) == 'table' and WorldPatch.deleted or {}
 		local props = type(WorldPatch.props) == 'table' and WorldPatch.props or {}
 
-		for _, fullName in ipairs(deleted) do
-			local inst = resolveByFullName(fullName)
-			if inst then
-				inst:Destroy()
+		local function inflateAndParent(buildData, parent)
+			if type(buildData) ~= "table" or type(buildData.Items) ~= "table" then
+				return {}
+			end
+			local module = buildData.Version == 4 and require(Tool.Libraries.SerializationV4) or Serialization
+			local items = module.InflateBuildData(buildData)
+			for _, item in ipairs(items) do
+				item.Parent = parent
+			end
+			return items
+		end
+
+		for _, entry in ipairs(deleted) do
+			if type(entry) == "string" then
+				local inst = resolveByFullName(entry)
+				if inst then
+					inst:Destroy()
+				end
+			elseif type(entry) == "table" then
+				local inst = resolveByFullName(entry.fullName)
+				if inst then
+					inst:Destroy()
+				elseif entry.buildData and entry.parentFullName then
+					local parent = resolveByFullName(entry.parentFullName)
+					if parent then
+						inflateAndParent(entry.buildData, parent)
+					end
+				end
 			end
 		end
 

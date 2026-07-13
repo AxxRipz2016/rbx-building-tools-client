@@ -253,8 +253,8 @@ function MapSaverPanel:render()
 		BackgroundColor3 = Theme.panel,
 		BackgroundTransparency = 0.06,
 		BorderSizePixel = 0,
-		Position = UDim2.new(0, 12, 0.5, -230),
-		Size = UDim2.fromOffset(300, 460),
+		Position = UDim2.new(0, 12, 0.5, -210),
+		Size = UDim2.fromOffset(300, 440),
 	}, {
 		Corner = new("UICorner", {
 			CornerRadius = UDim.new(0, Theme.cornerRadius),
@@ -309,7 +309,7 @@ function MapSaverPanel:render()
 		Settings = new("Frame", {
 			LayoutOrder = 4,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 96),
+			Size = UDim2.new(1, 0, 0, 118),
 		}, {
 			Layout = new("UIListLayout", {
 				Padding = UDim.new(0, 4),
