@@ -1,0 +1,771 @@
+{
+  "github": {
+    "user": "YOUR_USERNAME",
+    "repo": "rbx-building-tools-client",
+    "branch": "main"
+  },
+  "toolVersion": "3.1.0-client",
+  "toolName": "Building Tools",
+  "generatedAt": "2026-07-13T07:11:40.450Z",
+  "entryCount": 151,
+  "entries": [
+    {
+      "path": "Assets",
+      "className": "ModuleScript",
+      "file": "Support/Assets.lua"
+    },
+    {
+      "path": "AutoUpdate",
+      "className": "BoolValue",
+      "value": false
+    },
+    {
+      "path": "Core",
+      "className": "ModuleScript",
+      "file": "Core/init.lua"
+    },
+    {
+      "path": "Handle",
+      "className": "Part",
+      "properties": {
+        "Size": [
+          0.2,
+          0.2,
+          0.2
+        ],
+        "Transparency": 1,
+        "CanCollide": false
+      }
+    },
+    {
+      "path": "Interfaces",
+      "className": "Folder"
+    },
+    {
+      "path": "Loaded",
+      "className": "BoolValue",
+      "value": false
+    },
+    {
+      "path": "Loader",
+      "className": "ModuleScript",
+      "file": "Loader/init.lua"
+    },
+    {
+      "path": "SyncAPI",
+      "className": "BindableFunction"
+    },
+    {
+      "path": "Tools",
+      "className": "Folder"
+    },
+    {
+      "path": "UI",
+      "className": "Folder"
+    },
+    {
+      "path": "Vendor",
+      "className": "Folder"
+    },
+    {
+      "path": "Version",
+      "className": "StringValue",
+      "value": "3.1.0-client"
+    },
+    {
+      "path": "Core.BoundingBox",
+      "className": "ModuleScript",
+      "file": "Core/BoundingBox.lua"
+    },
+    {
+      "path": "Core.History",
+      "className": "ModuleScript",
+      "file": "Core/History.lua"
+    },
+    {
+      "path": "Core.ListenForManualWindowTrigger",
+      "className": "ModuleScript",
+      "file": "Core/ListenForManualWindowTrigger.lua"
+    },
+    {
+      "path": "Core.Security",
+      "className": "ModuleScript",
+      "file": "Core/Security.lua"
+    },
+    {
+      "path": "Core.Selection",
+      "className": "ModuleScript",
+      "file": "Core/Selection.lua"
+    },
+    {
+      "path": "Core.Snapping",
+      "className": "ModuleScript",
+      "file": "Core/Snapping.lua"
+    },
+    {
+      "path": "Core.Targeting",
+      "className": "ModuleScript",
+      "file": "Core/Targeting.lua"
+    },
+    {
+      "path": "Libraries.ArcHandles",
+      "className": "ModuleScript",
+      "file": "Libraries/ArcHandles.lua"
+    },
+    {
+      "path": "Libraries.Cryo",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/init.lua"
+    },
+    {
+      "path": "Libraries.Debug",
+      "className": "ModuleScript",
+      "file": "Libraries/Debug/init.lua"
+    },
+    {
+      "path": "Libraries.fastSpawn",
+      "className": "ModuleScript",
+      "file": "Libraries/fastSpawn.lua"
+    },
+    {
+      "path": "Libraries.Handles",
+      "className": "ModuleScript",
+      "file": "Libraries/Handles.lua"
+    },
+    {
+      "path": "Libraries.InstancePool",
+      "className": "ModuleScript",
+      "file": "Libraries/InstancePool.lua"
+    },
+    {
+      "path": "Libraries.Maid",
+      "className": "ModuleScript",
+      "file": "Libraries/Maid.lua"
+    },
+    {
+      "path": "Libraries.Make",
+      "className": "ModuleScript",
+      "file": "Libraries/Make.lua"
+    },
+    {
+      "path": "Libraries.Region",
+      "className": "ModuleScript",
+      "file": "Libraries/Region.lua"
+    },
+    {
+      "path": "Libraries.SerializationV2",
+      "className": "ModuleScript",
+      "file": "Libraries/SerializationV2.lua"
+    },
+    {
+      "path": "Libraries.SerializationV3",
+      "className": "ModuleScript",
+      "file": "Libraries/SerializationV3.lua"
+    },
+    {
+      "path": "Libraries.Signal",
+      "className": "ModuleScript",
+      "file": "Libraries/_vendor/GoodSignal.lua"
+    },
+    {
+      "path": "Libraries.SupportLibrary",
+      "className": "ModuleScript",
+      "file": "Libraries/SupportLibrary.lua"
+    },
+    {
+      "path": "Libraries.Try",
+      "className": "ModuleScript",
+      "file": "Libraries/Try.lua"
+    },
+    {
+      "path": "Loaded.DescendantCount",
+      "className": "IntValue",
+      "value": 0
+    },
+    {
+      "path": "Loaded.ReplicationListener",
+      "className": "LocalScript",
+      "file": "Support/ReplicationListener.client.lua"
+    },
+    {
+      "path": "Loader.ToolInitializer",
+      "className": "LocalScript",
+      "file": "Loader/ToolInitializer.client.lua"
+    },
+    {
+      "path": "SyncAPI.LocalEndpoint",
+      "className": "LocalScript",
+      "file": "Support/LocalAPIEndpoint.client.lua"
+    },
+    {
+      "path": "SyncAPI.SyncModule",
+      "className": "ModuleScript",
+      "file": "SyncAPI.lua"
+    },
+    {
+      "path": "Tools.Anchor",
+      "className": "ModuleScript",
+      "file": "Tools/Anchor.lua"
+    },
+    {
+      "path": "Tools.Collision",
+      "className": "ModuleScript",
+      "file": "Tools/Collision.lua"
+    },
+    {
+      "path": "Tools.Decorate",
+      "className": "ModuleScript",
+      "file": "Tools/Decorate.lua"
+    },
+    {
+      "path": "Tools.Lighting",
+      "className": "ModuleScript",
+      "file": "Tools/Lighting.lua"
+    },
+    {
+      "path": "Tools.Material",
+      "className": "ModuleScript",
+      "file": "Tools/Material.lua"
+    },
+    {
+      "path": "Tools.Mesh",
+      "className": "ModuleScript",
+      "file": "Tools/Mesh.lua"
+    },
+    {
+      "path": "Tools.Move",
+      "className": "ModuleScript",
+      "file": "Tools/Move/init.lua"
+    },
+    {
+      "path": "Tools.NewPart",
+      "className": "ModuleScript",
+      "file": "Tools/NewPart.lua"
+    },
+    {
+      "path": "Tools.Paint",
+      "className": "ModuleScript",
+      "file": "Tools/Paint/init.lua"
+    },
+    {
+      "path": "Tools.Resize",
+      "className": "ModuleScript",
+      "file": "Tools/Resize.lua"
+    },
+    {
+      "path": "Tools.Rotate",
+      "className": "ModuleScript",
+      "file": "Tools/Rotate.lua"
+    },
+    {
+      "path": "Tools.Surface",
+      "className": "ModuleScript",
+      "file": "Tools/Surface.lua"
+    },
+    {
+      "path": "Tools.Texture",
+      "className": "ModuleScript",
+      "file": "Tools/Texture.lua"
+    },
+    {
+      "path": "Tools.Weld",
+      "className": "ModuleScript",
+      "file": "Tools/Weld.lua"
+    },
+    {
+      "path": "UI.ColorPicker",
+      "className": "ModuleScript",
+      "file": "UI/ColorPicker/init.lua"
+    },
+    {
+      "path": "UI.Dock",
+      "className": "ModuleScript",
+      "file": "UI/Dock/init.lua"
+    },
+    {
+      "path": "UI.Dropdown",
+      "className": "ModuleScript",
+      "file": "UI/Dropdown.lua"
+    },
+    {
+      "path": "UI.Explorer",
+      "className": "ModuleScript",
+      "file": "UI/Explorer/init.lua"
+    },
+    {
+      "path": "UI.ExportDialog",
+      "className": "ModuleScript",
+      "file": "UI/ExportDialog.lua"
+    },
+    {
+      "path": "UI.Frame",
+      "className": "ModuleScript",
+      "file": "UI/Frame.lua"
+    },
+    {
+      "path": "UI.ImageButton",
+      "className": "ModuleScript",
+      "file": "UI/ImageButton.lua"
+    },
+    {
+      "path": "UI.ImageLabel",
+      "className": "ModuleScript",
+      "file": "UI/ImageLabel.lua"
+    },
+    {
+      "path": "UI.LoadingSpinner",
+      "className": "ModuleScript",
+      "file": "UI/LoadingSpinner.lua"
+    },
+    {
+      "path": "UI.Notifications",
+      "className": "ModuleScript",
+      "file": "UI/Notifications/init.lua"
+    },
+    {
+      "path": "UI.ScopeHUD",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/init.lua"
+    },
+    {
+      "path": "UI.ScrollingFrame",
+      "className": "ModuleScript",
+      "file": "UI/ScrollingFrame.lua"
+    },
+    {
+      "path": "UI.TextBox",
+      "className": "ModuleScript",
+      "file": "UI/TextBox.lua"
+    },
+    {
+      "path": "UI.TextLabel",
+      "className": "ModuleScript",
+      "file": "UI/TextLabel.lua"
+    },
+    {
+      "path": "UI.ToolManualWindow",
+      "className": "ModuleScript",
+      "file": "UI/ToolManualWindow.lua"
+    },
+    {
+      "path": "Libraries.Cryo.Dictionary",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/Dictionary/init.lua"
+    },
+    {
+      "path": "Libraries.Cryo.isEmpty",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/isEmpty.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/init.lua"
+    },
+    {
+      "path": "Libraries.Cryo.None",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/None.lua"
+    },
+    {
+      "path": "Libraries.Debug.SortedArray",
+      "className": "ModuleScript",
+      "file": "Libraries/Debug/SortedArray.lua"
+    },
+    {
+      "path": "Tools.Move.FreeDragging",
+      "className": "ModuleScript",
+      "file": "Tools/Move/FreeDragging.lua"
+    },
+    {
+      "path": "Tools.Move.HandleDragging",
+      "className": "ModuleScript",
+      "file": "Tools/Move/HandleDragging.lua"
+    },
+    {
+      "path": "Tools.Move.UIController",
+      "className": "ModuleScript",
+      "file": "Tools/Move/UIController.lua"
+    },
+    {
+      "path": "Tools.Move.Util",
+      "className": "ModuleScript",
+      "file": "Tools/Move/Util.lua"
+    },
+    {
+      "path": "Tools.Paint.PaintHistoryRecord",
+      "className": "ModuleScript",
+      "file": "Tools/Paint/PaintHistoryRecord.lua"
+    },
+    {
+      "path": "UI.ColorPicker.Slider",
+      "className": "ModuleScript",
+      "file": "UI/ColorPicker/Slider.lua"
+    },
+    {
+      "path": "UI.Dock.AboutPane",
+      "className": "ModuleScript",
+      "file": "UI/Dock/AboutPane.lua"
+    },
+    {
+      "path": "UI.Dock.SelectionButton",
+      "className": "ModuleScript",
+      "file": "UI/Dock/SelectionButton.lua"
+    },
+    {
+      "path": "UI.Dock.SelectionPane",
+      "className": "ModuleScript",
+      "file": "UI/Dock/SelectionPane.lua"
+    },
+    {
+      "path": "UI.Dock.ToolButton",
+      "className": "ModuleScript",
+      "file": "UI/Dock/ToolButton.lua"
+    },
+    {
+      "path": "UI.Dock.ToolList",
+      "className": "ModuleScript",
+      "file": "UI/Dock/ToolList.lua"
+    },
+    {
+      "path": "UI.Dock.Tooltip",
+      "className": "ModuleScript",
+      "file": "UI/Dock/Tooltip.lua"
+    },
+    {
+      "path": "UI.Explorer.ItemList",
+      "className": "ModuleScript",
+      "file": "UI/Explorer/ItemList.lua"
+    },
+    {
+      "path": "UI.Explorer.ItemRow",
+      "className": "ModuleScript",
+      "file": "UI/Explorer/ItemRow.lua"
+    },
+    {
+      "path": "UI.Notifications.NotificationDialog",
+      "className": "ModuleScript",
+      "file": "UI/Notifications/NotificationDialog.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.HotkeyTooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/HotkeyTooltip/init.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.ModeToggle",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/ModeToggle/init.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.ScopeHierarchyItemButton",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/ScopeHierarchyItemButton.lua"
+    },
+    {
+      "path": "Vendor.Roact.src",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/init.lua"
+    },
+    {
+      "path": "Libraries.Cryo.Dictionary.join",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/Dictionary/join.lua"
+    },
+    {
+      "path": "Libraries.Cryo.Dictionary.keys",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/Dictionary/keys.lua"
+    },
+    {
+      "path": "Libraries.Cryo.Dictionary.values",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/Dictionary/values.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.filter",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/filter.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.filterMap",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/filterMap.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.find",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/find.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.findWhere",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/findWhere.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.foldLeft",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/foldLeft.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.foldRight",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/foldRight.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.getRange",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/getRange.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.join",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/join.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.map",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/map.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.removeIndex",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/removeIndex.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.removeRange",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/removeRange.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.removeValue",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/removeValue.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.replaceIndex",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/replaceIndex.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.reverse",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/reverse.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.sort",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/sort.lua"
+    },
+    {
+      "path": "Libraries.Cryo.List.toSet",
+      "className": "ModuleScript",
+      "file": "Libraries/Cryo/List/toSet.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.HotkeyTooltip.AltTooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/HotkeyTooltip/AltTooltip.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.HotkeyTooltip.ScopeInTooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeInTooltip.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.HotkeyTooltip.ScopeLockTooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeLockTooltip.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.HotkeyTooltip.ScopeOutTooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/HotkeyTooltip/ScopeOutTooltip.lua"
+    },
+    {
+      "path": "UI.ScopeHUD.ModeToggle.Tooltip",
+      "className": "ModuleScript",
+      "file": "UI/ScopeHUD/ModeToggle/Tooltip.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.assertDeepEqual",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/assertDeepEqual.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.assign",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/assign.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Binding",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Binding.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Change",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/PropMarkers/Change.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Children",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/PropMarkers/Children.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Component",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Component.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.ComponentLifecyclePhase",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/ComponentLifecyclePhase.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Config",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Config.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createContext",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createContext.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createElement",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createElement.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createFragment",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createFragment.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createReconciler",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createReconciler.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createReconcilerCompat",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createReconcilerCompat.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createRef",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createRef.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createSignal",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createSignal.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.createSpy",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/createSpy.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.ElementKind",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/ElementKind.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.ElementUtils",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/ElementUtils.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Event",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/PropMarkers/Event.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.forwardRef",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/forwardRef.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.getDefaultInstanceProperty",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/getDefaultInstanceProperty.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.GlobalConfig",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/GlobalConfig.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.internalAssert",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/internalAssert.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.invalidSetStateMessages",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/invalidSetStateMessages.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Logging",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Logging.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.None",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/None.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.NoopRenderer",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/NoopRenderer.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.oneChild",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/oneChild.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Portal",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Portal.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.PureComponent",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/PureComponent.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Ref",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/PropMarkers/Ref.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.RobloxRenderer",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/RobloxRenderer.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.SingleEventManager",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/SingleEventManager.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.strict",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/strict.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Symbol",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Symbol.lua"
+    },
+    {
+      "path": "Vendor.Roact.src.Type",
+      "className": "ModuleScript",
+      "file": "Vendor/Roact/src/Type.lua"
+    }
+  ]
+}

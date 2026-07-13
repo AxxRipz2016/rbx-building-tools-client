@@ -1,0 +1,163 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, "..");
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, "config.json"), "utf8"));
+
+const entries = [];
+const warnings = [];
+
+function addEntry(instancePath, className, file) {
+  const entry = { path: instancePath, className };
+  if (file) {
+    entry.file = file.replace(/\\/g, "/");
+  }
+  entries.push(entry);
+}
+
+function shouldSkipFile(fileName) {
+  return fileName.endsWith(".spec.lua") || fileName.endsWith(".server.lua");
+}
+
+function walkLuaDir(relativeDir, instancePath) {
+  const absoluteDir = path.join(root, relativeDir);
+  if (!fs.existsSync(absoluteDir)) {
+    warnings.push(`Папка не найдена: ${relativeDir}`);
+    return;
+  }
+
+  const initPath = path.join(absoluteDir, "init.lua");
+  const hasInit = fs.existsSync(initPath);
+
+  if (hasInit) {
+    const folderName = path.basename(relativeDir);
+    const modulePath = instancePath ? `${instancePath}.${folderName}` : folderName;
+    addEntry(modulePath, "ModuleScript", path.join(relativeDir, "init.lua"));
+    instancePath = modulePath;
+  }
+
+  for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      walkLuaDir(path.join(relativeDir, entry.name), instancePath);
+      continue;
+    }
+
+    if (!entry.name.endsWith(".lua") || entry.name === "init.lua" || shouldSkipFile(entry.name)) {
+      continue;
+    }
+
+    const scriptName = entry.name.replace(/\.client\.lua$/, "").replace(/\.lua$/, "");
+    const scriptPath = instancePath ? `${instancePath}.${scriptName}` : scriptName;
+    const className = entry.name.endsWith(".client.lua") ? "LocalScript" : "ModuleScript";
+    addEntry(scriptPath, className, path.join(relativeDir, entry.name));
+  }
+}
+
+function addFolder(instancePath) {
+  entries.push({ path: instancePath, className: "Folder" });
+}
+
+function addValue(instancePath, className, value) {
+  entries.push({ path: instancePath, className, value });
+}
+
+// Folders
+addFolder("Tools");
+addFolder("UI");
+addFolder("Interfaces");
+addFolder("Vendor");
+
+// Core modules
+walkLuaDir("Core", "");
+
+// Tools
+walkLuaDir("Tools", "Tools");
+
+// Loader
+walkLuaDir("Loader", "");
+
+// UI
+walkLuaDir("UI", "UI");
+
+// Libraries (without Signal — added separately)
+const librariesDir = path.join(root, "Libraries");
+for (const entry of fs.readdirSync(librariesDir, { withFileTypes: true })) {
+  if (entry.name === "Signal" || entry.name === "_vendor") {
+    continue;
+  }
+  if (entry.isDirectory()) {
+    walkLuaDir(path.join("Libraries", entry.name), "Libraries");
+  } else if (entry.name.endsWith(".lua") && !shouldSkipFile(entry.name)) {
+    const scriptName = entry.name.replace(/\.lua$/, "");
+    addEntry(`Libraries.${scriptName}`, "ModuleScript", path.join("Libraries", entry.name));
+  }
+}
+
+// Roact vendor
+const roactDir = path.join(root, "Vendor", "Roact", "src");
+if (fs.existsSync(roactDir)) {
+  walkLuaDir(path.join("Vendor", "Roact", "src"), "Vendor.Roact");
+} else {
+  warnings.push("Vendor/Roact не найден. Выполни: git submodule update --init --recursive");
+}
+
+// Signal dependency (vendored for GitHub raw URLs)
+const signalFile = path.join(
+  root,
+  "node_modules",
+  "@quenty",
+  "signal",
+  "src",
+  "Shared",
+  "GoodSignal.lua"
+);
+const vendoredSignal = path.join(root, "Libraries", "_vendor", "GoodSignal.lua");
+if (fs.existsSync(signalFile)) {
+  fs.mkdirSync(path.dirname(vendoredSignal), { recursive: true });
+  fs.copyFileSync(signalFile, vendoredSignal);
+  addEntry("Libraries.Signal", "ModuleScript", "Libraries/_vendor/GoodSignal.lua");
+} else {
+  warnings.push("Signal не найден. Выполни: npm install");
+}
+
+// Root-level API module
+addEntry("SyncAPI.SyncModule", "ModuleScript", "SyncAPI.lua");
+
+// Support scripts mapped to tool hierarchy
+addEntry("SyncAPI", "BindableFunction");
+addEntry("SyncAPI.LocalEndpoint", "LocalScript", "Support/LocalAPIEndpoint.client.lua");
+addEntry("Assets", "ModuleScript", "Support/Assets.lua");
+addEntry("Loaded.ReplicationListener", "LocalScript", "Support/ReplicationListener.client.lua");
+
+// Values and tool parts
+addValue("Version", "StringValue", config.toolVersion);
+addValue("Loaded", "BoolValue", false);
+addValue("Loaded.DescendantCount", "IntValue", 0);
+addValue("AutoUpdate", "BoolValue", false);
+entries.push({ path: "Handle", className: "Part", properties: { Size: [0.2, 0.2, 0.2], Transparency: 1, CanCollide: false } });
+
+// Sort: parents before children (by dot count, then path)
+entries.sort((a, b) => {
+  const depthA = a.path ? a.path.split(".").length : 0;
+  const depthB = b.path ? b.path.split(".").length : 0;
+  if (depthA !== depthB) {
+    return depthA - depthB;
+  }
+  return a.path.localeCompare(b.path);
+});
+
+const manifest = {
+  ...config,
+  generatedAt: new Date().toISOString(),
+  entryCount: entries.length,
+  entries,
+};
+
+fs.writeFileSync(path.join(__dirname, "manifest.json"), JSON.stringify(manifest, null, 2));
+
+console.log(`manifest.json: ${entries.length} entries`);
+for (const warning of warnings) {
+  console.warn(`WARN: ${warning}`);
+}

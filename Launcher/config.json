@@ -1,0 +1,9 @@
+{
+  "github": {
+    "user": "YOUR_USERNAME",
+    "repo": "rbx-building-tools-client",
+    "branch": "main"
+  },
+  "toolVersion": "3.1.0-client",
+  "toolName": "Building Tools"
+}
