@@ -71,21 +71,6 @@ function ToolList:render()
             return UDim2.fromOffset(CanvasSize.X.Offset, (35) * 7)
         end);
     }, {
-        Corners = new('UICorner', {
-            CornerRadius = UDim.new(0, Theme.cornerRadius);
-        });
-        Gradient = new('UIGradient', {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Theme.panelLight);
-                ColorSequenceKeypoint.new(1, Theme.background);
-            });
-            Rotation = 110;
-        });
-        Stroke = new('UIStroke', {
-            Color = Theme.accent;
-            Thickness = 1;
-            Transparency = 0.65;
-        });
         AccentTop = new('Frame', {
             BackgroundColor3 = Theme.accent;
             BorderSizePixel = 0;
@@ -109,6 +94,21 @@ function ToolList:render()
             ScrollingDirection = Enum.ScrollingDirection.Y;
             ScrollBarImageColor3 = Theme.accent;
             [Roact.Children] = Children;
+        });
+        Corners = new('UICorner', {
+            CornerRadius = UDim.new(0, Theme.cornerRadius);
+        });
+        Gradient = new('UIGradient', {
+            Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Theme.panelLight);
+                ColorSequenceKeypoint.new(1, Theme.background);
+            });
+            Rotation = 110;
+        });
+        Stroke = new('UIStroke', {
+            Color = Theme.accent;
+            Thickness = 1;
+            Transparency = 0.65;
         });
     })
 end
