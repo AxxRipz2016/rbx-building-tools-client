@@ -6,14 +6,14 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T17:37:51.063Z",
-  "entryCount": 161,
+  "generatedAt": "2026-07-13T18:13:26.564Z",
+  "entryCount": 164,
   "entries": [
     {
       "path": "Assets",
       "className": "ModuleScript",
       "file": "Support/Assets.lua",
-      "version": "aba097a3fd53"
+      "version": "0163abf56653"
     },
     {
       "path": "AutoUpdate",
@@ -57,7 +57,7 @@
       "path": "Loader",
       "className": "ModuleScript",
       "file": "Loader/init.lua",
-      "version": "d3dd82157b2e"
+      "version": "193ee1641acc"
     },
     {
       "path": "SyncAPI",
@@ -183,6 +183,12 @@
       "version": "f6e6e7d91090"
     },
     {
+      "path": "Libraries.MapLibrary",
+      "className": "ModuleScript",
+      "file": "Libraries/MapLibrary.lua",
+      "version": "3ec9559c85a6"
+    },
+    {
       "path": "Libraries.Region",
       "className": "ModuleScript",
       "file": "Libraries/Region.lua",
@@ -257,7 +263,7 @@
       "path": "SyncAPI.SyncModule",
       "className": "ModuleScript",
       "file": "SyncAPI.lua",
-      "version": "a85b9742a9f1"
+      "version": "8843b44ed526"
     },
     {
       "path": "Tools.Anchor",
@@ -282,6 +288,12 @@
       "className": "ModuleScript",
       "file": "Tools/Lighting.lua",
       "version": "eb079aa32927"
+    },
+    {
+      "path": "Tools.MapSaver",
+      "className": "ModuleScript",
+      "file": "Tools/MapSaver.lua",
+      "version": "12d3f19567fa"
     },
     {
       "path": "Tools.Material",
@@ -408,6 +420,12 @@
       "className": "ModuleScript",
       "file": "UI/LoadingSpinner.lua",
       "version": "40cf56ad4399"
+    },
+    {
+      "path": "UI.MapSaver",
+      "className": "ModuleScript",
+      "file": "UI/MapSaver/init.lua",
+      "version": "41b3892ee87b"
     },
     {
       "path": "UI.Notifications",

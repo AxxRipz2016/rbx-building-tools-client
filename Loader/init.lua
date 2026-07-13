@@ -94,4 +94,13 @@ local StampTool = require(CoreTools:WaitForChild 'Stamp')
 Core.AssignHotkey('L', Core.Support.Call(Core.EquipTool, StampTool));
 Core.AddToolButton(Core.Assets.StampIcon, 'L', StampTool)
 
+-- Initialize map saver tool
+local MapSaverTool = require(CoreTools:WaitForChild 'MapSaver')
+Core.AssignHotkey('Y', Core.Support.Call(Core.EquipTool, MapSaverTool));
+Core.AddToolButton(Core.Assets.MapSaverIcon, 'Y', MapSaverTool)
+
+task.defer(function()
+	MapSaverTool:TryAutoLoad()
+end)
+
 return Core

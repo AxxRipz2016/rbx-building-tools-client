@@ -88,6 +88,13 @@ Actions = {
 
 			Clone.Parent = Parent
 
+			if Player then
+				Clone:SetAttribute('BTUserId', Player.UserId)
+				for _, descendant in ipairs(Clone:GetDescendants()) do
+					descendant:SetAttribute('BTUserId', Player.UserId)
+				end
+			end
+
 			-- Register the clone
 			table.insert(Clones, Clone)
 			CreatedInstances[Item] = Item
@@ -153,6 +160,102 @@ Actions = {
 			item.Parent = Parent
 		end
 
+		if type(Options) == 'table' then
+			local userId = Player and Player.UserId
+			if userId then
+				for _, item in ipairs(Items) do
+					item:SetAttribute('BTUserId', userId)
+					for _, descendant in ipairs(item:GetDescendants()) do
+						descendant:SetAttribute('BTUserId', userId)
+					end
+				end
+			end
+		end
+
+		return Items
+	end;
+
+	['MapLoad'] = function (BuildData, AnchorPosition, Parent, Options)
+		assert(type(BuildData) == 'table', 'Invalid build data')
+		assert(typeof(AnchorPosition) == 'Vector3', 'Invalid anchor position')
+		assert(typeof(Parent) == 'Instance', 'Invalid parent')
+		assert(Security.IsLocationAllowed(Parent, Player), 'Permission denied for client')
+
+		Options = type(Options) == 'table' and Options or {}
+
+		if Options.ReplaceExisting and Options.MapId then
+			local toRemove = {}
+			for _, descendant in ipairs(Parent:GetDescendants()) do
+				if descendant:GetAttribute('BTMapId') == Options.MapId then
+					table.insert(toRemove, descendant)
+				end
+			end
+			table.sort(toRemove, function(a, b)
+				return #a:GetFullName() > #b:GetFullName()
+			end)
+			for _, instance in ipairs(toRemove) do
+				if instance.Parent then
+					instance:Destroy()
+				end
+			end
+		end
+
+		local SerializationModule = BuildData.Version == 4
+			and require(Tool.Libraries.SerializationV4)
+			or Serialization
+		local Items = SerializationModule.InflateBuildData(BuildData)
+		if #Items == 0 then
+			return {}
+		end
+
+		local parts = GetPartsFromSelection(Items)
+		if #parts == 0 then
+			return {}
+		end
+
+		if Security.ArePartsViolatingAreas(parts, Player, false) then
+			return {}
+		end
+
+		local sum = Vector3.new()
+		for _, part in ipairs(parts) do
+			sum += part.Position
+		end
+		local center = sum / #parts
+		local offset = AnchorPosition - center
+		for _, part in ipairs(parts) do
+			part.CFrame = part.CFrame + offset
+		end
+
+		if Options.Anchored ~= nil then
+			for _, part in ipairs(parts) do
+				part.Anchored = Options.Anchored
+			end
+		end
+
+		for _, item in ipairs(Items) do
+			item.Parent = Parent
+		end
+
+		local userId = Player and Player.UserId
+		local mapId = Options.MapId
+		if userId or mapId then
+			for _, item in ipairs(Items) do
+				if mapId then
+					item:SetAttribute('BTMapId', mapId)
+					for _, descendant in ipairs(item:GetDescendants()) do
+						descendant:SetAttribute('BTMapId', mapId)
+					end
+				end
+				if userId then
+					item:SetAttribute('BTUserId', userId)
+					for _, descendant in ipairs(item:GetDescendants()) do
+						descendant:SetAttribute('BTUserId', userId)
+					end
+				end
+			end
+		end
+
 		return Items
 	end;
 
@@ -185,6 +288,10 @@ Actions = {
 
 		-- Parent the part
 		NewPart.Parent = Parent
+
+		if Player then
+			NewPart:SetAttribute('BTUserId', Player.UserId)
+		end
 
 		-- Register the part
 		CreatedInstances[NewPart] = NewPart;
