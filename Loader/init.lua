@@ -103,4 +103,14 @@ task.defer(function()
 	MapSaverTool:TryAutoLoad()
 end)
 
+-- Initialize mirror tool
+local MirrorTool = require(CoreTools:WaitForChild 'Mirror')
+Core.AssignHotkey('I', Core.Support.Call(Core.EquipTool, MirrorTool));
+Core.AddToolButton(Core.Assets.MirrorIcon, 'I', MirrorTool)
+
+-- Initialize replace tool
+local ReplaceTool = require(CoreTools:WaitForChild 'Replace')
+Core.AssignHotkey('O', Core.Support.Call(Core.EquipTool, ReplaceTool));
+Core.AddToolButton(Core.Assets.ReplaceIcon, 'O', ReplaceTool)
+
 return Core

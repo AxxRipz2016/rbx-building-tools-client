@@ -37,6 +37,8 @@ Assets = {
 	ExplorerDockIcon		= 'rbxassetid://2326621485';
 	StampIcon				= 'rbxassetid://142073926';
 	MapSaverIcon			= 'rbxassetid://141741337';
+	MirrorIcon				= 'rbxassetid://141807775';
+	ReplaceIcon				= 'rbxassetid://142073926';
 };
 
 return Assets;

@@ -259,6 +259,87 @@ Actions = {
 		return Items
 	end;
 
+	['ReplaceParts'] = function (TemplateBuildData, Parts, Options)
+		assert(type(TemplateBuildData) == 'table', 'Invalid template build data')
+		assert(type(Parts) == 'table', 'Invalid parts')
+
+		Options = type(Options) == 'table' and Options or {}
+
+		-- Ensure parts are selectable
+		if not CanModifyItems(Parts) then
+			return {}
+		end
+
+		-- Cache up permissions for all private areas
+		local AreaPermissions = Security.GetPermissions(Security.GetSelectionAreas(Parts), Player);
+		if Security.ArePartsViolatingAreas(Parts, Player, true, AreaPermissions) then
+			return {}
+		end
+
+		local SerializationModule = TemplateBuildData.Version == 4
+			and require(Tool.Libraries.SerializationV4)
+			or Serialization
+
+		local TemplateItems = SerializationModule.InflateBuildData(TemplateBuildData)
+		local templatePart = nil
+		for _, item in ipairs(TemplateItems) do
+			if item:IsA("BasePart") then
+				templatePart = item
+				break
+			end
+		end
+		if not templatePart then
+			return {}
+		end
+
+		local created = {}
+		for _, part in ipairs(Parts) do
+			if part and part.Parent then
+				local clone = templatePart:Clone()
+
+				clone.CFrame = part.CFrame
+
+				if Options.KeepSize then
+					clone.Size = part.Size
+				end
+				if Options.KeepColor then
+					pcall(function()
+						clone.Color = part.Color
+					end)
+				end
+				if Options.KeepMaterial then
+					pcall(function()
+						clone.Material = part.Material
+					end)
+				end
+
+				clone.Parent = part.Parent
+
+				if Player then
+					clone:SetAttribute('BTUserId', Player.UserId)
+					for _, descendant in ipairs(clone:GetDescendants()) do
+						descendant:SetAttribute('BTUserId', Player.UserId)
+					end
+				end
+
+				table.insert(created, clone)
+			end
+		end
+
+		-- Make sure the player is authorized to place parts into this area
+		local createdParts = GetPartsFromSelection(created)
+		if Security.ArePartsViolatingAreas(createdParts, Player, false, AreaPermissions) then
+			for _, obj in ipairs(created) do
+				if obj then
+					obj:Destroy()
+				end
+			end
+			return {}
+		end
+
+		return created
+	end;
+
 	['CreatePart'] = function (PartType, Position, Parent)
 		-- Creates a new part based on `PartType`
 
