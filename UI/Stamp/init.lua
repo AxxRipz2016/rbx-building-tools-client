@@ -17,7 +17,7 @@ function StampPanel:init()
 		stamps = StampLibrary.list(),
 		selectedId = nil,
 		name = "",
-		status = "Выбери stamp и кликни по миру, чтобы поставить",
+		status = "Выбери stamp в списке. Клик по миру — выделение.",
 	})
 end
 
@@ -123,7 +123,7 @@ function StampPanel:render()
 		BackgroundTransparency = 0.06,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 12, 0.5, -170),
-		Size = UDim2.fromOffset(280, 332),
+		Size = UDim2.fromOffset(280, 350),
 	}, {
 		Corner = new("UICorner", {
 			CornerRadius = UDim.new(0, Theme.cornerRadius),
@@ -201,15 +201,26 @@ function StampPanel:render()
 				PaddingRight = UDim.new(0, 4),
 			}),
 		})),
-		PlaceHint = new("TextLabel", {
+		Place = new("TextButton", {
 			LayoutOrder = 5,
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, 14),
-			Font = Enum.Font.GothamMedium,
-			Text = "Клик по миру — поставить выбранный stamp",
-			TextColor3 = Theme.textDim,
-			TextSize = 10,
-			TextXAlignment = Enum.TextXAlignment.Left,
+			Size = UDim2.new(1, 0, 0, 32),
+			BackgroundColor3 = Theme.accent,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamBold,
+			Text = "Поставить",
+			TextColor3 = Theme.text,
+			TextSize = 12,
+			[Roact.Event.Activated] = function()
+				if not self.props.OnPlaceStamp then
+					return
+				end
+				local ok, message = self.props.OnPlaceStamp()
+				self:setState({
+					status = message or (ok and "Stamp поставлен" or "Ошибка постановки"),
+				})
+			end,
+		}, {
+			Corner = new("UICorner", { CornerRadius = UDim.new(0, 6) }),
 		}),
 		SaveSection = new("Frame", {
 			LayoutOrder = 6,
@@ -269,7 +280,7 @@ function StampPanel:render()
 			}),
 		}),
 		LoadActions = new("Frame", {
-			LayoutOrder = 7,
+			LayoutOrder = 8,
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, 28),
 		}, {

@@ -5,7 +5,6 @@ local Vendor = Tool:WaitForChild("Vendor")
 local UI = Tool:WaitForChild("UI")
 local Libraries = Tool:WaitForChild("Libraries")
 
-local ContextActionService = game:GetService("ContextActionService")
 local Roact = require(Vendor:WaitForChild("Roact"))
 local StampPanel = require(UI:WaitForChild("Stamp"))
 local StampLibrary = require(Libraries:WaitForChild("StampLibrary"))
@@ -21,46 +20,38 @@ local StampTool = {
 }
 
 StampTool.ManualText = [[<font face="GothamBlack" size="16">Stamp Tool  🛠</font>
-Сохраняй выделение как stamp и ставь его снова одним кликом.<font size="6"><br /></font>
+Сохраняй выделение как stamp и ставь его снова.<font size="6"><br /></font>
 
-<b>Сохранить</b> — выдели постройку, имя, кнопка «Сохранить выделение».<font size="6"><br /></font>
-<b>Загрузить</b> — кнопка «Загрузить список» читает stamps с диска.<font size="6"><br /></font>
-<b>Поставить</b> — клавиша L, выбери stamp, кликни по миру.<font size="6"><br /></font>
+<b>Выделение</b> — кликай по миру как обычно, stamp не ставится.<font size="6"><br /></font>
+<b>Поставить</b> — выбери stamp в списке, нажми кнопку «Поставить».<font size="6"><br /></font>
+<b>Сохранить</b> — выдели постройку, имя, «Сохранить выделение».<font size="6"><br /></font>
 <b>Файлы</b> — папка BT-BuildingTools/stamps.]]
 
-local Connections = {}
 local PanelHandle = nil
 local SelectedStampId = nil
-
-local function clearConnections()
-	for key, connection in pairs(Connections) do
-		connection:Disconnect()
-		Connections[key] = nil
-	end
-end
 
 local function getPlacementParent()
 	return Core.Targeting.Scope or workspace
 end
 
-local function placeSelectedStamp()
+function StampTool:PlaceStamp()
 	if not SelectedStampId then
-		return
+		return false, "Выбери stamp в списке"
 	end
 
 	local stamp = StampLibrary.find(SelectedStampId)
 	if not stamp then
-		return
+		return false, "Stamp не найден"
 	end
 
 	local hit = Core.Mouse and Core.Mouse.Hit
 	if not hit then
-		return
+		return false, "Наведи курсор на место постановки"
 	end
 
 	local created = Core.SyncAPI:Invoke("StampPlace", stamp.buildData, hit.Position, getPlacementParent())
 	if not created or #created == 0 then
-		return
+		return false, "Не удалось поставить stamp"
 	end
 
 	local HistoryRecord = {
@@ -79,21 +70,8 @@ local function placeSelectedStamp()
 
 	Core.History.Add(HistoryRecord)
 	Selection.Replace(created, false)
-end
 
-local function enablePlacement()
-	ContextActionService:BindAction(
-		"BT: Stamp place",
-		function(_, state)
-			if state.Name == "Begin" then
-				Core.Targeting.CancelSelecting()
-				placeSelectedStamp()
-			end
-		end,
-		false,
-		Enum.UserInputType.MouseButton1,
-		Enum.UserInputType.Touch
-	)
+	return true, "Поставлено: " .. stamp.name
 end
 
 function StampTool:SetSelectedStamp(stampId)
@@ -110,6 +88,9 @@ function StampTool:ShowUI()
 		OnSelectStamp = function(stampId)
 			StampTool:SetSelectedStamp(stampId)
 		end,
+		OnPlaceStamp = function()
+			return StampTool:PlaceStamp()
+		end,
 	})
 	PanelHandle = Roact.mount(element, Core.UI, "StampPanel")
 end
@@ -122,15 +103,11 @@ function StampTool:HideUI()
 end
 
 function StampTool:Equip()
-	Selection.Clear(false)
 	self:ShowUI()
-	enablePlacement()
 end
 
 function StampTool:Unequip()
 	self:HideUI()
-	clearConnections()
-	ContextActionService:UnbindAction("BT: Stamp place")
 end
 
 return StampTool

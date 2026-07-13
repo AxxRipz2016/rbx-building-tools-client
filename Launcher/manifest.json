@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-13T16:47:14.737Z",
+  "generatedAt": "2026-07-13T16:53:24.349Z",
   "entryCount": 161,
   "entries": [
     {
@@ -329,7 +329,7 @@
       "path": "Tools.Stamp",
       "className": "ModuleScript",
       "file": "Tools/Stamp.lua",
-      "version": "4451196d18ff"
+      "version": "f3278c52bc2c"
     },
     {
       "path": "Tools.Surface",
@@ -431,7 +431,7 @@
       "path": "UI.Stamp",
       "className": "ModuleScript",
       "file": "UI/Stamp/init.lua",
-      "version": "998c0a6dee60"
+      "version": "72b32c72e7ea"
     },
     {
       "path": "UI.TextBox",
