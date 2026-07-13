@@ -11,6 +11,7 @@
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
 local PLACEHOLDER_USER = "YOUR_USERNAME"
 
@@ -20,6 +21,10 @@ local CONFIG = {
 	branch = "main",
 	toolName = "Building Tools",
 }
+
+local gui = nil
+local downloadedFiles = 0
+local totalFiles = 0
 
 local function resolveGithubField(manifestValue, configValue)
 	if manifestValue == nil or manifestValue == "" or manifestValue == PLACEHOLDER_USER then
@@ -51,32 +56,6 @@ local function rawUrl(filePath)
 	)
 end
 
-local function splitPath(instancePath)
-	local parts = {}
-	for part in string.gmatch(instancePath, "[^%.]+") do
-		table.insert(parts, part)
-	end
-	return parts
-end
-
-local function getOrCreateParent(tool, instancePath)
-	if instancePath == "" or instancePath == nil then
-		return tool
-	end
-
-	local parent = tool
-	for index, name in ipairs(splitPath(instancePath)) do
-		local pathSoFar = table.concat(splitPath(instancePath), ".", 1, index)
-		local existing = parent:FindFirstChild(name)
-		if not existing then
-			error("Родитель не создан: " .. pathSoFar, 0)
-		end
-		parent = existing
-	end
-
-	return parent
-end
-
 local function getParentPath(fullPath)
 	if not fullPath or not string.find(fullPath, ".", 1, true) then
 		return ""
@@ -105,6 +84,15 @@ local function applyProperties(instance, properties)
 	end
 end
 
+local function reportFileProgress(filePath)
+	downloadedFiles += 1
+	if gui then
+		gui.setProgress(downloadedFiles, totalFiles)
+		gui.setFile(filePath)
+	end
+	RunService.Heartbeat:Wait()
+end
+
 local function createInstance(entry)
 	local className = entry.className
 	local instance = Instance.new(className)
@@ -123,6 +111,7 @@ local function createInstance(entry)
 	end
 
 	if entry.file and (instance:IsA("LuaSourceContainer") or instance:IsA("Script")) then
+		reportFileProgress(entry.file)
 		local source = httpGet(rawUrl(entry.file))
 		instance.Source = source
 	end
@@ -130,7 +119,23 @@ local function createInstance(entry)
 	return instance
 end
 
+local function countFileEntries(entries)
+	local count = 0
+	for _, entry in ipairs(entries) do
+		if entry.file then
+			count += 1
+		end
+	end
+	return count
+end
+
 local function loadManifest()
+	if gui then
+		gui.setStatus("Загрузка manifest…")
+		gui.setFile("Launcher/manifest.json")
+		RunService.Heartbeat:Wait()
+	end
+
 	local manifestUrl = rawUrl("Launcher/manifest.json")
 	local decoded = HttpService:JSONDecode(httpGet(manifestUrl))
 
@@ -143,6 +148,10 @@ local function loadManifest()
 end
 
 local function buildTool(manifest)
+	if gui then
+		gui.setStatus("Сборка Tool…")
+	end
+
 	local tool = Instance.new("Tool")
 	tool.Name = CONFIG.toolName
 	tool.RequiresHandle = true
@@ -174,26 +183,69 @@ local function buildTool(manifest)
 	return tool
 end
 
+local function loadGui()
+	local guiSource = httpGet(rawUrl("Launcher/gui.lua"))
+	local guiModule = loadstring(guiSource)
+	if not guiModule then
+		error("Не удалось скомпилировать Launcher/gui.lua", 0)
+	end
+	local Gui = guiModule()
+	return Gui.create()
+end
+
 local function main()
 	local player = Players.LocalPlayer
 	if not player then
 		error("LocalPlayer не найден", 0)
 	end
 
-	print("[BT Launcher] Загрузка manifest...")
-	local manifest = loadManifest()
+	gui = loadGui()
+	gui.setStatus("Инициализация…")
+	gui.setProgress(0, 1)
 
-	print("[BT Launcher] Сборка Tool (" .. tostring(manifest.entryCount) .. " объектов)...")
-	local tool = buildTool(manifest)
+	local ok, result = pcall(function()
+		downloadedFiles = 0
 
-	local backpack = player:WaitForChild("Backpack")
-	local existing = backpack:FindFirstChild(tool.Name)
-	if existing then
-		existing:Destroy()
+		local manifest = loadManifest()
+		totalFiles = countFileEntries(manifest.entries)
+		downloadedFiles = 0
+
+		if gui then
+			gui.setProgress(0, totalFiles)
+			gui.setStatus("Скачивание модулей…")
+		end
+
+		local tool = buildTool(manifest)
+
+		local backpack = player:WaitForChild("Backpack")
+		local existing = backpack:FindFirstChild(tool.Name)
+		if existing then
+			existing:Destroy()
+		end
+
+		tool.Parent = backpack
+		return tool
+	end)
+
+	if not ok then
+		warn("[BT Launcher] " .. tostring(result))
+		if gui then
+			local message = tostring(result)
+			local title = "Ошибка загрузки"
+			local url = message:match("https://[^\n]+")
+			if url then
+				gui.setError(title, url)
+			else
+				gui.setError(title, message)
+			end
+		end
+		return
 	end
 
-	tool.Parent = backpack
 	print("[BT Launcher] Готово. Экипируй Tool из Backpack.")
+	if gui then
+		gui.setSuccess("Готово!")
+	end
 end
 
 return main()

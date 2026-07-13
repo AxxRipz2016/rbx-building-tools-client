@@ -6,7 +6,7 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Building Tools",
-  "generatedAt": "2026-07-13T07:42:58.930Z",
+  "generatedAt": "2026-07-13T07:48:45.160Z",
   "entryCount": 154,
   "entries": [
     {
@@ -354,7 +354,7 @@
     {
       "path": "Vendor.Roact",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/init.lua"
+      "file": "Libraries/_vendor/Roact/src/init.lua"
     },
     {
       "path": "Libraries.Cryo.Dictionary",
@@ -474,132 +474,132 @@
     {
       "path": "Vendor.Roact.assertDeepEqual",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/assertDeepEqual.lua"
+      "file": "Libraries/_vendor/Roact/src/assertDeepEqual.lua"
     },
     {
       "path": "Vendor.Roact.assign",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/assign.lua"
+      "file": "Libraries/_vendor/Roact/src/assign.lua"
     },
     {
       "path": "Vendor.Roact.Binding",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Binding.lua"
+      "file": "Libraries/_vendor/Roact/src/Binding.lua"
     },
     {
       "path": "Vendor.Roact.Component",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Component.lua"
+      "file": "Libraries/_vendor/Roact/src/Component.lua"
     },
     {
       "path": "Vendor.Roact.ComponentLifecyclePhase",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/ComponentLifecyclePhase.lua"
+      "file": "Libraries/_vendor/Roact/src/ComponentLifecyclePhase.lua"
     },
     {
       "path": "Vendor.Roact.Config",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Config.lua"
+      "file": "Libraries/_vendor/Roact/src/Config.lua"
     },
     {
       "path": "Vendor.Roact.createContext",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createContext.lua"
+      "file": "Libraries/_vendor/Roact/src/createContext.lua"
     },
     {
       "path": "Vendor.Roact.createElement",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createElement.lua"
+      "file": "Libraries/_vendor/Roact/src/createElement.lua"
     },
     {
       "path": "Vendor.Roact.createFragment",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createFragment.lua"
+      "file": "Libraries/_vendor/Roact/src/createFragment.lua"
     },
     {
       "path": "Vendor.Roact.createReconciler",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createReconciler.lua"
+      "file": "Libraries/_vendor/Roact/src/createReconciler.lua"
     },
     {
       "path": "Vendor.Roact.createReconcilerCompat",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createReconcilerCompat.lua"
+      "file": "Libraries/_vendor/Roact/src/createReconcilerCompat.lua"
     },
     {
       "path": "Vendor.Roact.createRef",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createRef.lua"
+      "file": "Libraries/_vendor/Roact/src/createRef.lua"
     },
     {
       "path": "Vendor.Roact.createSignal",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createSignal.lua"
+      "file": "Libraries/_vendor/Roact/src/createSignal.lua"
     },
     {
       "path": "Vendor.Roact.createSpy",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/createSpy.lua"
+      "file": "Libraries/_vendor/Roact/src/createSpy.lua"
     },
     {
       "path": "Vendor.Roact.ElementKind",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/ElementKind.lua"
+      "file": "Libraries/_vendor/Roact/src/ElementKind.lua"
     },
     {
       "path": "Vendor.Roact.ElementUtils",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/ElementUtils.lua"
+      "file": "Libraries/_vendor/Roact/src/ElementUtils.lua"
     },
     {
       "path": "Vendor.Roact.forwardRef",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/forwardRef.lua"
+      "file": "Libraries/_vendor/Roact/src/forwardRef.lua"
     },
     {
       "path": "Vendor.Roact.getDefaultInstanceProperty",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/getDefaultInstanceProperty.lua"
+      "file": "Libraries/_vendor/Roact/src/getDefaultInstanceProperty.lua"
     },
     {
       "path": "Vendor.Roact.GlobalConfig",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/GlobalConfig.lua"
+      "file": "Libraries/_vendor/Roact/src/GlobalConfig.lua"
     },
     {
       "path": "Vendor.Roact.internalAssert",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/internalAssert.lua"
+      "file": "Libraries/_vendor/Roact/src/internalAssert.lua"
     },
     {
       "path": "Vendor.Roact.invalidSetStateMessages",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/invalidSetStateMessages.lua"
+      "file": "Libraries/_vendor/Roact/src/invalidSetStateMessages.lua"
     },
     {
       "path": "Vendor.Roact.Logging",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Logging.lua"
+      "file": "Libraries/_vendor/Roact/src/Logging.lua"
     },
     {
       "path": "Vendor.Roact.None",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/None.lua"
+      "file": "Libraries/_vendor/Roact/src/None.lua"
     },
     {
       "path": "Vendor.Roact.NoopRenderer",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/NoopRenderer.lua"
+      "file": "Libraries/_vendor/Roact/src/NoopRenderer.lua"
     },
     {
       "path": "Vendor.Roact.oneChild",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/oneChild.lua"
+      "file": "Libraries/_vendor/Roact/src/oneChild.lua"
     },
     {
       "path": "Vendor.Roact.Portal",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Portal.lua"
+      "file": "Libraries/_vendor/Roact/src/Portal.lua"
     },
     {
       "path": "Vendor.Roact.PropMarkers",
@@ -608,32 +608,32 @@
     {
       "path": "Vendor.Roact.PureComponent",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/PureComponent.lua"
+      "file": "Libraries/_vendor/Roact/src/PureComponent.lua"
     },
     {
       "path": "Vendor.Roact.RobloxRenderer",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/RobloxRenderer.lua"
+      "file": "Libraries/_vendor/Roact/src/RobloxRenderer.lua"
     },
     {
       "path": "Vendor.Roact.SingleEventManager",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/SingleEventManager.lua"
+      "file": "Libraries/_vendor/Roact/src/SingleEventManager.lua"
     },
     {
       "path": "Vendor.Roact.strict",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/strict.lua"
+      "file": "Libraries/_vendor/Roact/src/strict.lua"
     },
     {
       "path": "Vendor.Roact.Symbol",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Symbol.lua"
+      "file": "Libraries/_vendor/Roact/src/Symbol.lua"
     },
     {
       "path": "Vendor.Roact.Type",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/Type.lua"
+      "file": "Libraries/_vendor/Roact/src/Type.lua"
     },
     {
       "path": "Libraries.Cryo.Dictionary.join",
@@ -762,22 +762,22 @@
     {
       "path": "Vendor.Roact.PropMarkers.Change",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/PropMarkers/Change.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Change.lua"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Children",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/PropMarkers/Children.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Children.lua"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Event",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/PropMarkers/Event.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Event.lua"
     },
     {
       "path": "Vendor.Roact.PropMarkers.Ref",
       "className": "ModuleScript",
-      "file": "Vendor/Roact/src/PropMarkers/Ref.lua"
+      "file": "Libraries/_vendor/Roact/src/PropMarkers/Ref.lua"
     }
   ]
 }

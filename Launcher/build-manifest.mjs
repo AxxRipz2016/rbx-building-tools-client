@@ -104,16 +104,33 @@ for (const entry of fs.readdirSync(librariesDir, { withFileTypes: true })) {
   }
 }
 
-// Roact vendor — папка src маппится в Vendor.Roact (как в default.project.json)
+function copyLuaTree(fromDir, toDir) {
+  fs.mkdirSync(toDir, { recursive: true });
+  for (const entry of fs.readdirSync(fromDir, { withFileTypes: true })) {
+    const fromPath = path.join(fromDir, entry.name);
+    const toPath = path.join(toDir, entry.name);
+    if (entry.isDirectory()) {
+      copyLuaTree(fromPath, toPath);
+    } else if (entry.name.endsWith(".lua") && !shouldSkipFile(entry.name)) {
+      fs.copyFileSync(fromPath, toPath);
+    }
+  }
+}
+
+// Roact vendor — копируем в Libraries/_vendor для публикации на GitHub (submodule не отдаёт raw)
 function walkRoactVendor() {
-  const relativeDir = path.join("Vendor", "Roact", "src");
-  const absoluteDir = path.join(root, relativeDir);
-  if (!fs.existsSync(absoluteDir)) {
+  const sourceDir = path.join(root, "Vendor", "Roact", "src");
+  const publishedDir = path.join(root, "Libraries", "_vendor", "Roact", "src");
+  if (!fs.existsSync(sourceDir)) {
     warnings.push("Vendor/Roact не найден. Выполни: git submodule update --init --recursive");
     return;
   }
 
+  copyLuaTree(sourceDir, publishedDir);
+  const relativeDir = path.join("Libraries", "_vendor", "Roact", "src");
+  const absoluteDir = publishedDir;
   const instancePath = "Vendor.Roact";
+
   addEntry(instancePath, "ModuleScript", path.join(relativeDir, "init.lua"));
 
   for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
