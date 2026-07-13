@@ -22,7 +22,7 @@ local CONFIG = {
 	toolName = "Building Tools",
 }
 
-local CACHE_BUST = "20260713c"
+local CACHE_BUST = "20260713d"
 
 local ROACT_VENDOR_PREFIX = "Vendor/Roact/src/"
 local ROACT_PUBLISHED_PREFIX = "Libraries/_vendor/Roact/src/"
@@ -227,6 +227,35 @@ local function buildTool(manifest)
 	return tool
 end
 
+local function disableClientScripts(tool)
+	for _, descendant in ipairs(tool:GetDescendants()) do
+		if descendant:IsA("LocalScript") then
+			descendant.Disabled = true
+		end
+	end
+end
+
+local function bootstrapTool(tool)
+	local loaded = tool:WaitForChild("Loaded")
+	local descendantCount = loaded:FindFirstChild("DescendantCount")
+
+	if descendantCount and descendantCount.Value > 0 then
+		while #tool:GetDescendants() < descendantCount.Value do
+			RunService.Heartbeat:Wait()
+		end
+	end
+
+	loaded.Value = true
+
+	local syncAPI = tool:WaitForChild("SyncAPI")
+	local syncModule = require(syncAPI:WaitForChild("SyncModule"))
+	syncAPI.OnInvoke = function(...)
+		return syncModule.PerformAction(Players.LocalPlayer, ...)
+	end
+
+	require(tool:WaitForChild("Loader"))
+end
+
 local function loadGui()
 	local ok, guiApi = pcall(function()
 		local guiSource = fetchFileSource("Launcher/gui.lua")
@@ -278,6 +307,7 @@ local function main()
 		end
 
 		local tool = buildTool(manifest)
+		disableClientScripts(tool)
 
 		local backpack = player:WaitForChild("Backpack")
 		local existing = backpack:FindFirstChild(tool.Name)
@@ -286,6 +316,13 @@ local function main()
 		end
 
 		tool.Parent = backpack
+
+		if gui then
+			gui.setStatus("Инициализация Tool…")
+			gui.setFile("Loader / SyncAPI / Core")
+		end
+
+		bootstrapTool(tool)
 		return tool
 	end)
 
