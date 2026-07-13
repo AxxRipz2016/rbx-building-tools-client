@@ -318,7 +318,7 @@ function MapSaverPanel:render()
 			Unions = self:renderCheckbox(1, "Сохранять Union", self.state.settings.includeUnions, function()
 				self:updateSettings({ includeUnions = not self.state.settings.includeUnions })
 			end),
-			OnlyMine = self:renderCheckbox(2, "Только мои постройки (BTUserId)", self.state.settings.onlyMine, function()
+			OnlyMine = self:renderCheckbox(2, "Только мои постройки (BTUserId) (устар.)", self.state.settings.onlyMine, function()
 				self:updateSettings({ onlyMine = not self.state.settings.onlyMine })
 			end),
 			AutoLoad = self:renderCheckbox(3, "Автозагрузка при входе", self.state.settings.autoLoad, function()

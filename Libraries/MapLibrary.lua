@@ -473,14 +473,15 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 	local items = MapLibrary.collectSerializableItems(roots)
 	items = filterUnions(items, settings.includeUnions ~= false)
 
-	if settings.onlyMine and core.Player then
+	-- Мы никогда не сохраняем "весь мир" как buildData.
+	-- Если onlyMine=true -> только мои объекты.
+	-- Если onlyMine=false -> тоже сохраняем только мои объекты, а изменения чужого мира идут через worldPatch.
+	if core.Player then
 		items = filterOnlyMine(items, core.Player.UserId)
 	end
 
 	if #items == 0 then
-		return nil, settings.onlyMine
-			and "Нет твоих построек (нужен атрибут BTUserId — ставь через кубик)"
-			or "Нет поддерживаемых объектов"
+		return nil, "Нет твоих объектов для сохранения (нужен атрибут BTUserId — ставь/клонируй через кубик)"
 	end
 
 	local parts = {}

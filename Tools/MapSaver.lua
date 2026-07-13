@@ -103,7 +103,18 @@ function MapSaverTool:LoadMap(mapId, replaceExisting)
 end
 
 function MapSaverTool:SaveMap(name, settings)
-	local saved, err = MapLibrary.saveMap(name, Core, settings or SaveSettings, SelectedMapId)
+	local desiredName = type(name) == "string" and name or ""
+	local current = SelectedMapId and MapLibrary.find(SelectedMapId) or nil
+
+	-- Правило:
+	-- - если имя совпадает с выбранной картой -> обновляем её
+	-- - если имя другое -> сохраняем как новую (или обновим по совпадению имени в MapLibrary)
+	local mapId = nil
+	if current and type(current.name) == "string" and current.name:lower() == desiredName:lower() then
+		mapId = current.id
+	end
+
+	local saved, err = MapLibrary.saveMap(desiredName, Core, settings or SaveSettings, mapId)
 	if not saved then
 		return false, err
 	end
