@@ -88,9 +88,26 @@ function MapSaverTool:LoadMap(mapId, replaceExisting)
 	end
 
 	if hasWorldPatch then
+		local patch = MapLibrary.normalizeWorldPatch(map.worldPatch)
 		pcall(function()
 			Core.SyncAPI:Invoke("ClearPlayerBuilds", { ExcludeMapId = map.id })
-			Core.SyncAPI:Invoke("ApplyWorldPatch", MapLibrary.normalizeWorldPatch(map.worldPatch))
+		end)
+
+		task.spawn(function()
+			local lastMissed = nil
+			for attempt = 1, 10 do
+				local result = Core.SyncAPI:Invoke("ApplyWorldPatch", patch)
+				local missed = type(result) == "table" and result.missed or 0
+				if missed == 0 then
+					if attempt > 1 then
+						print("[BT Map] Изменения мира применены с попытки", attempt)
+					end
+					return
+				end
+				lastMissed = missed
+				task.wait(0.75)
+			end
+			warn("[BT Map] Не все изменения мира применились, осталось:", lastMissed or "?")
 		end)
 	end
 

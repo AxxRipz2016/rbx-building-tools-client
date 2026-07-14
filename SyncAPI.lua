@@ -169,6 +169,28 @@ local function captureInstanceIdentity(instance)
 	return identity
 end
 
+local function encodeCFrame(cf)
+	local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
+	return {
+		x = x, y = y, z = z,
+		r00 = r00, r01 = r01, r02 = r02,
+		r10 = r10, r11 = r11, r12 = r12,
+		r20 = r20, r21 = r21, r22 = r22,
+	}
+end
+
+local function decodeCFrame(data)
+	if type(data) ~= "table" or data.x == nil then
+		return nil
+	end
+	return CFrame.new(
+		data.x, data.y, data.z,
+		data.r00, data.r01, data.r02,
+		data.r10, data.r11, data.r12,
+		data.r20, data.r21, data.r22
+	)
+end
+
 local function recordDelete(instance)
 	if not instance then
 		return
@@ -209,52 +231,51 @@ local function recordReplace(instance)
 		return
 	end
 
+	local patch = getPlacePatch()
+	patch.replaced = patch.replaced or {}
+	local identity = captureInstanceIdentity(instance)
+
 	local buildData = serializeInstanceForPatch(instance)
-	if not buildData then
+	if buildData then
+		patch.replaced[identity.fullName] = {
+			fullName = identity.fullName,
+			parentFullName = identity.parentFullName,
+			name = identity.name,
+			className = identity.className,
+			siblingIndex = identity.siblingIndex,
+			position = identity.position,
+			size = identity.size,
+			buildData = buildData,
+		}
+		if patch.props then
+			patch.props[identity.fullName] = nil
+		end
 		return
 	end
 
-	local patch = getPlacePatch()
-	patch.replaced = patch.replaced or {}
-
-	local identity = captureInstanceIdentity(instance)
-	local entry = {
-		fullName = identity.fullName,
-		parentFullName = identity.parentFullName,
-		name = identity.name,
-		className = identity.className,
-		siblingIndex = identity.siblingIndex,
-		position = identity.position,
-		size = identity.size,
-		buildData = buildData,
-	}
-
-	patch.replaced[identity.fullName] = entry
-	if patch.props then
-		patch.props[identity.fullName] = nil
+	if instance:IsA("BasePart") then
+		patch.props = patch.props or {}
+		patch.props[identity.fullName] = {
+			fullName = identity.fullName,
+			parentFullName = identity.parentFullName,
+			name = identity.name,
+			className = identity.className,
+			siblingIndex = identity.siblingIndex,
+			position = identity.position,
+			size = identity.size,
+			Size = { x = instance.Size.X, y = instance.Size.Y, z = instance.Size.Z },
+			CFrame = encodeCFrame(instance.CFrame),
+			Color = { r = instance.Color.r, g = instance.Color.g, b = instance.Color.b },
+			Material = instance.Material.Name,
+			Transparency = instance.Transparency,
+		}
+		if patch.replaced then
+			patch.replaced[identity.fullName] = nil
+		end
+		return
 	end
-end
 
-local function encodeCFrame(cf)
-	local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
-	return {
-		x = x, y = y, z = z,
-		r00 = r00, r01 = r01, r02 = r02,
-		r10 = r10, r11 = r11, r12 = r12,
-		r20 = r20, r21 = r21, r22 = r22,
-	}
-end
-
-local function decodeCFrame(data)
-	if type(data) ~= "table" or data.x == nil then
-		return nil
-	end
-	return CFrame.new(
-		data.x, data.y, data.z,
-		data.r00, data.r01, data.r02,
-		data.r10, data.r11, data.r12,
-		data.r20, data.r21, data.r22
-	)
+	warn("[BT Map] Не удалось записать изменение мира:", identity.fullName, instance.ClassName)
 end
 
 local function resolveByFullName(fullName)
@@ -276,37 +297,94 @@ local function resolveByFullName(fullName)
 	return current
 end
 
-local function matchesIdentityCandidate(instance, identity)
+local WORKSPACE_MATCH_TOLERANCE = 8
+
+local function matchesIdentityCandidate(instance, identity, matchOptions)
 	if type(identity) ~= "table" then
 		return false
 	end
+	matchOptions = type(matchOptions) == "table" and matchOptions or {}
+
 	if identity.className and instance.ClassName ~= identity.className then
 		return false
 	end
 	if identity.name and instance.Name ~= identity.name then
 		return false
 	end
-	if identity.size and instance:IsA("BasePart") then
+	if not matchOptions.ignoreSize and identity.size and instance:IsA("BasePart") then
 		local size = instance.Size
 		if not vectorsNear(size, Vector3.new(identity.size.x, identity.size.y, identity.size.z), 0.05) then
 			return false
 		end
 	end
-	if identity.position then
+	if identity.position and not matchOptions.ignorePosition then
 		local position = identity.position
 		local target = Vector3.new(position.x, position.y, position.z)
 		local actual = instance:IsA("BasePart") and instance.Position
 			or (instance:IsA("Model") and instance:GetPivot().Position)
-		if actual and not vectorsNear(actual, target, POSITION_MATCH_TOLERANCE) then
+		local tolerance = matchOptions.positionTolerance or POSITION_MATCH_TOLERANCE
+		if actual and not vectorsNear(actual, target, tolerance) then
 			return false
 		end
 	end
 	return true
 end
 
-local function resolvePatchInstance(entry)
+local function resolvePatchInstanceInWorkspace(entry, matchOptions)
+	if type(entry) ~= "table" then
+		return nil
+	end
+
+	matchOptions = type(matchOptions) == "table" and matchOptions or {}
+	matchOptions.ignoreSize = true
+	matchOptions.ignorePosition = matchOptions.ignorePosition == true
+	matchOptions.positionTolerance = matchOptions.positionTolerance or WORKSPACE_MATCH_TOLERANCE
+
+	local bestInstance = nil
+	local bestDistance = matchOptions.positionTolerance
+
+	for _, candidate in ipairs(workspace:GetDescendants()) do
+		if candidate:GetAttribute('BTMapId') ~= nil then
+			continue
+		end
+		if not matchesIdentityCandidate(candidate, entry, matchOptions) then
+			continue
+		end
+
+		if matchOptions.ignorePosition or not entry.position then
+			if not bestInstance then
+				bestInstance = candidate
+			end
+			continue
+		end
+
+		local target = Vector3.new(entry.position.x, entry.position.y, entry.position.z)
+		local actual = candidate:IsA("BasePart") and candidate.Position
+			or (candidate:IsA("Model") and candidate:GetPivot().Position)
+		if not actual then
+			continue
+		end
+		local distance = (actual - target).Magnitude
+		if distance <= bestDistance then
+			bestDistance = distance
+			bestInstance = candidate
+		end
+	end
+
+	return bestInstance
+end
+
+local function resolvePatchInstance(entry, forApply)
+	local applyOptions = forApply and {
+		ignoreSize = true,
+		ignorePosition = false,
+		positionTolerance = 50,
+	} or {
+		positionTolerance = POSITION_MATCH_TOLERANCE,
+	}
+
 	if type(entry) == "string" then
-		return resolveByFullName(entry)
+		return resolveByFullName(entry) or resolvePatchInstanceInWorkspace({ fullName = entry }, applyOptions)
 	end
 	if type(entry) ~= "table" then
 		return nil
@@ -320,55 +398,60 @@ local function resolvePatchInstance(entry)
 	end
 
 	local parent = type(entry.parentFullName) == "string" and resolveByFullName(entry.parentFullName)
-	if not parent then
-		return nil
-	end
-
-	if type(entry.siblingIndex) == "number" then
-		local candidate = parent:GetChildren()[entry.siblingIndex]
-		if candidate and matchesIdentityCandidate(candidate, entry) then
-			return candidate
-		end
-	end
-
-	local bestInstance = nil
-	local bestDistance = POSITION_MATCH_TOLERANCE
-
-	local function consider(candidate)
-		if not candidate or not matchesIdentityCandidate(candidate, entry) then
-			return
-		end
-		if not entry.position then
-			bestInstance = candidate
-			bestDistance = 0
-			return
-		end
-		local target = Vector3.new(entry.position.x, entry.position.y, entry.position.z)
-		local actual = candidate:IsA("BasePart") and candidate.Position
-			or (candidate:IsA("Model") and candidate:GetPivot().Position)
-		if not actual then
-			return
-		end
-		local distance = (actual - target).Magnitude
-		if distance <= bestDistance then
-			bestDistance = distance
-			bestInstance = candidate
-		end
-	end
-
-	if entry.name then
-		for _, child in ipairs(parent:GetChildren()) do
-			if child.Name == entry.name then
-				consider(child)
+	if parent then
+		if type(entry.siblingIndex) == "number" then
+			local candidate = parent:GetChildren()[entry.siblingIndex]
+			if candidate and matchesIdentityCandidate(candidate, entry, {
+				ignoreSize = applyOptions.ignoreSize,
+				ignorePosition = forApply == true,
+			}) then
+				return candidate
 			end
 		end
+
+		local bestInstance = nil
+		local bestDistance = applyOptions.positionTolerance
+
+		local function consider(candidate)
+			if not candidate or not matchesIdentityCandidate(candidate, entry, applyOptions) then
+				return
+			end
+			if applyOptions.ignorePosition or not entry.position then
+				bestInstance = candidate
+				bestDistance = 0
+				return
+			end
+			local target = Vector3.new(entry.position.x, entry.position.y, entry.position.z)
+			local actual = candidate:IsA("BasePart") and candidate.Position
+				or (candidate:IsA("Model") and candidate:GetPivot().Position)
+			if not actual then
+				return
+			end
+			local distance = (actual - target).Magnitude
+			if distance <= bestDistance then
+				bestDistance = distance
+				bestInstance = candidate
+			end
+		end
+
+		if entry.name then
+			for _, child in ipairs(parent:GetChildren()) do
+				if child.Name == entry.name then
+					consider(child)
+				end
+			end
+		end
+
+		for _, descendant in ipairs(parent:GetDescendants()) do
+			consider(descendant)
+		end
+
+		if bestInstance then
+			return bestInstance
+		end
 	end
 
-	for _, descendant in ipairs(parent:GetDescendants()) do
-		consider(descendant)
-	end
-
-	return bestInstance
+	return resolvePatchInstanceInWorkspace(entry, applyOptions)
 end
 
 -- Determine whether we're in tool or plugin mode
@@ -611,75 +694,101 @@ Actions = {
 	['ApplyWorldPatch'] = function (WorldPatch)
 		WorldPatch = type(WorldPatch) == 'table' and WorldPatch or nil
 		if not WorldPatch then
-			return false
+			return { applied = 0, missed = 0 }
 		end
 
 		local deleted = type(WorldPatch.deleted) == 'table' and WorldPatch.deleted or {}
 		local replaced = type(WorldPatch.replaced) == 'table' and WorldPatch.replaced or {}
 		local props = type(WorldPatch.props) == 'table' and WorldPatch.props or {}
 
+		local applied = 0
+		local missed = 0
+
 		local function inflateAndParent(buildData, parent)
 			return inflateBuildDataAtParent(buildData, parent)
 		end
 
 		for _, entry in ipairs(deleted) do
-			local inst = resolvePatchInstance(entry)
+			local inst = resolvePatchInstance(entry, true)
 			if inst then
 				inst:Destroy()
+				applied += 1
+			else
+				missed += 1
+				local name = type(entry) == "table" and entry.fullName or tostring(entry)
+				warn("[BT Map] Не найден объект для удаления:", name)
 			end
 		end
 
 		for _, entry in pairs(replaced) do
 			if type(entry) == 'table' and entry.buildData and entry.parentFullName then
-				local inst = resolvePatchInstance(entry)
+				local inst = resolvePatchInstance(entry, true)
 				if inst then
 					inst:Destroy()
+				else
+					missed += 1
+					warn("[BT Map] Не найден объект для замены:", entry.fullName or "?")
 				end
+
 				local parent = resolveByFullName(entry.parentFullName)
-					or (type(entry.parentFullName) == "string" and resolvePatchInstance({ fullName = entry.parentFullName }))
+					or resolvePatchInstance({ fullName = entry.parentFullName }, true)
 				if parent then
 					inflateAndParent(entry.buildData, parent)
+					applied += 1
+				else
+					missed += 1
+					warn("[BT Map] Не найден родитель для замены:", entry.parentFullName or "?")
 				end
 			end
 		end
 
-		for fullName, patch in pairs(props) do
-			local inst = resolvePatchInstance({ fullName = fullName })
-			if inst and type(patch) == 'table' then
+		for fullName, propPatch in pairs(props) do
+			local lookup = type(propPatch) == "table" and propPatch or { fullName = fullName }
+			if lookup.fullName == nil then
+				lookup.fullName = fullName
+			end
+
+			local inst = resolvePatchInstance(lookup, true)
+			if inst and type(propPatch) == 'table' then
 				if inst:IsA('BasePart') then
-					if patch.Size then
+					local sizeData = propPatch.Size or propPatch.size
+					if sizeData then
 						pcall(function()
-							inst.Size = Vector3.new(patch.Size.x, patch.Size.y, patch.Size.z)
+							inst.Size = Vector3.new(sizeData.x, sizeData.y, sizeData.z)
 						end)
 					end
-					if patch.CFrame then
+					if propPatch.CFrame then
 						pcall(function()
-							local cf = decodeCFrame(patch.CFrame)
+							local cf = decodeCFrame(propPatch.CFrame)
 							if cf then
 								inst.CFrame = cf
 							end
 						end)
 					end
-					if patch.Color then
+					if propPatch.Color then
 						pcall(function()
-							inst.Color = Color3.new(patch.Color.r, patch.Color.g, patch.Color.b)
+							inst.Color = Color3.new(propPatch.Color.r, propPatch.Color.g, propPatch.Color.b)
 						end)
 					end
-					if patch.Material then
+					if propPatch.Material then
 						pcall(function()
-							inst.Material = Enum.Material[patch.Material] or inst.Material
+							inst.Material = Enum.Material[propPatch.Material] or inst.Material
 						end)
 					end
-					if patch.Transparency ~= nil then
+					if propPatch.Transparency ~= nil then
 						pcall(function()
-							inst.Transparency = patch.Transparency
+							inst.Transparency = propPatch.Transparency
 						end)
 					end
+					applied += 1
 				end
+			else
+				missed += 1
+				warn("[BT Map] Не найден объект для свойств:", lookup.fullName or fullName)
 			end
 		end
 
-		return true
+		return { applied = applied, missed = missed }
 	end;
 
 	['ClearPlayerBuilds'] = function (Options)
