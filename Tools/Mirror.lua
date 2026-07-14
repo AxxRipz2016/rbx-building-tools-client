@@ -93,10 +93,25 @@ local function getSelectionParts()
 	return Selection.Parts or {}
 end
 
-local function computeOrigin(parts)
+local function computeMirrorOrigin(items, parts)
+	local models = Selection.Models or {}
+	if #models == 1 then
+		return models[1]:GetPivot()
+	end
+
+	if #items == 1 then
+		local item = items[1]
+		if item:IsA("Model") then
+			return item:GetPivot()
+		elseif item:IsA("BasePart") then
+			return item.CFrame
+		end
+	end
+
 	if #parts == 0 then
 		return CFrame.new()
 	end
+
 	local sum = Vector3.new()
 	for _, part in ipairs(parts) do
 		sum += part.Position
@@ -120,41 +135,38 @@ local function reflectCFrame(cf, origin, axis)
 	return getMirrorTransform(origin, axis) * cf
 end
 
-local function buildMoveChanges(parts, origin, axis)
-	local changes = {}
-	for _, part in ipairs(parts) do
+local function appendMirrorChange(changes, instance, origin, axis)
+	if instance:IsA("Model") then
 		table.insert(changes, {
-			Part = part,
-			CFrame = reflectCFrame(part.CFrame, origin, axis),
+			Model = instance,
+			Pivot = reflectCFrame(instance:GetPivot(), origin, axis),
+		})
+	elseif instance:IsA("BasePart") then
+		table.insert(changes, {
+			Part = instance,
+			CFrame = reflectCFrame(instance.CFrame, origin, axis),
 		})
 	end
-	return changes
 end
 
-local function collectBaseParts(instances)
-	local seen = {}
-	local parts = {}
+local function buildMirrorChanges(clones, origin, axis)
+	local changes = {}
 
-	local function add(part)
-		if part and not seen[part] then
-			seen[part] = true
-			table.insert(parts, part)
-		end
-	end
-
-	for _, instance in ipairs(instances) do
-		if not instance then
+	for _, clone in ipairs(clones) do
+		if not clone then
 			continue
 		end
-		if instance:IsA("BasePart") then
-			add(instance)
-		end
-		for _, descendant in ipairs(Support.GetDescendantsWhichAreA(instance, "BasePart")) do
-			add(descendant)
+
+		if clone:IsA("Model") or clone:IsA("BasePart") then
+			appendMirrorChange(changes, clone, origin, axis)
+		else
+			for _, child in ipairs(clone:GetChildren()) do
+				appendMirrorChange(changes, child, origin, axis)
+			end
 		end
 	end
 
-	return parts
+	return changes
 end
 
 function MirrorTool:SetSettings(patch)
@@ -168,23 +180,24 @@ function MirrorTool:GetSettings()
 end
 
 function MirrorTool:ApplyMirror(axis, keepOriginal, groupResult)
+	local items = Selection.Items or {}
 	local parts = getSelectionParts()
 	if #parts == 0 then
 		return false, "Выдели части/модели"
 	end
 
-	local origin = computeOrigin(parts)
-	local clones = cloneSelectionItems(Selection.Items)
+	local origin = computeMirrorOrigin(items, parts)
+	local clones = cloneSelectionItems(items)
 	if #clones == 0 then
 		return false, "Не удалось клонировать"
 	end
 
-	local clonedParts = collectBaseParts(clones)
-	if #clonedParts == 0 then
-		return false, "Не удалось получить части из клонов"
+	local changes = buildMirrorChanges(clones, origin, axis)
+	if #changes == 0 then
+		return false, "Не удалось подготовить зеркалирование"
 	end
 
-	Core.SyncAPI:Invoke("SyncMove", buildMoveChanges(clonedParts, origin, axis))
+	Core.SyncAPI:Invoke("SyncMove", changes)
 
 	if groupResult then
 		Core.SyncAPI:Invoke("CreateGroup", "Model", getCloneParent(clones), clones)
@@ -192,7 +205,7 @@ function MirrorTool:ApplyMirror(axis, keepOriginal, groupResult)
 
 	local removedOriginal = nil
 	if not keepOriginal then
-		removedOriginal = Support.CloneTable(Selection.Items)
+		removedOriginal = Support.CloneTable(items)
 		Core.SyncAPI:Invoke("Remove", removedOriginal)
 	end
 
