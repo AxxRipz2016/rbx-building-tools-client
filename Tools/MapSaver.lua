@@ -89,7 +89,8 @@ function MapSaverTool:LoadMap(mapId, replaceExisting)
 
 	if hasWorldPatch then
 		pcall(function()
-			Core.SyncAPI:Invoke("ApplyWorldPatch", map.worldPatch)
+			Core.SyncAPI:Invoke("ClearPlayerBuilds", { ExcludeMapId = map.id })
+			Core.SyncAPI:Invoke("ApplyWorldPatch", MapLibrary.normalizeWorldPatch(map.worldPatch))
 		end)
 	end
 

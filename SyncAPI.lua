@@ -111,6 +111,24 @@ local function isWorldMapObject(instance)
 	return instance:GetAttribute('BTMapId') == nil and instance:GetAttribute('BTUserId') == nil
 end
 
+local function clearPatchPathsForInstance(patch, instance)
+	local prefix = instance:GetFullName()
+	if patch.replaced then
+		for path in pairs(patch.replaced) do
+			if path == prefix or path:sub(1, #prefix + 1) == prefix .. "." then
+				patch.replaced[path] = nil
+			end
+		end
+	end
+	if patch.props then
+		for path in pairs(patch.props) do
+			if path == prefix or path:sub(1, #prefix + 1) == prefix .. "." then
+				patch.props[path] = nil
+			end
+		end
+	end
+end
+
 local function recordDelete(instance)
 	if not instance then
 		return
@@ -122,14 +140,21 @@ local function recordDelete(instance)
 	end
 
 	local patch = getPlacePatch()
-	local parentName = instance.Parent and instance.Parent:GetFullName() or nil
-	local entry = {
-		fullName = instance:GetFullName(),
-		parentFullName = parentName,
-		buildData = serializeInstanceForPatch(instance),
-	}
+	local fullName = instance:GetFullName()
 
-	table.insert(patch.deleted, entry)
+	for _, entry in ipairs(patch.deleted) do
+		if type(entry) == "table" and entry.fullName == fullName then
+			return
+		elseif entry == fullName then
+			return
+		end
+	end
+
+	clearPatchPathsForInstance(patch, instance)
+
+	table.insert(patch.deleted, {
+		fullName = fullName,
+	})
 end
 
 local function recordReplace(instance)
@@ -468,20 +493,11 @@ Actions = {
 		end
 
 		for _, entry in ipairs(deleted) do
-			if type(entry) == "string" then
-				local inst = resolveByFullName(entry)
+			local fullName = type(entry) == "table" and entry.fullName or entry
+			if type(fullName) == "string" then
+				local inst = resolveByFullName(fullName)
 				if inst then
 					inst:Destroy()
-				end
-			elseif type(entry) == "table" then
-				local inst = resolveByFullName(entry.fullName)
-				if inst then
-					inst:Destroy()
-				elseif entry.buildData and entry.parentFullName then
-					local parent = resolveByFullName(entry.parentFullName)
-					if parent then
-						inflateAndParent(entry.buildData, parent)
-					end
 				end
 			end
 		end
@@ -536,6 +552,52 @@ Actions = {
 		end
 
 		return true
+	end;
+
+	['ClearPlayerBuilds'] = function (Options)
+		Options = type(Options) == 'table' and Options or {}
+		local userId = Player and Player.UserId
+		if not userId then
+			return 0
+		end
+
+		local excludeMapId = Options.ExcludeMapId
+		local marked = {}
+		local toDestroy = {}
+
+		for _, inst in ipairs(workspace:GetDescendants()) do
+			if inst:GetAttribute('BTUserId') ~= userId then
+				continue
+			end
+			if excludeMapId and inst:GetAttribute('BTMapId') == excludeMapId then
+				continue
+			end
+
+			local root = inst
+			while root.Parent and root.Parent ~= workspace do
+				local parent = root.Parent
+				if parent:GetAttribute('BTUserId') == userId
+					and (not excludeMapId or parent:GetAttribute('BTMapId') ~= excludeMapId)
+				then
+					root = parent
+				else
+					break
+				end
+			end
+
+			if not marked[root] then
+				marked[root] = true
+				table.insert(toDestroy, root)
+			end
+		end
+
+		for _, inst in ipairs(toDestroy) do
+			if inst.Parent then
+				inst:Destroy()
+			end
+		end
+
+		return #toDestroy
 	end;
 
 	['ReplaceParts'] = function (TemplateBuildData, Parts, Options)

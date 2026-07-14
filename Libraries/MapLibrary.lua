@@ -40,6 +40,60 @@ function MapLibrary.getWorldPatchForPlace(placeId)
 	return store[tostring(placeId)]
 end
 
+function MapLibrary.clearWorldPatchForPlace(placeId)
+	local store = getWorldPatchStore()
+	store[tostring(placeId)] = { deleted = {}, props = {}, replaced = {} }
+end
+
+function MapLibrary.normalizeWorldPatch(patch)
+	if type(patch) ~= "table" then
+		return nil
+	end
+
+	local normalized = {
+		deleted = {},
+		props = type(patch.props) == "table" and patch.props or {},
+		replaced = type(patch.replaced) == "table" and patch.replaced or {},
+	}
+
+	local deletedNames = {}
+	for _, entry in ipairs(type(patch.deleted) == "table" and patch.deleted or {}) do
+		local fullName = type(entry) == "table" and entry.fullName or entry
+		if type(fullName) == "string" and not deletedNames[fullName] then
+			deletedNames[fullName] = true
+			table.insert(normalized.deleted, { fullName = fullName })
+		end
+	end
+
+	for path in pairs(normalized.replaced) do
+		local remove = false
+		for deletedName in pairs(deletedNames) do
+			if path == deletedName or path:sub(1, #deletedName + 1) == deletedName .. "." then
+				remove = true
+				break
+			end
+		end
+		if remove then
+			normalized.replaced[path] = nil
+		end
+	end
+
+	for path in pairs(normalized.props) do
+		local remove = false
+		for deletedName in pairs(deletedNames) do
+			if path == deletedName or path:sub(1, #deletedName + 1) == deletedName .. "." then
+				remove = true
+				break
+			end
+		end
+		if remove then
+			normalized.props[path] = nil
+		end
+	end
+
+	return normalized
+end
+
 function MapLibrary.isWorldPatchEmpty(patch)
 	if not patch or type(patch) ~= "table" then
 		return true
@@ -579,6 +633,11 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 
 	if not hasWorldPatch and settings.saveWorldChanges == true then
 		worldPatch = nil
+	elseif hasWorldPatch then
+		worldPatch = MapLibrary.normalizeWorldPatch(worldPatch)
+		if MapLibrary.isWorldPatchEmpty(worldPatch) then
+			worldPatch = nil
+		end
 	end
 
 	local now = os.time()
@@ -605,6 +664,11 @@ function MapLibrary.saveMap(name, core, settings, mapId)
 	if not saved then
 		return nil, err
 	end
+
+	if settings.saveWorldChanges == true then
+		MapLibrary.clearWorldPatchForPlace(game.PlaceId)
+	end
+
 	return saved
 end
 
