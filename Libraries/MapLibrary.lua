@@ -61,7 +61,19 @@ function MapLibrary.normalizeWorldPatch(patch)
 		local fullName = type(entry) == "table" and entry.fullName or entry
 		if type(fullName) == "string" and not deletedNames[fullName] then
 			deletedNames[fullName] = true
-			table.insert(normalized.deleted, { fullName = fullName })
+			if type(entry) == "table" then
+				table.insert(normalized.deleted, {
+					fullName = fullName,
+					parentFullName = entry.parentFullName,
+					name = entry.name,
+					className = entry.className,
+					siblingIndex = entry.siblingIndex,
+					position = entry.position,
+					size = entry.size,
+				})
+			else
+				table.insert(normalized.deleted, { fullName = fullName })
+			end
 		end
 	end
 

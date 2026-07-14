@@ -152,9 +152,7 @@ local function recordDelete(instance)
 
 	clearPatchPathsForInstance(patch, instance)
 
-	table.insert(patch.deleted, {
-		fullName = fullName,
-	})
+	table.insert(patch.deleted, captureInstanceIdentity(instance))
 end
 
 local function recordReplace(instance)
@@ -179,24 +177,21 @@ local function recordReplace(instance)
 	local patch = getPlacePatch()
 	patch.replaced = patch.replaced or {}
 
-	local fullName = instance:GetFullName()
+	local identity = captureInstanceIdentity(instance)
 	local entry = {
-		fullName = fullName,
-		parentFullName = parent:GetFullName(),
+		fullName = identity.fullName,
+		parentFullName = identity.parentFullName,
+		name = identity.name,
+		className = identity.className,
+		siblingIndex = identity.siblingIndex,
+		position = identity.position,
+		size = identity.size,
 		buildData = buildData,
 	}
 
-	if instance:IsA("BasePart") then
-		local position = instance.Position
-		entry.position = { x = position.X, y = position.Y, z = position.Z }
-	elseif instance:IsA("Model") then
-		local position = instance:GetPivot().Position
-		entry.position = { x = position.X, y = position.Y, z = position.Z }
-	end
-
-	patch.replaced[fullName] = entry
+	patch.replaced[identity.fullName] = entry
 	if patch.props then
-		patch.props[fullName] = nil
+		patch.props[identity.fullName] = nil
 	end
 end
 
@@ -239,6 +234,141 @@ local function resolveByFullName(fullName)
 		end
 	end
 	return current
+end
+
+local POSITION_MATCH_TOLERANCE = 1.5
+
+local function vectorsNear(a, b, tolerance)
+	tolerance = tolerance or POSITION_MATCH_TOLERANCE
+	return math.abs(a.X - b.X) <= tolerance
+		and math.abs(a.Y - b.Y) <= tolerance
+		and math.abs(a.Z - b.Z) <= tolerance
+end
+
+local function captureInstanceIdentity(instance)
+	local parent = instance.Parent
+	local identity = {
+		fullName = instance:GetFullName(),
+		parentFullName = parent and parent:GetFullName() or nil,
+		name = instance.Name,
+		className = instance.ClassName,
+	}
+
+	if parent then
+		for index, child in ipairs(parent:GetChildren()) do
+			if child == instance then
+				identity.siblingIndex = index
+				break
+			end
+		end
+	end
+
+	if instance:IsA("BasePart") then
+		local position = instance.Position
+		local size = instance.Size
+		identity.position = { x = position.X, y = position.Y, z = position.Z }
+		identity.size = { x = size.X, y = size.Y, z = size.Z }
+	elseif instance:IsA("Model") then
+		local position = instance:GetPivot().Position
+		identity.position = { x = position.X, y = position.Y, z = position.Z }
+	end
+
+	return identity
+end
+
+local function matchesIdentityCandidate(instance, identity)
+	if type(identity) ~= "table" then
+		return false
+	end
+	if identity.className and instance.ClassName ~= identity.className then
+		return false
+	end
+	if identity.name and instance.Name ~= identity.name then
+		return false
+	end
+	if identity.size and instance:IsA("BasePart") then
+		local size = instance.Size
+		if not vectorsNear(size, Vector3.new(identity.size.x, identity.size.y, identity.size.z), 0.05) then
+			return false
+		end
+	end
+	if identity.position then
+		local position = identity.position
+		local target = Vector3.new(position.x, position.y, position.z)
+		local actual = instance:IsA("BasePart") and instance.Position
+			or (instance:IsA("Model") and instance:GetPivot().Position)
+		if actual and not vectorsNear(actual, target, POSITION_MATCH_TOLERANCE) then
+			return false
+		end
+	end
+	return true
+end
+
+local function resolvePatchInstance(entry)
+	if type(entry) == "string" then
+		return resolveByFullName(entry)
+	end
+	if type(entry) ~= "table" then
+		return nil
+	end
+
+	if type(entry.fullName) == "string" then
+		local direct = resolveByFullName(entry.fullName)
+		if direct then
+			return direct
+		end
+	end
+
+	local parent = type(entry.parentFullName) == "string" and resolveByFullName(entry.parentFullName)
+	if not parent then
+		return nil
+	end
+
+	if type(entry.siblingIndex) == "number" then
+		local candidate = parent:GetChildren()[entry.siblingIndex]
+		if candidate and matchesIdentityCandidate(candidate, entry) then
+			return candidate
+		end
+	end
+
+	local bestInstance = nil
+	local bestDistance = POSITION_MATCH_TOLERANCE
+
+	local function consider(candidate)
+		if not candidate or not matchesIdentityCandidate(candidate, entry) then
+			return
+		end
+		if not entry.position then
+			bestInstance = candidate
+			bestDistance = 0
+			return
+		end
+		local target = Vector3.new(entry.position.x, entry.position.y, entry.position.z)
+		local actual = candidate:IsA("BasePart") and candidate.Position
+			or (candidate:IsA("Model") and candidate:GetPivot().Position)
+		if not actual then
+			return
+		end
+		local distance = (actual - target).Magnitude
+		if distance <= bestDistance then
+			bestDistance = distance
+			bestInstance = candidate
+		end
+	end
+
+	if entry.name then
+		for _, child in ipairs(parent:GetChildren()) do
+			if child.Name == entry.name then
+				consider(child)
+			end
+		end
+	end
+
+	for _, descendant in ipairs(parent:GetDescendants()) do
+		consider(descendant)
+	end
+
+	return bestInstance
 end
 
 -- Determine whether we're in tool or plugin mode
@@ -493,22 +623,20 @@ Actions = {
 		end
 
 		for _, entry in ipairs(deleted) do
-			local fullName = type(entry) == "table" and entry.fullName or entry
-			if type(fullName) == "string" then
-				local inst = resolveByFullName(fullName)
-				if inst then
-					inst:Destroy()
-				end
+			local inst = resolvePatchInstance(entry)
+			if inst then
+				inst:Destroy()
 			end
 		end
 
 		for _, entry in pairs(replaced) do
 			if type(entry) == 'table' and entry.buildData and entry.parentFullName then
-				local inst = resolveByFullName(entry.fullName)
+				local inst = resolvePatchInstance(entry)
 				if inst then
 					inst:Destroy()
 				end
 				local parent = resolveByFullName(entry.parentFullName)
+					or (type(entry.parentFullName) == "string" and resolvePatchInstance({ fullName = entry.parentFullName }))
 				if parent then
 					inflateAndParent(entry.buildData, parent)
 				end
@@ -516,7 +644,7 @@ Actions = {
 		end
 
 		for fullName, patch in pairs(props) do
-			local inst = resolveByFullName(fullName)
+			local inst = resolvePatchInstance({ fullName = fullName })
 			if inst and type(patch) == 'table' then
 				if inst:IsA('BasePart') then
 					if patch.Size then
