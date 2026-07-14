@@ -12,6 +12,7 @@ Security = require(Tool.Core.Security);
 RegionModule = require(Tool.Libraries.Region);
 Support = require(Tool.Libraries.SupportLibrary);
 Serialization = require(Tool.Libraries.SerializationV3);
+local InstancePath = require(Tool.Libraries.InstancePathLibrary);
 
 -- Import services
 Support.ImportServices();
@@ -111,20 +112,27 @@ local function isWorldMapObject(instance)
 	return instance:GetAttribute('BTMapId') == nil and instance:GetAttribute('BTUserId') == nil
 end
 
+local function getPatchKey(instance)
+	return InstancePath.getSafePath(instance) or instance:GetFullName()
+end
+
 local function clearPatchPathsForInstance(patch, instance)
-	local prefix = instance:GetFullName()
-	if patch.replaced then
-		for path in pairs(patch.replaced) do
-			if path == prefix or path:sub(1, #prefix + 1) == prefix .. "." then
-				patch.replaced[path] = nil
-			end
+	local prefix = getPatchKey(instance)
+	local fullName = instance:GetFullName()
+	for path in pairs(patch.replaced or {}) do
+		if path == prefix or path == fullName
+			or path:sub(1, #prefix + 1) == prefix .. "."
+			or path:sub(1, #fullName + 1) == fullName .. "."
+		then
+			patch.replaced[path] = nil
 		end
 	end
-	if patch.props then
-		for path in pairs(patch.props) do
-			if path == prefix or path:sub(1, #prefix + 1) == prefix .. "." then
-				patch.props[path] = nil
-			end
+	for path in pairs(patch.props or {}) do
+		if path == prefix or path == fullName
+			or path:sub(1, #prefix + 1) == prefix .. "."
+			or path:sub(1, #fullName + 1) == fullName .. "."
+		then
+			patch.props[path] = nil
 		end
 	end
 end
@@ -142,7 +150,9 @@ local function captureInstanceIdentity(instance)
 	local parent = instance.Parent
 	local identity = {
 		fullName = instance:GetFullName(),
+		safePath = InstancePath.getSafePath(instance),
 		parentFullName = parent and parent:GetFullName() or nil,
+		parentSafePath = parent and InstancePath.getSafePath(parent) or nil,
 		name = instance.Name,
 		className = instance.ClassName,
 	}
@@ -202,12 +212,13 @@ local function recordDelete(instance)
 	end
 
 	local patch = getPlacePatch()
-	local fullName = instance:GetFullName()
+	local identity = captureInstanceIdentity(instance)
+	local patchKey = identity.safePath or identity.fullName
 
 	for _, entry in ipairs(patch.deleted) do
-		if type(entry) == "table" and entry.fullName == fullName then
+		if type(entry) == "table" and (entry.safePath == patchKey or entry.fullName == identity.fullName) then
 			return
-		elseif entry == fullName then
+		elseif entry == patchKey or entry == identity.fullName then
 			return
 		end
 	end
@@ -234,12 +245,15 @@ local function recordReplace(instance)
 	local patch = getPlacePatch()
 	patch.replaced = patch.replaced or {}
 	local identity = captureInstanceIdentity(instance)
+	local patchKey = identity.safePath or identity.fullName
 
 	local buildData = serializeInstanceForPatch(instance)
 	if buildData then
-		patch.replaced[identity.fullName] = {
+		patch.replaced[patchKey] = {
 			fullName = identity.fullName,
+			safePath = identity.safePath,
 			parentFullName = identity.parentFullName,
+			parentSafePath = identity.parentSafePath,
 			name = identity.name,
 			className = identity.className,
 			siblingIndex = identity.siblingIndex,
@@ -248,6 +262,7 @@ local function recordReplace(instance)
 			buildData = buildData,
 		}
 		if patch.props then
+			patch.props[patchKey] = nil
 			patch.props[identity.fullName] = nil
 		end
 		return
@@ -255,9 +270,11 @@ local function recordReplace(instance)
 
 	if instance:IsA("BasePart") then
 		patch.props = patch.props or {}
-		patch.props[identity.fullName] = {
+		patch.props[patchKey] = {
 			fullName = identity.fullName,
+			safePath = identity.safePath,
 			parentFullName = identity.parentFullName,
+			parentSafePath = identity.parentSafePath,
 			name = identity.name,
 			className = identity.className,
 			siblingIndex = identity.siblingIndex,
@@ -270,12 +287,13 @@ local function recordReplace(instance)
 			Transparency = instance.Transparency,
 		}
 		if patch.replaced then
+			patch.replaced[patchKey] = nil
 			patch.replaced[identity.fullName] = nil
 		end
 		return
 	end
 
-	warn("[BT Map] Не удалось записать изменение мира:", identity.fullName, instance.ClassName)
+	warn("[BT Map] Не удалось записать изменение мира:", patchKey, instance.ClassName)
 end
 
 local function resolveByFullName(fullName)
@@ -384,10 +402,19 @@ local function resolvePatchInstance(entry, forApply)
 	}
 
 	if type(entry) == "string" then
-		return resolveByFullName(entry) or resolvePatchInstanceInWorkspace({ fullName = entry }, applyOptions)
+		return InstancePath.resolveSafePath(entry)
+			or resolveByFullName(entry)
+			or resolvePatchInstanceInWorkspace({ fullName = entry }, applyOptions)
 	end
 	if type(entry) ~= "table" then
 		return nil
+	end
+
+	if type(entry.safePath) == "string" then
+		local direct = InstancePath.resolveSafePath(entry.safePath)
+		if direct then
+			return direct
+		end
 	end
 
 	if type(entry.fullName) == "string" then
@@ -397,7 +424,13 @@ local function resolvePatchInstance(entry, forApply)
 		end
 	end
 
-	local parent = type(entry.parentFullName) == "string" and resolveByFullName(entry.parentFullName)
+	local parent = nil
+	if type(entry.parentSafePath) == "string" then
+		parent = InstancePath.resolveSafePath(entry.parentSafePath)
+	end
+	if not parent and type(entry.parentFullName) == "string" then
+		parent = resolveByFullName(entry.parentFullName)
+	end
 	if parent then
 		if type(entry.siblingIndex) == "number" then
 			local candidate = parent:GetChildren()[entry.siblingIndex]
@@ -715,29 +748,34 @@ Actions = {
 				applied += 1
 			else
 				missed += 1
-				local name = type(entry) == "table" and entry.fullName or tostring(entry)
-				warn("[BT Map] Не найден объект для удаления:", name)
+				warn("[BT Map] Не найден объект для удаления:", type(entry) == "table" and (entry.safePath or entry.fullName) or tostring(entry))
 			end
 		end
 
 		for _, entry in pairs(replaced) do
-			if type(entry) == 'table' and entry.buildData and entry.parentFullName then
+			if type(entry) == 'table' and entry.buildData and (entry.parentFullName or entry.parentSafePath) then
 				local inst = resolvePatchInstance(entry, true)
 				if inst then
 					inst:Destroy()
 				else
 					missed += 1
-					warn("[BT Map] Не найден объект для замены:", entry.fullName or "?")
+					warn("[BT Map] Не найден объект для замены:", entry.safePath or entry.fullName or "?")
 				end
 
-				local parent = resolveByFullName(entry.parentFullName)
-					or resolvePatchInstance({ fullName = entry.parentFullName }, true)
+				local parent = nil
+				if type(entry.parentSafePath) == "string" then
+					parent = InstancePath.resolveSafePath(entry.parentSafePath)
+				end
+				if not parent and type(entry.parentFullName) == "string" then
+					parent = resolveByFullName(entry.parentFullName)
+						or resolvePatchInstance({ fullName = entry.parentFullName, safePath = entry.parentSafePath }, true)
+				end
 				if parent then
 					inflateAndParent(entry.buildData, parent)
 					applied += 1
 				else
 					missed += 1
-					warn("[BT Map] Не найден родитель для замены:", entry.parentFullName or "?")
+					warn("[BT Map] Не найден родитель для замены:", entry.parentSafePath or entry.parentFullName or "?")
 				end
 			end
 		end

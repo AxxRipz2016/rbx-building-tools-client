@@ -6,8 +6,8 @@
   },
   "toolVersion": "3.1.0-client",
   "toolName": "Пиратский куб",
-  "generatedAt": "2026-07-14T05:46:08.732Z",
-  "entryCount": 168,
+  "generatedAt": "2026-07-14T13:41:37.747Z",
+  "entryCount": 169,
   "entries": [
     {
       "path": "Assets",
@@ -165,6 +165,12 @@
       "version": "6cc170f464e4"
     },
     {
+      "path": "Libraries.InstancePathLibrary",
+      "className": "ModuleScript",
+      "file": "Libraries/InstancePathLibrary.lua",
+      "version": "2141cdad98e4"
+    },
+    {
       "path": "Libraries.InstancePool",
       "className": "ModuleScript",
       "file": "Libraries/InstancePool.lua",
@@ -186,7 +192,7 @@
       "path": "Libraries.MapLibrary",
       "className": "ModuleScript",
       "file": "Libraries/MapLibrary.lua",
-      "version": "156c82ea8c72"
+      "version": "a34b4069ee67"
     },
     {
       "path": "Libraries.Region",
@@ -263,7 +269,7 @@
       "path": "SyncAPI.SyncModule",
       "className": "ModuleScript",
       "file": "SyncAPI.lua",
-      "version": "05d65da4c93a"
+      "version": "7c685128039c"
     },
     {
       "path": "Tools.Anchor",
@@ -311,7 +317,7 @@
       "path": "Tools.Mirror",
       "className": "ModuleScript",
       "file": "Tools/Mirror.lua",
-      "version": "2708d75057bd"
+      "version": "a4ea54c4b897"
     },
     {
       "path": "Tools.Move",

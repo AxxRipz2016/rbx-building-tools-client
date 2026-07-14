@@ -56,15 +56,25 @@ function MapLibrary.normalizeWorldPatch(patch)
 		replaced = type(patch.replaced) == "table" and patch.replaced or {},
 	}
 
-	local deletedNames = {}
+	local deletedKeys = {}
 	for _, entry in ipairs(type(patch.deleted) == "table" and patch.deleted or {}) do
 		local fullName = type(entry) == "table" and entry.fullName or entry
-		if type(fullName) == "string" and not deletedNames[fullName] then
-			deletedNames[fullName] = true
+		local safePath = type(entry) == "table" and entry.safePath or nil
+		local dedupeKey = safePath or fullName
+		if type(dedupeKey) == "string" and not deletedKeys[dedupeKey] then
+			deletedKeys[dedupeKey] = true
+			if type(fullName) == "string" then
+				deletedNames[fullName] = true
+			end
+			if type(safePath) == "string" then
+				deletedNames[safePath] = true
+			end
 			if type(entry) == "table" then
 				table.insert(normalized.deleted, {
 					fullName = fullName,
+					safePath = safePath,
 					parentFullName = entry.parentFullName,
+					parentSafePath = entry.parentSafePath,
 					name = entry.name,
 					className = entry.className,
 					siblingIndex = entry.siblingIndex,
@@ -72,7 +82,7 @@ function MapLibrary.normalizeWorldPatch(patch)
 					size = entry.size,
 				})
 			else
-				table.insert(normalized.deleted, { fullName = fullName })
+				table.insert(normalized.deleted, { fullName = fullName, safePath = safePath })
 			end
 		end
 	end
