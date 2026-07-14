@@ -57,6 +57,7 @@ function MapLibrary.normalizeWorldPatch(patch)
 	}
 
 	local deletedKeys = {}
+	local deletedNames = {}
 	for _, entry in ipairs(type(patch.deleted) == "table" and patch.deleted or {}) do
 		local fullName = type(entry) == "table" and entry.fullName or entry
 		local safePath = type(entry) == "table" and entry.safePath or nil
