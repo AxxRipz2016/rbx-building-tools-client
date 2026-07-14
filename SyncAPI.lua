@@ -129,6 +129,46 @@ local function clearPatchPathsForInstance(patch, instance)
 	end
 end
 
+local POSITION_MATCH_TOLERANCE = 1.5
+
+local function vectorsNear(a, b, tolerance)
+	tolerance = tolerance or POSITION_MATCH_TOLERANCE
+	return math.abs(a.X - b.X) <= tolerance
+		and math.abs(a.Y - b.Y) <= tolerance
+		and math.abs(a.Z - b.Z) <= tolerance
+end
+
+local function captureInstanceIdentity(instance)
+	local parent = instance.Parent
+	local identity = {
+		fullName = instance:GetFullName(),
+		parentFullName = parent and parent:GetFullName() or nil,
+		name = instance.Name,
+		className = instance.ClassName,
+	}
+
+	if parent then
+		for index, child in ipairs(parent:GetChildren()) do
+			if child == instance then
+				identity.siblingIndex = index
+				break
+			end
+		end
+	end
+
+	if instance:IsA("BasePart") then
+		local position = instance.Position
+		local size = instance.Size
+		identity.position = { x = position.X, y = position.Y, z = position.Z }
+		identity.size = { x = size.X, y = size.Y, z = size.Z }
+	elseif instance:IsA("Model") then
+		local position = instance:GetPivot().Position
+		identity.position = { x = position.X, y = position.Y, z = position.Z }
+	end
+
+	return identity
+end
+
 local function recordDelete(instance)
 	if not instance then
 		return
@@ -234,46 +274,6 @@ local function resolveByFullName(fullName)
 		end
 	end
 	return current
-end
-
-local POSITION_MATCH_TOLERANCE = 1.5
-
-local function vectorsNear(a, b, tolerance)
-	tolerance = tolerance or POSITION_MATCH_TOLERANCE
-	return math.abs(a.X - b.X) <= tolerance
-		and math.abs(a.Y - b.Y) <= tolerance
-		and math.abs(a.Z - b.Z) <= tolerance
-end
-
-local function captureInstanceIdentity(instance)
-	local parent = instance.Parent
-	local identity = {
-		fullName = instance:GetFullName(),
-		parentFullName = parent and parent:GetFullName() or nil,
-		name = instance.Name,
-		className = instance.ClassName,
-	}
-
-	if parent then
-		for index, child in ipairs(parent:GetChildren()) do
-			if child == instance then
-				identity.siblingIndex = index
-				break
-			end
-		end
-	end
-
-	if instance:IsA("BasePart") then
-		local position = instance.Position
-		local size = instance.Size
-		identity.position = { x = position.X, y = position.Y, z = position.Z }
-		identity.size = { x = size.X, y = size.Y, z = size.Z }
-	elseif instance:IsA("Model") then
-		local position = instance:GetPivot().Position
-		identity.position = { x = position.X, y = position.Y, z = position.Z }
-	end
-
-	return identity
 end
 
 local function matchesIdentityCandidate(instance, identity)
